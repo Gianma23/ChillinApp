@@ -25,6 +25,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -315,7 +316,7 @@ fun LogInCard(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ){
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .weight(1f)
                     .height(1.dp)
@@ -325,7 +326,7 @@ fun LogInCard(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp)
             )
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .weight(1f)
                     .height(1.dp)
