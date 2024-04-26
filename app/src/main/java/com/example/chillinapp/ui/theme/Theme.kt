@@ -1,4 +1,4 @@
-package com.example.compose
+package com.example.chillinapp.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -73,7 +73,7 @@ private val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun AppTheme(
+fun ChillInAppTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable() () -> Unit
 ) {
@@ -85,6 +85,7 @@ fun AppTheme(
 
     MaterialTheme(
         colorScheme = colors,
+        typography = Typography,
         content = content
     )
 }
