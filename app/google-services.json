@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "367629068374",
+    "project_id": "chillinapp-a5b5b",
+    "storage_bucket": "chillinapp-a5b5b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367629068374:android:f75d2377c1def5fc6873f7",
+        "android_client_info": {
+          "package_name": "com.example.chillinapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1xbGC_MONlxcsDbRLn1V2Y3enxYy6Qpc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
