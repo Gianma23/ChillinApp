@@ -14,6 +14,7 @@ interface AppContainer {
  * [AppContainer] implementation that provides instance of [FirebaseAccountRepository]
  */
 class AppDataContainer() : AppContainer {
+
     /**
      * Implementation for [AccountRepository]
      */

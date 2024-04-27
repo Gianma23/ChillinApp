@@ -152,6 +152,7 @@ fun LogInScreen(
         AccessStatus.SUCCESS -> {
             Column(
                 verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(28.dp)
                     .fillMaxSize()
@@ -165,7 +166,6 @@ fun LogInScreen(
                         }
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
                 ) {
                     Text(text = stringResource(R.string.login_notify_success_text))
                 }

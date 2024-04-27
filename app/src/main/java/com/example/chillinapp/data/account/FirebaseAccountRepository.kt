@@ -1,6 +1,6 @@
 package com.example.chillinapp.data.account
 
-class FirebaseAccountRepository(): AccountRepository {
+class FirebaseAccountRepository: AccountRepository {
 
     /*TODO: implement account creation */
     override fun createAccount(account: Account): Boolean = false
