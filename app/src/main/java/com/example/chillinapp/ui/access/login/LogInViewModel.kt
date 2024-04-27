@@ -2,6 +2,7 @@ package com.example.chillinapp.ui.access.login
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.chillinapp.data.account.AccountRepository
 import com.example.chillinapp.ui.access.utility.AccessStatus
 import com.example.chillinapp.ui.access.utility.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.PasswordValidationResult
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class LogInViewModel: ViewModel() {
+class LogInViewModel(private val accountRepository: AccountRepository): ViewModel() {
 
     private val _uiState = MutableStateFlow(LogInUiState())
     val uiState: StateFlow<LogInUiState> = _uiState.asStateFlow()
@@ -145,18 +146,22 @@ class LogInViewModel: ViewModel() {
     }
 
     private fun authenticate(email: String, password: String) {
-        
-        /*TODO: implement authentication*/
+
+        /*TODO: improve authentication*/
+        val result = accountRepository.credentialAuth(email, password)
+
         _uiState.update { logInUiState ->
             when {
-                email == "admin" && password == "admin" -> {
+                result.success -> {
                     logInUiState.copy(
-                        logInStatus = AccessStatus.SUCCESS
+                        logInStatus = AccessStatus.SUCCESS,
+                        authenticationResult = result
                     )
                 }
                 else -> {
                     logInUiState.copy(
-                        logInStatus = AccessStatus.FAILURE
+                        logInStatus = AccessStatus.FAILURE,
+                        authenticationResult = result
                     )
                 }
             }

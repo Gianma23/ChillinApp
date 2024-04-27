@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.access.AccessHeader
 import com.example.chillinapp.ui.access.utility.AccessStatus
 import com.example.chillinapp.ui.access.utility.EmailSupportingText
@@ -74,7 +75,7 @@ fun LogInScreen(
     navigateToSignInScreen: () -> Unit = {},
     navigateToPswRecoveryScreen: () -> Unit = {},
     navigateToHomeScreen: (String) -> Unit = {},
-    logInViewModel: LogInViewModel = viewModel()
+    logInViewModel: LogInViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     val logInUiState by logInViewModel.uiState.collectAsState()
