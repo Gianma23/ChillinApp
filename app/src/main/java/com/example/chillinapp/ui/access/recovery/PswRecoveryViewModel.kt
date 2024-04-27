@@ -2,7 +2,8 @@ package com.example.chillinapp.ui.access.recovery
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.chillinapp.ui.access.AccessStatus
+import com.example.chillinapp.ui.access.utility.AccessStatus
+import com.example.chillinapp.ui.access.utility.EmailValidationResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,89 +15,54 @@ class PswRecoveryViewModel: ViewModel() {
     val uiState: StateFlow<PswRecoveryUiState> = _uiState.asStateFlow()
 
     companion object{
-        private enum class EmailValidationResult {
-            VALID,
-            TOO_LONG,
-            EMPTY,
-            INVALID_FORMAT
-        }
-        private const val MAX_EMAIL_LENGTH: Int = 200
+        private const val MAX_INPUT_LENGTH: Int = 254
     }
 
     fun updateEmail(email: String) {
         idleAccessStatus()
 
-        val validationResult = emailValidation(email)
-        when (validationResult) {
-            EmailValidationResult.VALID -> _uiState.value = _uiState.value.copy(
-                emailErrorMessage = ""
-            )
-            EmailValidationResult.EMPTY -> _uiState.value = _uiState.value.copy(
-                emailErrorMessage = "Email is empty."
-            )
-            EmailValidationResult.TOO_LONG -> _uiState.value = _uiState.value.copy(
-                emailErrorMessage = "Max $MAX_EMAIL_LENGTH characters."
-            )
-            EmailValidationResult.INVALID_FORMAT -> _uiState.value = _uiState.value.copy(
-                emailErrorMessage = "Invalid email format."
-            )
-        }
-        _uiState.value = _uiState.value.copy(
-            email = email,
-            isEmailValid = validationResult == EmailValidationResult.VALID,
-        )
-        updateButton()
-
-        Log.d("PswRecoveryViewModel", "Email: ${_uiState.value.email} Validity: ${_uiState.value.isEmailValid}")
-
-    }
-
-    private fun updateButton(){
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(
-                isButtonEnabled = pswRecoveryUiState.isEmailValid && pswRecoveryUiState.email.isNotEmpty()
+                email = email,
+                emailStatus = emailValidation(email),
             )
         }
+
+        updateButton()
+
+        Log.d("PswRecoveryViewModel", "Email: ${_uiState.value.email} Validity: ${_uiState.value.emailStatus}")
+
     }
 
     private fun emailValidation(email: String): EmailValidationResult {
         return when {
             email.isEmpty() -> EmailValidationResult.EMPTY
-            email.length > MAX_EMAIL_LENGTH -> EmailValidationResult.TOO_LONG
-            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> EmailValidationResult.INVALID_FORMAT
+            email.length > MAX_INPUT_LENGTH -> EmailValidationResult.TOO_LONG
             else -> EmailValidationResult.VALID
         }
     }
 
-    fun recover(){
+    private fun updateButton(){
+        _uiState.update { pswRecoveryUiState ->
+            pswRecoveryUiState.copy(
+                isButtonEnabled = _uiState.value.emailStatus == EmailValidationResult.VALID
+            )
+        }
+    }
 
+    fun recover(){
         idleAccessStatus()
 
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(
-                isRecoveryLoading = true,
-                isRecoveryError = false,
+                recoveryStatus = AccessStatus.LOADING,
                 isButtonEnabled = false,
-                recoveryErrorMessage = ""
             )
         }
 
-        if(send(_uiState.value.email)) {
-            _uiState.update { pswRecoveryUiState ->
-                pswRecoveryUiState.copy(
-                    isRecoveryLoading = false,
-                    recoveryStatus = AccessStatus.SUCCESS
-                )
-            }
-        } else {
-            _uiState.update { pswRecoveryUiState ->
-                pswRecoveryUiState.copy(
-                    isRecoveryLoading = false,
-                    isRecoveryError = true,
-                    recoveryStatus = AccessStatus.FAILURE
-                )
-            }
-        }
+        send(_uiState.value.email)
+
+        Log.d("PswRecoveryViewModel", "Snackbar status: ${_uiState.value.recoveryStatus}")
 
     }
 
@@ -111,9 +77,23 @@ class PswRecoveryViewModel: ViewModel() {
 
     }
 
-    private fun send(email: String): Boolean {
-        /*TODO: implement email recovery*/
-        return email == "admin@gmail.com"
+    private fun send(email: String) {
+        /*TODO: implement recovery*/
+
+        _uiState.update { logInUiState ->
+            when {
+                email == "admin" -> {
+                    logInUiState.copy(
+                        recoveryStatus = AccessStatus.SUCCESS
+                    )
+                }
+                else -> {
+                    logInUiState.copy(
+                        recoveryStatus = AccessStatus.FAILURE
+                    )
+                }
+            }
+        }
     }
 
 }

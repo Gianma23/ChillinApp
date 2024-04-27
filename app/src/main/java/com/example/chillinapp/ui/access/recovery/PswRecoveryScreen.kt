@@ -22,15 +22,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +43,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.access.AccessHeader
-import com.example.chillinapp.ui.access.AccessStatus
+import com.example.chillinapp.ui.access.utility.AccessStatus
+import com.example.chillinapp.ui.access.utility.EmailSupportingText
+import com.example.chillinapp.ui.access.utility.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -79,7 +81,7 @@ fun PswRecoveryScreen(
 
             AccessHeader(
                 titleRes = PswRecoveryDestination.titleRes,
-                title = "Change password"
+                title = stringResource(R.string.password_recovery_header)
             )
 
             Column(
@@ -97,26 +99,19 @@ fun PswRecoveryScreen(
                         value = pswRecoveryUiState.email,
                         onValueChange = { pswRecoveryViewModel.updateEmail(it) },
                         label = {
-                            Text("Email")
+                            Text(stringResource(R.string.email_label))
                         },
                         leadingIcon = {
-                            Icon(Icons.Filled.Email, contentDescription = "Email")
+                            Icon(Icons.Filled.Email, contentDescription = stringResource(R.string.email_label))
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
                             imeAction = ImeAction.Next
                         ),
                         singleLine = true,
-                        isError = !pswRecoveryUiState.isEmailValid,
-                        supportingText = {
-                            if (!pswRecoveryUiState.isEmailValid) {
-                                Text(
-                                    text = "Please enter a valid email address",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        },
+                        isError = pswRecoveryUiState.emailStatus != EmailValidationResult.VALID &&
+                                pswRecoveryUiState.emailStatus != EmailValidationResult.IDLE,
+                        supportingText = { EmailSupportingText(pswRecoveryUiState.emailStatus) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 16.dp)
@@ -134,7 +129,7 @@ fun PswRecoveryScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Recover password",
+                            text = stringResource(R.string.password_recovery_button_text),
                             fontSize = MaterialTheme.typography.labelLarge.fontSize
                         )
                     }
@@ -155,7 +150,7 @@ fun PswRecoveryScreen(
                     ) {
 
                         Text(
-                            text = "Don't have an account?",
+                            text = stringResource(R.string.don_t_have_an_account),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Light
@@ -171,7 +166,7 @@ fun PswRecoveryScreen(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                 ) {
-                                    append("Sign Up")
+                                    append(stringResource(R.string.registration_link))
                                 }
                             },
                             onClick = { navigateToSignInScreen() },
@@ -187,7 +182,7 @@ fun PswRecoveryScreen(
                     ) {
 
                         Text(
-                            text = "Already have an account?",
+                            text = stringResource(R.string.already_have_an_account),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Light
@@ -203,7 +198,7 @@ fun PswRecoveryScreen(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                 ) {
-                                    append("Log in")
+                                    append(stringResource(R.string.login_link))
                                 }
                             },
                             onClick = { navigateToLogInScreen() },
@@ -217,49 +212,22 @@ fun PswRecoveryScreen(
 
     when (pswRecoveryUiState.recoveryStatus) {
         AccessStatus.SUCCESS -> {
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier
-                    .padding(28.dp)
-                    .fillMaxSize()
-            ) {
-                Snackbar(
-                    action = {
-                        TextButton(
-                            onClick = { navigateToLogInScreen() }
-                        ) {
-                            Text("Login")
-                        }
-                    },
-                    modifier = Modifier
-                ) {
-                    Text(text = "Password recovery successful!")
-                }
-            }
+            SimpleNotification(
+                action = { navigateToLogInScreen() },
+                buttonText = stringResource(id = R.string.login_link),
+                bodyText = stringResource(R.string.password_recovery_notify_success_text)
+            )
         }
-        AccessStatus.FAILURE -> {
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier
-                    .padding(28.dp)
-                    .fillMaxSize()
-            ) {
-                Snackbar(
-                    action = {
-                        TextButton(
-                            onClick = { pswRecoveryViewModel.idleAccessStatus() }
-                        ) {
-                            Text("Dismiss")
-                        }
-                    },
-                    modifier = Modifier
-                ){
-                    Text("Recovery failed! Please try again.")
-                }
-            }
+        AccessStatus.FAILURE, AccessStatus.GOOGLE_FAILURE -> {
+            SimpleNotification(
+                action = { pswRecoveryViewModel.idleAccessStatus() },
+                buttonText = stringResource(id = R.string.hide_notify_action),
+                bodyText = stringResource(R.string.something_wrong)
+            )
         }
         else -> { }
     }
+
 }
 
 @Preview(showBackground = true)

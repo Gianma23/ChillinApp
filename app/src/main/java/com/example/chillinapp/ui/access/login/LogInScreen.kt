@@ -38,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +54,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.access.AccessHeader
-import com.example.chillinapp.ui.access.AccessStatus
+import com.example.chillinapp.ui.access.utility.AccessStatus
+import com.example.chillinapp.ui.access.utility.EmailSupportingText
+import com.example.chillinapp.ui.access.utility.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.PasswordSupportingText
+import com.example.chillinapp.ui.access.utility.PasswordValidationResult
+import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -91,7 +97,7 @@ fun LogInScreen(
 
             AccessHeader(
                 titleRes = LogInDestination.titleRes,
-                title = "Welcome back!"
+                title = stringResource(R.string.login_header)
             )
 
             Column(
@@ -113,7 +119,7 @@ fun LogInScreen(
                 ) {
 
                     Text(
-                        text = "Don't have an account?",
+                        text = stringResource(R.string.don_t_have_an_account),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Light
@@ -129,7 +135,7 @@ fun LogInScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             ) {
-                                append("Sign Up")
+                                append(stringResource(R.string.registration_link))
                             }
                         },
                         onClick = { navigateToSignInScreen() },
@@ -155,36 +161,23 @@ fun LogInScreen(
                         TextButton(
                             onClick = { navigateToHomeScreen(logInUiState.email) }
                         ) {
-                            Text("Home")
+                            Text(stringResource(R.string.home_link))
                         }
                     },
                     modifier = Modifier
+                        .fillMaxWidth()
                 ) {
-                    Text(text = "Login successful!")
+                    Text(text = stringResource(R.string.login_notify_success_text))
                 }
             }
             navigateToHomeScreen(logInUiState.email)
         }
         AccessStatus.FAILURE -> {
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier
-                    .padding(28.dp)
-                    .fillMaxSize()
-            ) {
-                Snackbar(
-                    action = {
-                        TextButton(
-                            onClick = { logInViewModel.idleAccessStatus() }
-                        ) {
-                            Text("Dismiss")
-                        }
-                    },
-                    modifier = Modifier
-                ){
-                    Text("Login failed! Please try again.")
-                }
-            }
+            SimpleNotification(
+                action = { logInViewModel.idleAccessStatus() },
+                buttonText = stringResource(R.string.hide_notify_action),
+                bodyText = stringResource(R.string.login_notify_failure_text)
+            )
         }
         else -> { }
     }
@@ -220,17 +213,19 @@ fun LogInCard(
                 value = logInUiState.email,
                 onValueChange = { logInViewModel.updateEmail(it) },
                 label = {
-                    Text("Email")
+                    Text(stringResource(R.string.email_label))
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.Email, contentDescription = "Email")
+                    Icon(Icons.Filled.Email, contentDescription = stringResource(R.string.email_label))
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
-                isError = logInUiState.isLogInError,
+                isError = logInUiState.emailStatus != EmailValidationResult.VALID &&
+                        logInUiState.emailStatus != EmailValidationResult.IDLE,
+                supportingText = { EmailSupportingText(logInUiState.emailStatus) },
                 modifier = outlineTextFieldModifier
             )
 
@@ -238,7 +233,7 @@ fun LogInCard(
                 value = logInUiState.password,
                 onValueChange = { logInViewModel.updatePassword(it) },
                 label = {
-                    Text("Password")
+                    Text(stringResource(R.string.password_label))
                 },
                 visualTransformation = if (logInUiState.isPasswordVisible) {
                     VisualTransformation.None
@@ -246,15 +241,21 @@ fun LogInCard(
                     PasswordVisualTransformation()
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.Lock, contentDescription = "Password")
+                    Icon(Icons.Filled.Lock, contentDescription = stringResource(R.string.password_label))
                 },
                 trailingIcon = {
                     val image = if (logInUiState.isPasswordVisible)
                         Icons.Filled.Visibility
                     else Icons.Filled.VisibilityOff
 
+                    val description = if (logInUiState.isPasswordVisible) {
+                        stringResource(R.string.hide_password_description)
+                    } else {
+                        stringResource(R.string.show_password_description)
+                    }
+
                     IconButton(onClick = { logInViewModel.togglePasswordVisibility() }) {
-                        Icon(image, contentDescription = "Show Password")
+                        Icon(image, contentDescription = description)
                     }
                 },
                 keyboardOptions = KeyboardOptions(
@@ -262,16 +263,9 @@ fun LogInCard(
                     imeAction = ImeAction.Done
                 ),
                 singleLine = true,
-                isError = logInUiState.isLogInError,
-                supportingText = {
-                    if (logInUiState.isLogInError) {
-                        Text(
-                            text = logInUiState.logInErrorMessage,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                isError = logInUiState.passwordStatus != PasswordValidationResult.VALID &&
+                        logInUiState.passwordStatus != PasswordValidationResult.IDLE,
+                supportingText = { PasswordSupportingText(logInUiState.passwordStatus) },
                 modifier = outlineTextFieldModifier
             )
 
@@ -285,7 +279,7 @@ fun LogInCard(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     ) {
-                        append("Forgot Password?")
+                        append(stringResource(R.string.password_recovery_link))
                     }
                 },
                 onClick = { navigateToPswRecoveryScreen() },
@@ -303,7 +297,7 @@ fun LogInCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Login",
+                    text = stringResource(R.string.login_button_text),
                     fontSize = MaterialTheme.typography.labelLarge.fontSize
                 )
             }
@@ -321,7 +315,7 @@ fun LogInCard(
                     .height(1.dp)
             )
             Text(
-                text = "or",
+                text = stringResource(R.string.divider_or),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp)
             )
@@ -346,17 +340,19 @@ fun LogInCard(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    text = "G",
+                    text = stringResource(R.string.google_logo),
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.labelLarge.fontSize
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "|"
+                    text = stringResource(R.string.in_text_divider)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "Login with Google"
+                    text = stringResource(R.string.login_button_text) +
+                            " " +
+                            stringResource(R.string.with_google_button_text),
                 )
 
             }
