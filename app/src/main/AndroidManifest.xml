@@ -14,7 +14,7 @@
             android:theme="@style/Theme.ChillinApp"
             tools:targetApi="31">
         <activity
-                android:name=".MainActivity"
+                android:name=".ChillInActivity"
                 android:exported="true"
                 android:theme="@style/Theme.ChillinApp">
             <intent-filter>
