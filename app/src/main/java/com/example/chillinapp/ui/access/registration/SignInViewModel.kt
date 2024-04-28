@@ -2,7 +2,7 @@ package com.example.chillinapp.ui.access.registration
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.chillinapp.data.account.AccountRepository
+import com.example.chillinapp.data.account.AccountService
 import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class SignInViewModel(private val accountRepository: AccountRepository): ViewModel() {
+class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
     private val _uiState = MutableStateFlow(SignInUiState())
     val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
@@ -165,14 +165,14 @@ class SignInViewModel(private val accountRepository: AccountRepository): ViewMod
             )
         }
 
-        val result = accountRepository.googleAuth()
+        val result = accountService.googleAuth()
 
         _uiState.update { logInUiState ->
             logInUiState.copy(
-                registrationResult = result,
-                isSignUpButtonEnabled = true,
+                registrationResult = result
             )
         }
+        updateSignUpButton()
 
     }
     
@@ -186,7 +186,7 @@ class SignInViewModel(private val accountRepository: AccountRepository): ViewMod
             )
         }
         
-        val result = accountRepository.createAccount(
+        val result = accountService.createAccount(
             account = _uiState.value.account
         )
 

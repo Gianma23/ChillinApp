@@ -1,25 +1,24 @@
 package com.example.chillinapp.data
 
-import com.example.chillinapp.data.account.AccountRepository
-import com.example.chillinapp.data.account.FirebaseAccountDao
-import com.example.chillinapp.data.account.FirebaseAccountRepository
+import com.example.chillinapp.data.account.AccountService
+import com.example.chillinapp.data.account.FirebaseAccountService
 
 /**
  * App container for Dependency injection.
  */
 interface AppContainer {
-    val accountRepository: AccountRepository
+    val accountService: AccountService
 }
 
 /**
- * [AppContainer] implementation that provides instance of [FirebaseAccountRepository]
+ * [AppContainer] implementation that provides instance of [FirebaseAccountService]
  */
-class AppDataContainer() : AppContainer {
+class AppDataContainer : AppContainer {
 
     /**
-     * Implementation for [AccountRepository]
+     * Implementation for [AccountService]
      */
-    override val accountRepository: AccountRepository by lazy {
-        FirebaseAccountRepository()
+    override val accountService: AccountService by lazy {
+        FirebaseAccountService()
     }
 }

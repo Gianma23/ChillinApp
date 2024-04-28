@@ -2,7 +2,7 @@ package com.example.chillinapp.data.account
 
 import com.example.chillinapp.data.ServiceResult
 
-class FirebaseAccountRepository: AccountRepository {
+class FirebaseAccountService: AccountService {
 
     /*TODO: implement account creation */
     override fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType> =
@@ -17,7 +17,7 @@ class FirebaseAccountRepository: AccountRepository {
         )
 
     /*TODO: implement credential authentication */
-    override fun credentialAuth(email: String, password: String): ServiceResult<Unit, AccountErrorType> =
+    override fun credentialAuth(email: String, encryptedPsw: String): ServiceResult<Unit, AccountErrorType> =
         ServiceResult(
             success = false
         )
