@@ -2,6 +2,9 @@ package com.example.chillinapp.ui.access.registration
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.chillinapp.data.AppContainer
+import com.example.chillinapp.data.account.Account
 import com.example.chillinapp.ui.access.utility.AccessStatus
 import com.example.chillinapp.ui.access.utility.ConfirmPasswordValidationResult
 import com.example.chillinapp.ui.access.utility.EmailValidationResult
@@ -11,8 +14,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class SignInViewModel: ViewModel() {
+class SignInViewModel(private val appContainer: AppContainer): ViewModel() {
 
     private val _uiState = MutableStateFlow(SignInUiState())
     val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
@@ -181,7 +185,21 @@ class SignInViewModel: ViewModel() {
             _uiState.value.email,
             _uiState.value.password
         )
+        val email = _uiState.value.email
+        val password = _uiState.value.password
+        val name=_uiState.value.name
+        viewModelScope.launch {
+            val sucess=appContainer.accountRepository.createAccount(Account(name,email,password))
+            if(sucess){
+                Log.d("FROM MODEL TO REPO", "SUCCESS")
+            }
+            else
+                Log.d("FROM MODEL TO REPO", "NO GOOD")
+
+        }
+
     }
+
 
     private fun signIn(
         email: String,
