@@ -48,6 +48,9 @@ class PswRecoveryViewModel(private val accountService: AccountService): ViewMode
                 isButtonEnabled = _uiState.value.emailStatus == EmailValidationResult.VALID
             )
         }
+
+        Log.d("PswRecoveryViewModel", "Button Enabled: ${_uiState.value.isButtonEnabled}")
+
     }
 
     fun recover(){
@@ -65,9 +68,11 @@ class PswRecoveryViewModel(private val accountService: AccountService): ViewMode
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(
                 recoveryResult = result,
-                isButtonEnabled = true
+                isButtonEnabled = !result.success
             )
         }
+
+        Log.d("PswRecoveryViewModel", "Recovery Result: ${_uiState.value.recoveryResult}")
 
     }
 
@@ -77,6 +82,9 @@ class PswRecoveryViewModel(private val accountService: AccountService): ViewMode
                 recoveryResult = null
             )
         }
+
+        Log.d("PswRecoveryViewModel", "Idle Result")
+
     }
 
 }

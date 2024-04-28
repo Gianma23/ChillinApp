@@ -71,6 +71,9 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
         _uiState.value = _uiState.value.copy(
             isPasswordVisible = !_uiState.value.isPasswordVisible
         )
+
+        Log.d("LogInViewModel", "Password Visibility: ${_uiState.value.isPasswordVisible}")
+
     }
     
     private fun updateLogInButton() {
@@ -81,6 +84,9 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
                         logInUiState.passwordStatus == PasswordValidationResult.VALID
             )
         }
+
+        Log.d("LogInViewModel", "LogIn Button Enabled: ${_uiState.value.isLogInButtonEnabled}")
+
     }
     
     private fun anyEmptyField(): Boolean {
@@ -106,6 +112,8 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
         }
         updateLogInButton()
 
+        Log.d("LogInViewModel", "Google Login: ${_uiState.value.authenticationResult}")
+
     }
 
     fun login() {
@@ -126,9 +134,11 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
         _uiState.update { logInUiState ->
             logInUiState.copy(
                 authenticationResult = result,
-                isLogInButtonEnabled = true
+                isLogInButtonEnabled = !result.success
             )
         }
+
+        Log.d("LogInViewModel", "Login: ${_uiState.value.authenticationResult}")
         
     }
 
@@ -139,5 +149,8 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
                 authenticationResult = null
             )
         }
+
+        Log.d("LogInViewModel", "Idle Result")
+
     }
 }
