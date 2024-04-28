@@ -1,11 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    // Add the dependency for the Google services Gradle plugin
     id("com.google.gms.google-services")
-
-
-
 }
 
 android {
@@ -64,9 +60,7 @@ dependencies {
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.7")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.material:material-icons-extended:1.6.6")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("androidx.compose.material3:material3-android:1.2.1")
-
+    implementation("com.google.firebase:firebase-firestore-ktx:24.11.1")
 
     testImplementation("junit:junit:4.13.2")
 
@@ -77,6 +71,7 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation ("com.google.firebase:firebase-firestore-ktx:24.11.1")

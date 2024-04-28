@@ -1,18 +1,14 @@
 package com.example.chillinapp.ui.access.recovery
 
-import com.example.chillinapp.ui.access.AccessStatus
+import com.example.chillinapp.ui.access.utility.AccessStatus
+import com.example.chillinapp.ui.access.utility.EmailValidationResult
 
 data class PswRecoveryUiState (
     val email: String = "",
 
-    val isEmailValid: Boolean = true,
-    val emailErrorMessage: String = "",
+    val emailStatus: EmailValidationResult = EmailValidationResult.IDLE,
 
     val isButtonEnabled: Boolean = false,
-
-    val isRecoveryLoading: Boolean = false,
-    val isRecoveryError: Boolean = false,
-    val recoveryErrorMessage: String = "",
 
     val recoveryStatus: AccessStatus = AccessStatus.IDLE
 )

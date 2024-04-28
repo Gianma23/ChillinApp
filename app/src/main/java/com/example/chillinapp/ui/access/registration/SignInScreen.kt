@@ -30,15 +30,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -54,7 +53,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.access.AccessHeader
-import com.example.chillinapp.ui.access.AccessStatus
+import com.example.chillinapp.ui.access.utility.AccessStatus
+import com.example.chillinapp.ui.access.utility.ConfirmPasswordSupportingText
+import com.example.chillinapp.ui.access.utility.ConfirmPasswordValidationResult
+import com.example.chillinapp.ui.access.utility.EmailSupportingText
+import com.example.chillinapp.ui.access.utility.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.NameSupportingText
+import com.example.chillinapp.ui.access.utility.NameValidationResult
+import com.example.chillinapp.ui.access.utility.SimpleNotification
+import com.example.chillinapp.ui.access.utility.PasswordSupportingText
+import com.example.chillinapp.ui.access.utility.PasswordValidationResult
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -90,7 +98,7 @@ fun SignInScreen(
 
             AccessHeader(
                 titleRes = SignInDestination.titleRes,
-                title = "Create an Account"
+                title = stringResource(R.string.registration_header)
             )
 
             Column(
@@ -111,7 +119,7 @@ fun SignInScreen(
                 ) {
 
                     Text(
-                        text = "Already have an account?",
+                        text = stringResource(R.string.already_have_an_account),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Light
@@ -127,7 +135,7 @@ fun SignInScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             ) {
-                                append("Log in")
+                                append(stringResource(R.string.login_link))
                             }
                         },
                         onClick = { navigateToLogInScreen() }
@@ -140,74 +148,27 @@ fun SignInScreen(
         }
     }
 
-    Notification(
-        status = signInUiState.registrationStatus,
-        successAction = navigateToLogInScreen,
-        successButton = "Login",
-        successText = "Registration successful!",
-        failAction = { signInViewModel.idleAccessStatus() },
-        failButton = "Dismiss",
-        failText = "Registration failed! Please try again."
-    )
 
-}
-
-@Composable
-fun Notification(
-    status: AccessStatus = AccessStatus.IDLE,
-    successAction: () -> Unit = {},
-    successButton: String = "Dismiss",
-    successText: String = "Success!",
-    failAction: () -> Unit = {},
-    failButton: String = "Dismiss",
-    failText: String = "Failure!"
-){
-    when (status) {
+    when (signInUiState.registrationStatus) {
         AccessStatus.SUCCESS -> {
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier
-                    .padding(28.dp)
-                    .fillMaxSize()
-            ) {
-                Snackbar(
-                    action = {
-                        TextButton(
-                            onClick = { successAction() }
-                        ) {
-                            Text(text = successButton)
-                        }
-                    },
-                    modifier = Modifier
-                ) {
-                    Text(text = successText)
-                }
-            }
+            SimpleNotification(
+                action = { navigateToLogInScreen() },
+                buttonText = stringResource(id = R.string.login_link),
+                bodyText = stringResource(R.string.registration_notify_success_text)
+            )
         }
-        AccessStatus.FAILURE -> {
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier
-                    .padding(28.dp)
-                    .fillMaxSize()
-            ) {
-                Snackbar(
-                    action = {
-                        TextButton(
-                            onClick = { failAction() }
-                        ) {
-                            Text(text = failButton)
-                        }
-                    },
-                    modifier = Modifier
-                ) {
-                    Text(text = failText)
-                }
-            }
+        AccessStatus.FAILURE, AccessStatus.GOOGLE_FAILURE -> {
+            SimpleNotification(
+                action = { signInViewModel.idleAccessStatus() },
+                buttonText = stringResource(id = R.string.hide_notify_action),
+                bodyText = stringResource(R.string.something_wrong)
+            )
         }
         else -> { }
     }
+
 }
+
 
 @Composable
 fun SignInCard(
@@ -236,26 +197,19 @@ fun SignInCard(
                 value = signInUiState.name,
                 onValueChange = { signInViewModel.updateName(it) },
                 label = {
-                    Text("Name")
+                    Text(stringResource(R.string.name_label))
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.Person, contentDescription = "First name")
+                    Icon(Icons.Filled.Person, contentDescription = stringResource(R.string.name_label))
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
-                isError = !signInUiState.isNameValid,
-                supportingText = {
-                    if (!signInUiState.isNameValid) {
-                        Text(
-                            text = signInUiState.nameErrorMessage,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                isError = signInUiState.nameStatus != NameValidationResult.VALID &&
+                        signInUiState.nameStatus != NameValidationResult.IDLE,
+                supportingText = { NameSupportingText(signInUiState.nameStatus) },
                 modifier = outlineTextFieldModifier
             )
 
@@ -263,26 +217,19 @@ fun SignInCard(
                 value = signInUiState.email,
                 onValueChange = { signInViewModel.updateEmail(it) },
                 label = {
-                    Text("Email")
+                    Text(stringResource(id = R.string.email_label))
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.Email, contentDescription = "Email")
+                    Icon(Icons.Filled.Email, contentDescription = stringResource(id = R.string.email_label))
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
-                isError = !signInUiState.isEmailValid,
-                supportingText = {
-                    if (!signInUiState.isEmailValid) {
-                        Text(
-                            text = signInUiState.emailErrorMessage,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                isError = signInUiState.emailStatus != EmailValidationResult.VALID &&
+                        signInUiState.emailStatus != EmailValidationResult.IDLE,
+                supportingText = { EmailSupportingText(signInUiState.emailStatus) },
                 modifier = outlineTextFieldModifier
             )
 
@@ -290,7 +237,7 @@ fun SignInCard(
                 value = signInUiState.password,
                 onValueChange = { signInViewModel.updatePassword(it) },
                 label = {
-                    Text("Password")
+                    Text(stringResource(id = R.string.password_label))
                 },
                 visualTransformation = if (signInUiState.isPasswordVisible) {
                     VisualTransformation.None
@@ -298,15 +245,20 @@ fun SignInCard(
                     PasswordVisualTransformation()
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.Lock, contentDescription = "Password")
+                    Icon(Icons.Filled.Lock, contentDescription = stringResource(id = R.string.password_label))
                 },
                 trailingIcon = {
                     val image = if (!signInUiState.isPasswordVisible)
                         Icons.Filled.Visibility
                     else Icons.Filled.VisibilityOff
 
+                    val description = if (signInUiState.isPasswordVisible) {
+                        stringResource(R.string.hide_password_description)
+                    } else {
+                        stringResource(R.string.show_password_description)
+                    }
                     IconButton(onClick = { signInViewModel.togglePasswordVisibility() }) {
-                        Icon(image, contentDescription = "Show Password")
+                        Icon(image, contentDescription = description)
                     }
                 },
                 keyboardOptions = KeyboardOptions(
@@ -314,16 +266,9 @@ fun SignInCard(
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
-                isError = !signInUiState.isPasswordValid,
-                supportingText = {
-                    if (!signInUiState.isPasswordValid) {
-                        Text(
-                            text = signInUiState.passwordErrorMessage,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                isError = signInUiState.passwordStatus != PasswordValidationResult.VALID &&
+                        signInUiState.passwordStatus != PasswordValidationResult.IDLE,
+                supportingText = { PasswordSupportingText(signInUiState.passwordStatus) },
                 modifier = outlineTextFieldModifier
             )
 
@@ -332,7 +277,7 @@ fun SignInCard(
                 value = signInUiState.confirmPassword,
                 onValueChange = { signInViewModel.updateConfirmPassword(it) },
                 label = {
-                    Text("Confirm password")
+                    Text(stringResource(R.string.confirm_password_label))
                 },
                 visualTransformation = if (signInUiState.isConfirmPasswordVisible) {
                     VisualTransformation.None
@@ -340,15 +285,20 @@ fun SignInCard(
                     PasswordVisualTransformation()
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.Lock, contentDescription = "Confirm password")
+                    Icon(Icons.Filled.Lock, contentDescription = stringResource(R.string.confirm_password_label))
                 },
                 trailingIcon = {
-                    val image = if (!signInUiState.isPasswordVisible)
+                    val image = if (!signInUiState.isConfirmPasswordVisible)
                         Icons.Filled.Visibility
                     else Icons.Filled.VisibilityOff
 
+                    val description = if (signInUiState.isConfirmPasswordVisible) {
+                        stringResource(R.string.hide_confirm_password_description)
+                    } else {
+                        stringResource(R.string.show_confirm_password_description)
+                    }
                     IconButton(onClick = { signInViewModel.toggleConfirmPasswordVisibility() }) {
-                        Icon(image, contentDescription = "Show Confirm Password")
+                        Icon(image, contentDescription = description)
                     }
                 },
                 keyboardOptions = KeyboardOptions(
@@ -356,16 +306,9 @@ fun SignInCard(
                     imeAction = ImeAction.Done
                 ),
                 singleLine = true,
-                isError = !signInUiState.isConfirmPasswordValid,
-                supportingText = {
-                    if (!signInUiState.isConfirmPasswordValid) {
-                        Text(
-                            text = signInUiState.confirmPasswordErrorMessage,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                isError = signInUiState.confirmPasswordStatus != ConfirmPasswordValidationResult.VALID &&
+                        signInUiState.confirmPasswordStatus != ConfirmPasswordValidationResult.IDLE,
+                supportingText = { ConfirmPasswordSupportingText(signInUiState.confirmPasswordStatus)},
                 modifier = outlineTextFieldModifier
             )
 
@@ -381,7 +324,7 @@ fun SignInCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Sign up",
+                    text = stringResource(R.string.registration_button_text),
                     fontSize = MaterialTheme.typography.labelLarge.fontSize
                 )
             }
@@ -399,7 +342,7 @@ fun SignInCard(
                     .height(1.dp)
             )
             Text(
-                text = "or",
+                text = stringResource(R.string.divider_or),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp)
             )
@@ -424,23 +367,26 @@ fun SignInCard(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    text = "G",
+                    text = stringResource(R.string.google_logo),
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.labelLarge.fontSize
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "|"
+                    text = stringResource(R.string.in_text_divider)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "Sign in with Google"
+                    text = stringResource(R.string.registration_button_text) +
+                            " " +
+                            stringResource(R.string.with_google_button_text),
                 )
 
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
