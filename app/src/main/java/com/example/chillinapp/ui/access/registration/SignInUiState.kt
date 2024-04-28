@@ -1,17 +1,17 @@
 package com.example.chillinapp.ui.access.registration
 
-import com.example.chillinapp.ui.access.utility.AccessStatus
-import com.example.chillinapp.ui.access.utility.ConfirmPasswordValidationResult
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
-import com.example.chillinapp.ui.access.utility.NameValidationResult
-import com.example.chillinapp.ui.access.utility.PasswordValidationResult
+import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.account.Account
+import com.example.chillinapp.data.account.AccountErrorType
+import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 
 
 data class SignInUiState (
 
-    val email: String = "",
-    val password: String = "",
-    val name: String = "",
+    val account: Account = Account(),
     val confirmPassword: String = "",
 
     val nameStatus: NameValidationResult = NameValidationResult.IDLE,
@@ -24,6 +24,6 @@ data class SignInUiState (
 
     val isSignUpButtonEnabled: Boolean = false,
 
-    val registrationStatus: AccessStatus = AccessStatus.IDLE
+    val registrationResult: ServiceResult<Unit, AccountErrorType>? = null
 
 )

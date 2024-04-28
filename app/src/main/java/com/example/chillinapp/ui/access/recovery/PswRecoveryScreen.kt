@@ -42,10 +42,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.access.AccessHeader
-import com.example.chillinapp.ui.access.utility.AccessStatus
 import com.example.chillinapp.ui.access.utility.EmailSupportingText
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
@@ -60,7 +60,7 @@ fun PswRecoveryScreen(
     modifier: Modifier = Modifier,
     navigateToLogInScreen: () -> Unit = {},
     navigateToSignInScreen: () -> Unit = {},
-    pswRecoveryViewModel: PswRecoveryViewModel = viewModel()
+    pswRecoveryViewModel: PswRecoveryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     val pswRecoveryUiState by pswRecoveryViewModel.uiState.collectAsState()
@@ -210,19 +210,20 @@ fun PswRecoveryScreen(
     }
 
 
-    when (pswRecoveryUiState.recoveryStatus) {
-        AccessStatus.SUCCESS -> {
+    when (pswRecoveryUiState.recoveryResult?.success) {
+        true -> {
             SimpleNotification(
                 action = { navigateToLogInScreen() },
                 buttonText = stringResource(id = R.string.login_link),
                 bodyText = stringResource(R.string.password_recovery_notify_success_text)
             )
         }
-        AccessStatus.FAILURE, AccessStatus.GOOGLE_FAILURE -> {
+        false -> {
             SimpleNotification(
-                action = { pswRecoveryViewModel.idleAccessStatus() },
+                action = { pswRecoveryViewModel.idleResult() },
                 buttonText = stringResource(id = R.string.hide_notify_action),
-                bodyText = stringResource(R.string.something_wrong)
+                bodyText = pswRecoveryUiState.recoveryResult?.error?.message ?:
+                    stringResource(R.string.notify_failure_text)
             )
         }
         else -> { }

@@ -5,6 +5,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 
 
 @Composable

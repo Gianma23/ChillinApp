@@ -55,11 +55,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.access.AccessHeader
-import com.example.chillinapp.ui.access.utility.AccessStatus
 import com.example.chillinapp.ui.access.utility.EmailSupportingText
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.PasswordSupportingText
-import com.example.chillinapp.ui.access.utility.PasswordValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
@@ -149,8 +148,8 @@ fun LogInScreen(
         }
     }
 
-    when (logInUiState.logInStatus) {
-        AccessStatus.SUCCESS -> {
+    when (logInUiState.authenticationResult?.success) {
+         true -> {
             Column(
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -173,11 +172,12 @@ fun LogInScreen(
             }
             navigateToHomeScreen(logInUiState.email)
         }
-        AccessStatus.FAILURE -> {
+        false -> {
             SimpleNotification(
-                action = { logInViewModel.idleAccessStatus() },
+                action = { logInViewModel.idleResult() },
                 buttonText = stringResource(R.string.hide_notify_action),
-                bodyText = stringResource(R.string.login_notify_failure_text)
+                bodyText = logInUiState.authenticationResult?.error?.message ?:
+                    stringResource(R.string.notify_failure_text),
             )
         }
         else -> { }
@@ -289,7 +289,7 @@ fun LogInCard(
             Spacer(modifier = Modifier.size(28.dp))
 
             Button(
-                onClick = { logInViewModel.inputLogin() },
+                onClick = { logInViewModel.login() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary

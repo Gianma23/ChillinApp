@@ -52,17 +52,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.access.AccessHeader
-import com.example.chillinapp.ui.access.utility.AccessStatus
 import com.example.chillinapp.ui.access.utility.ConfirmPasswordSupportingText
-import com.example.chillinapp.ui.access.utility.ConfirmPasswordValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
 import com.example.chillinapp.ui.access.utility.EmailSupportingText
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.NameSupportingText
-import com.example.chillinapp.ui.access.utility.NameValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
 import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.access.utility.PasswordSupportingText
-import com.example.chillinapp.ui.access.utility.PasswordValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -75,7 +75,7 @@ object SignInDestination : NavigationDestination {
 fun SignInScreen(
     modifier: Modifier = Modifier,
     navigateToLogInScreen: () -> Unit = {},
-    signInViewModel: SignInViewModel = viewModel()
+    signInViewModel: SignInViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     val signInUiState by signInViewModel.uiState.collectAsState()
@@ -149,19 +149,20 @@ fun SignInScreen(
     }
 
 
-    when (signInUiState.registrationStatus) {
-        AccessStatus.SUCCESS -> {
+    when (signInUiState.registrationResult?.success) {
+        true -> {
             SimpleNotification(
                 action = { navigateToLogInScreen() },
                 buttonText = stringResource(id = R.string.login_link),
                 bodyText = stringResource(R.string.registration_notify_success_text)
             )
         }
-        AccessStatus.FAILURE, AccessStatus.GOOGLE_FAILURE -> {
+        false -> {
             SimpleNotification(
-                action = { signInViewModel.idleAccessStatus() },
+                action = { signInViewModel.idleResult() },
                 buttonText = stringResource(id = R.string.hide_notify_action),
-                bodyText = stringResource(R.string.something_wrong)
+                bodyText = signInUiState.registrationResult?.error?.message ?:
+                    stringResource(R.string.notify_failure_text)
             )
         }
         else -> { }
@@ -194,7 +195,7 @@ fun SignInCard(
                 .padding(top = 4.dp)
 
             OutlinedTextField(
-                value = signInUiState.name,
+                value = signInUiState.account.name ?: "",
                 onValueChange = { signInViewModel.updateName(it) },
                 label = {
                     Text(stringResource(R.string.name_label))
@@ -214,7 +215,7 @@ fun SignInCard(
             )
 
             OutlinedTextField(
-                value = signInUiState.email,
+                value = signInUiState.account.email ?: "",
                 onValueChange = { signInViewModel.updateEmail(it) },
                 label = {
                     Text(stringResource(id = R.string.email_label))
@@ -234,7 +235,7 @@ fun SignInCard(
             )
 
             OutlinedTextField(
-                value = signInUiState.password,
+                value = signInUiState.account.password ?: "",
                 onValueChange = { signInViewModel.updatePassword(it) },
                 label = {
                     Text(stringResource(id = R.string.password_label))
@@ -315,7 +316,7 @@ fun SignInCard(
             Spacer(modifier = Modifier.size(28.dp))
 
             Button(
-                onClick = { signInViewModel.inputSignIn() },
+                onClick = { signInViewModel.signIn() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary

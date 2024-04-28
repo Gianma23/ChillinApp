@@ -1,17 +1,43 @@
 package com.example.chillinapp.data.account
 
-class FirebaseAccountRepository(): AccountRepository {
+import com.example.chillinapp.data.ServiceResult
+
+class FirebaseAccountRepository: AccountRepository {
 
     /*TODO: implement account creation */
-    override fun createAccount(account: Account): Boolean = false
+    override fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType> =
+        ServiceResult(
+            success = false
+        )
 
     /*TODO: implement email check */
-    override fun isEmailInUse(email: String): Boolean = false
+    override fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType> =
+        ServiceResult(
+            success = false
+        )
 
     /*TODO: implement credential authentication */
-    override fun credentialAuth(email: String, password: String): Boolean = false
+    override fun credentialAuth(email: String, password: String): ServiceResult<Unit, AccountErrorType> =
+        ServiceResult(
+            success = false
+        )
 
     /*TODO: implement account retrieval */
-    override fun getAccount(email: String): Account? = null
+    override fun getAccount(email: String): ServiceResult<Account?, AccountErrorType> =
+        ServiceResult(
+            success = false
+        )
+
+    /*TODO: implement google authentication */
+    override fun googleAuth(): ServiceResult<Unit, AccountErrorType> =
+        ServiceResult(
+            success = false
+        )
+
+    /*TODO: implement password recovery - Not needed (you can leave it like this) */
+    override fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType> =
+        ServiceResult(
+            success = false
+        )
 
 }

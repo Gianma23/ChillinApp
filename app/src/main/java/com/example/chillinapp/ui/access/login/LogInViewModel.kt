@@ -3,9 +3,9 @@ package com.example.chillinapp.ui.access.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.chillinapp.data.account.AccountRepository
-import com.example.chillinapp.ui.access.utility.AccessStatus
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
-import com.example.chillinapp.ui.access.utility.PasswordValidationResult
+import com.example.chillinapp.ui.access.utility.hashPassword
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +22,7 @@ class LogInViewModel(private val accountRepository: AccountRepository): ViewMode
 
     fun updateEmail(email: String) {
 
-        idleAccessStatus()
+        idleResult()
 
         _uiState.value = _uiState.value.copy(
             email = email,
@@ -46,7 +46,7 @@ class LogInViewModel(private val accountRepository: AccountRepository): ViewMode
 
     fun updatePassword(password: String) {
 
-        idleAccessStatus()
+        idleResult()
 
         _uiState.value = _uiState.value.copy(
             password = password,
@@ -88,85 +88,56 @@ class LogInViewModel(private val accountRepository: AccountRepository): ViewMode
     }
 
     fun googleLogin() {
+
+        idleResult()
+
         _uiState.update { logInUiState ->
             logInUiState.copy(
-                logInStatus = AccessStatus.LOADING,
                 isLogInButtonEnabled = false,
             )
         }
 
-        /*TODO: Retrieve google login data */
-        login("admin", "admin")
+        val result = accountRepository.googleAuth()
 
-        when(_uiState.value.logInStatus) {
-            AccessStatus.SUCCESS -> { }
-            else -> {
-                _uiState.update { logInUiState ->
-                    logInUiState.copy(
-                        logInStatus = AccessStatus.GOOGLE_FAILURE
-                    )
-                }
-            }
+        _uiState.update { logInUiState ->
+            logInUiState.copy(
+                authenticationResult = result,
+                isLogInButtonEnabled = true
+            )
         }
 
     }
 
-    fun inputLogin(){
-        login(
-            _uiState.value.email,
-            _uiState.value.password
+    fun login() {
+
+        idleResult()
+
+        _uiState.update { logInUiState ->
+            logInUiState.copy(
+                isLogInButtonEnabled = false,
+            )
+        }
+
+        val result = accountRepository.credentialAuth(
+            email = _uiState.value.email,
+            password = hashPassword(_uiState.value.password)
         )
-    }
-
-
-    private fun login(
-        email: String,
-        password: String
-    ) {
-
-        idleAccessStatus()
 
         _uiState.update { logInUiState ->
             logInUiState.copy(
-                logInStatus = AccessStatus.LOADING,
-                isLogInButtonEnabled = false,
+                authenticationResult = result,
+                isLogInButtonEnabled = true
             )
-        }
-
-        authenticate(email, password)
-        
-    }
-
-    fun idleAccessStatus() {
-        _uiState.update { logInUiState ->
-            logInUiState.copy(
-                logInStatus = AccessStatus.IDLE
-            )
-        }
-    }
-
-    private fun authenticate(email: String, password: String) {
-
-        /*TODO: improve authentication*/
-        val result = accountRepository.credentialAuth(email, password)
-
-        _uiState.update { logInUiState ->
-            when {
-                result.success -> {
-                    logInUiState.copy(
-                        logInStatus = AccessStatus.SUCCESS,
-                        authenticationResult = result
-                    )
-                }
-                else -> {
-                    logInUiState.copy(
-                        logInStatus = AccessStatus.FAILURE,
-                        authenticationResult = result
-                    )
-                }
-            }
         }
         
     }
 
+
+    fun idleResult() {
+        _uiState.update { logInUiState ->
+            logInUiState.copy(
+                authenticationResult = null
+            )
+        }
+    }
 }
