@@ -174,6 +174,8 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
         }
         updateSignUpButton()
 
+        Log.d("SignInViewModel", "Google sign in result: ${_uiState.value.registrationResult}")
+
     }
     
     fun signIn() {
@@ -193,9 +195,11 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
         _uiState.update { logInUiState ->
             logInUiState.copy(
                 registrationResult = result,
-                isSignUpButtonEnabled = true
+                isSignUpButtonEnabled = !result.success
             )
         }
+
+        Log.d("SignInViewModel", "Sign in result: ${_uiState.value.registrationResult}")
 
     }
 
@@ -205,6 +209,9 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
                 registrationResult = null
             )
         }
+
+        Log.d("SignInViewModel", "Idle result")
+
     }
 
 }
