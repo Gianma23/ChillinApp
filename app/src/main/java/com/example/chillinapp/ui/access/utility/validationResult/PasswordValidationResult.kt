@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.access.utility
+package com.example.chillinapp.ui.access.utility.validationResult
 
 
 enum class PasswordValidationResult {

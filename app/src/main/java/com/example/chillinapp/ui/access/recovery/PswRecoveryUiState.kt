@@ -1,7 +1,8 @@
 package com.example.chillinapp.ui.access.recovery
 
-import com.example.chillinapp.ui.access.utility.AccessStatus
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
+import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.account.AccountErrorType
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 
 data class PswRecoveryUiState (
     val email: String = "",
@@ -10,5 +11,5 @@ data class PswRecoveryUiState (
 
     val isButtonEnabled: Boolean = false,
 
-    val recoveryStatus: AccessStatus = AccessStatus.IDLE
+    val recoveryResult: ServiceResult<Unit, AccountErrorType>? = null
 )

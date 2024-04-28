@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.chillinapp.ChillInApplication
 import com.example.chillinapp.ui.access.login.LogInViewModel
+import com.example.chillinapp.ui.access.recovery.PswRecoveryViewModel
 import com.example.chillinapp.ui.access.registration.SignInViewModel
 
 /**
@@ -16,13 +17,16 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             // LogInViewModel
-            LogInViewModel(accountService = chillInApplication().container.accountService)
+            LogInViewModel(accountRepository = chillInApplication().container.accountRepository)
         }
         initializer {
-            // LogInViewModel
-            SignInViewModel(accountService = chillInApplication().container.accountService)
+            // SignInViewModel
+            SignInViewModel(accountRepository = chillInApplication().container.accountRepository)
         }
-
+        initializer {
+            // PswRecoveryScreen
+            PswRecoveryViewModel(accountRepository = chillInApplication().container.accountRepository)
+        }
     }
 }
 

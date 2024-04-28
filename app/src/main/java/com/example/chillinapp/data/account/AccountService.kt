@@ -1,16 +1,20 @@
 package com.example.chillinapp.data.account
 
-interface AccountService {
+import com.example.chillinapp.data.ServiceResult
 
-    suspend fun createAccount(account: Account): Boolean
-  suspend fun signWithGoogle(idToken:String): Boolean
+interface AccountRepository {
 
+    fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType>
 
-    fun isEmailInUse(email: String): Boolean
+    fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType>
 
-    fun credentialAuth(email: String, password: String): Boolean
+    fun credentialAuth(email: String, password: String): ServiceResult<Unit, AccountErrorType>
 
-    fun getAccount(email: String): Account?
+    fun getAccount(email: String): ServiceResult<Account?, AccountErrorType>
+
+    fun googleAuth(): ServiceResult<Unit, AccountErrorType>
+
+    fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType>
 
 //    fun updateAccount(account: Account)
 //

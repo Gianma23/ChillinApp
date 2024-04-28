@@ -9,7 +9,7 @@
     <string name="home_link">Home</string>
     <string name="login_notify_success_text">Login successful!</string>
     <string name="hide_notify_action">Dismiss</string>
-    <string name="login_notify_failure_text">Login failed! Please try again.</string>
+    <string name="notify_failure_text">Something went wrong :(</string>
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
     <string name="hide_password_description">Hide password</string>
@@ -26,7 +26,6 @@
     <string name="already_have_an_account">Already have an account?</string>
     <string name="login_link">Log in</string>
     <string name="registration_notify_success_text">Registration successful!</string>
-    <string name="registration_notify_failure_text">Registration failed! Please try again.</string>
     <string name="default_notify_success_text">Success!</string>
     <string name="default_notify_failure_text">Failure!</string>
     <string name="name_label">Name</string>
@@ -36,7 +35,6 @@
     <string name="invalid_email_text">This email is not valid.</string>
     <string name="password_recovery_button_text">Recover password</string>
     <string name="password_recovery_notify_success_text">Password recovery successful!</string>
-    <string name="password_recovery_notify_failure_text">Recovery failed! Please try again.</string>
     <string name="empty_label">Empty.</string>
     <string name="too_short_label">Too short.</string>
     <string name="too_long_label">Too long.</string>
@@ -49,5 +47,4 @@
     <string name="invalid_characters_label">Invalid characters.</string>
     <string name="email_does_not_exist">Email does not exist.</string>
     <string name="email_already_exists">Email already exists.</string>
-    <string name="something_wrong">Something went wrong :(</string>
 </resources>

@@ -2,14 +2,14 @@ package com.example.chillinapp.ui.access.recovery
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.chillinapp.ui.access.utility.AccessStatus
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
+import com.example.chillinapp.data.account.AccountRepository
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class PswRecoveryViewModel: ViewModel() {
+class PswRecoveryViewModel(private val accountRepository: AccountRepository): ViewModel() {
 
     private val _uiState = MutableStateFlow(PswRecoveryUiState())
     val uiState: StateFlow<PswRecoveryUiState> = _uiState.asStateFlow()
@@ -19,7 +19,7 @@ class PswRecoveryViewModel: ViewModel() {
     }
 
     fun updateEmail(email: String) {
-        idleAccessStatus()
+        idleResult()
 
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(
@@ -51,48 +51,31 @@ class PswRecoveryViewModel: ViewModel() {
     }
 
     fun recover(){
-        idleAccessStatus()
+
+        idleResult()
 
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(
-                recoveryStatus = AccessStatus.LOADING,
                 isButtonEnabled = false,
             )
         }
 
-        send(_uiState.value.email)
+        val result = accountRepository.recoverPassword(_uiState.value.email)
 
-        Log.d("PswRecoveryViewModel", "Snackbar status: ${_uiState.value.recoveryStatus}")
-
-    }
-
-    fun idleAccessStatus() {
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(
-                recoveryStatus = AccessStatus.IDLE
+                recoveryResult = result,
+                isButtonEnabled = true
             )
         }
 
-        Log.d("PswRecoveryViewModel", "Snackbar status: ${_uiState.value.recoveryStatus}")
-
     }
 
-    private fun send(email: String) {
-        /*TODO: implement recovery*/
-
-        _uiState.update { logInUiState ->
-            when {
-                email == "admin" -> {
-                    logInUiState.copy(
-                        recoveryStatus = AccessStatus.SUCCESS
-                    )
-                }
-                else -> {
-                    logInUiState.copy(
-                        recoveryStatus = AccessStatus.FAILURE
-                    )
-                }
-            }
+    fun idleResult() {
+        _uiState.update { pswRecoveryUiState ->
+            pswRecoveryUiState.copy(
+                recoveryResult = null
+            )
         }
     }
 

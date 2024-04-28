@@ -2,9 +2,8 @@ package com.example.chillinapp.ui.access.login
 
 import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.account.AccountErrorType
-import com.example.chillinapp.ui.access.utility.AccessStatus
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
-import com.example.chillinapp.ui.access.utility.PasswordValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 
 data class LogInUiState (
 
@@ -17,8 +16,6 @@ data class LogInUiState (
     val isPasswordVisible: Boolean = false,
 
     val isLogInButtonEnabled: Boolean = false,
-
-    val logInStatus: AccessStatus = AccessStatus.IDLE,
 
     val authenticationResult: ServiceResult<Unit, AccountErrorType>? = null
 
