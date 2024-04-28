@@ -20,6 +20,6 @@ class AppDataContainer() : AppContainer {
      * Implementation for [AccountRepository]
      */
     override val accountRepository: AccountRepository by lazy {
-        FirebaseAccountRepository()
+        FirebaseAccountRepository(accountDao = FirebaseAccountDao())
     }
 }

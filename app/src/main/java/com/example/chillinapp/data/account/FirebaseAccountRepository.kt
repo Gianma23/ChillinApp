@@ -1,9 +1,10 @@
 package com.example.chillinapp.data.account
 
-class FirebaseAccountRepository(): AccountRepository {
+class FirebaseAccountRepository(private val accountDao: FirebaseAccountDao): AccountRepository {
 
     /*TODO: implement account creation */
-    override fun createAccount(account: Account): Boolean = false
+    override suspend fun createAccount(account: Account): Boolean =
+        accountDao.createAccount(account)
 
     /*TODO: implement email check */
     override fun isEmailInUse(email: String): Boolean = false

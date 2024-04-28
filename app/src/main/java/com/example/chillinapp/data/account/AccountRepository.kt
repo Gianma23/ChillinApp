@@ -2,7 +2,8 @@ package com.example.chillinapp.data.account
 
 interface AccountRepository {
 
-    fun createAccount(account: Account): Boolean
+    suspend fun createAccount(account: Account): Boolean
+
 
     fun isEmailInUse(email: String): Boolean
 

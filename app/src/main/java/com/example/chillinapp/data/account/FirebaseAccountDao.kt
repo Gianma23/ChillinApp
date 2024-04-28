@@ -17,13 +17,20 @@ class FirebaseAccountDao {
             "password" to account.password
         )
         try {
-            account.email?.let { accountCollection.document(it).set(userData).await() }
-            Log.d("Insert in DAO", "Avvenuta con successo")
+            val existngDocument=accountCollection.document(account.email?:"").get().await()
+            if(existngDocument.exists()){
+                Log.d("Insert in DAO", "Email già presente nella collection")
+                return false
+            } else {
+                account.email?.let { accountCollection.document(it).set(userData).await() }
+                Log.d("Insert in DAO", "Avvenuta con successo")
+                return true
+            }
         } catch (e: Exception) {
 
             throw e
         }
-        return false
+
     }
 
     fun isEmailInUse(email: String): Boolean {

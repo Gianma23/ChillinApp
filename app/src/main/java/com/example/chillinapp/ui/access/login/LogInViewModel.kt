@@ -148,7 +148,7 @@ class LogInViewModel(private val accountRepository: AccountRepository): ViewMode
     private fun authenticate(email: String, password: String) {
 
         /*TODO: improve authentication*/
-        val result = accountRepository.credentialAuth(email, password)
+     /*   val result = accountRepository.credentialAuth(email, password)
 
         _uiState.update { logInUiState ->
             when {
@@ -166,7 +166,7 @@ class LogInViewModel(private val accountRepository: AccountRepository): ViewMode
                 }
             }
         }
-        
+        */
     }
 
 }
