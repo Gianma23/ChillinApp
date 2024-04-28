@@ -17,15 +17,15 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             // LogInViewModel
-            LogInViewModel(accountRepository = chillInApplication().container.accountRepository)
+            LogInViewModel(accountService = chillInApplication().container.accountService)
         }
         initializer {
             // SignInViewModel
-            SignInViewModel(accountRepository = chillInApplication().container.accountRepository)
+            SignInViewModel(accountService = chillInApplication().container.accountService)
         }
         initializer {
             // PswRecoveryScreen
-            PswRecoveryViewModel(accountRepository = chillInApplication().container.accountRepository)
+            PswRecoveryViewModel(accountService = chillInApplication().container.accountService)
         }
     }
 }

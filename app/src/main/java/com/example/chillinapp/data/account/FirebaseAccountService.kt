@@ -5,7 +5,10 @@ import com.example.chillinapp.data.ServiceResult
 class FirebaseAccountService(private val accountDao: FirebaseAccountDao): AccountService {
 
     /*TODO: implement account creation */
-    override fun createAccount(account: Account): Boolean = false
+    override fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType> =
+        ServiceResult(
+            success = false
+        )
 
     /*TODO: implement email check */
     override fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType> =
@@ -14,7 +17,7 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
         )
 
     /*TODO: implement credential authentication */
-    override fun credentialAuth(email: String, password: String): ServiceResult<Unit, AccountErrorType> =
+    override fun credentialAuth(email: String, encryptedPsw: String): ServiceResult<Unit, AccountErrorType> =
         ServiceResult(
             success = false
         )

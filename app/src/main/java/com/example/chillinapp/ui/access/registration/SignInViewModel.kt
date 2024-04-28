@@ -2,19 +2,15 @@ package com.example.chillinapp.ui.access.registration
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.chillinapp.data.account.Account
 import com.example.chillinapp.data.account.AccountService
-import com.example.chillinapp.ui.access.utility.AccessStatus
-import com.example.chillinapp.ui.access.utility.ConfirmPasswordValidationResult
-import com.example.chillinapp.ui.access.utility.EmailValidationResult
-import com.example.chillinapp.ui.access.utility.NameValidationResult
-import com.example.chillinapp.ui.access.utility.PasswordValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
@@ -29,16 +25,16 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
     fun updateName(name: String){
 
-        idleAccessStatus()
+        idleResult()
 
         _uiState.value = _uiState.value.copy(
-            name = name,
+            account = _uiState.value.account.copy(name = name),
             nameStatus = nameValidation(name),
         )
 
         updateSignUpButton()
 
-        Log.d("SignInViewModel", "Name: ${_uiState.value.name} Validity: ${_uiState.value.nameStatus}")
+        Log.d("SignInViewModel", "Name: ${_uiState.value.account.name ?: ""} Validity: ${_uiState.value.nameStatus}")
 
     }
 
@@ -52,16 +48,16 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
     }
 
     fun updateEmail(email: String) {
-        idleAccessStatus()
+        idleResult()
 
         _uiState.value = _uiState.value.copy(
-            email = email,
+            account = _uiState.value.account.copy(email = email),
             emailStatus = emailValidation(email),
         )
 
         updateSignUpButton()
 
-        Log.d("SignInViewModel", "Email: ${_uiState.value.email} Validity: ${_uiState.value.emailStatus}")
+        Log.d("SignInViewModel", "Email: ${_uiState.value.account.email ?: ""} Validity: ${_uiState.value.emailStatus}")
 
     }
 
@@ -75,16 +71,16 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
     }
 
     fun updatePassword(password: String) {
-        idleAccessStatus()
+        idleResult()
 
         _uiState.value = _uiState.value.copy(
-            password = password,
+            account = _uiState.value.account.copy(password = password),
             passwordStatus = passwordValidation(password),
         )
 
         updateSignUpButton()
 
-        Log.d("SignInViewModel", "Password: ${_uiState.value.password} Validity: ${_uiState.value.passwordStatus}")
+        Log.d("SignInViewModel", "Password: ${_uiState.value.account.password ?: ""} Validity: ${_uiState.value.passwordStatus}")
 
     }
 
@@ -102,11 +98,11 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
 
     fun updateConfirmPassword(confirmPassword: String){
-        idleAccessStatus()
+        idleResult()
 
         _uiState.value = _uiState.value.copy(
             confirmPassword = confirmPassword,
-            confirmPasswordStatus = passwordConfirmValidation(confirmPassword, _uiState.value.password),
+            confirmPasswordStatus = passwordConfirmValidation(confirmPassword, _uiState.value.account.password ?: ""),
         )
 
         updateSignUpButton()
@@ -152,102 +148,63 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
     }
 
     private fun anyEmptyField(): Boolean {
-        return _uiState.value.name.isEmpty() ||
-                _uiState.value.confirmPassword.isEmpty() ||
-                _uiState.value.email.isEmpty() ||
-                _uiState.value.password.isEmpty()
+        return _uiState.value.confirmPassword.isEmpty() ||
+                _uiState.value.account.name.isNullOrEmpty() ||
+                _uiState.value.account.email.isNullOrEmpty() ||
+                _uiState.value.account.password.isNullOrEmpty()
     }
 
 
     fun googleSignIn() {
+
+        idleResult()
+
         _uiState.update { logInUiState ->
             logInUiState.copy(
-                registrationStatus = AccessStatus.LOADING,
                 isSignUpButtonEnabled = false,
             )
         }
 
-        /*TODO: Retrieve google sign in data */
-        signIn("admin", "admin")
-
-        if (_uiState.value.registrationStatus != AccessStatus.SUCCESS) {
-            _uiState.update { logInUiState ->
-                logInUiState.copy(
-                    registrationStatus = AccessStatus.GOOGLE_FAILURE
-                )
-            }
-        }
-
-    }
-
-    fun inputSignIn(){
-        signIn(
-            _uiState.value.email,
-            _uiState.value.password
-        )
-        val email = _uiState.value.email
-        val password = _uiState.value.password
-        val name=_uiState.value.name
-        viewModelScope.launch {
-            val sucess=accountService.createAccount(Account(name,email,password))
-            if(sucess){
-                Log.d("FROM MODEL TO REPO", "SUCCESS")
-            }
-            else
-                Log.d("FROM MODEL TO REPO", "NO GOOD")
-
-        }
-
-    }
-
-
-    private fun signIn(
-        email: String,
-        password: String
-    ) {
-        idleAccessStatus()
+        val result = accountService.googleAuth()
 
         _uiState.update { logInUiState ->
             logInUiState.copy(
-                registrationStatus = AccessStatus.LOADING,
+                registrationResult = result
+            )
+        }
+        updateSignUpButton()
+
+    }
+    
+    fun signIn() {
+        
+        idleResult()
+
+        _uiState.update { logInUiState ->
+            logInUiState.copy(
                 isSignUpButtonEnabled = false
             )
         }
+        
+        val result = accountService.createAccount(
+            account = _uiState.value.account
+        )
 
-        authenticate(email, password)
-
-        Log.d("SignInViewModel", "Sign in: ${_uiState.value.registrationStatus}")
-
-    }
-
-    fun idleAccessStatus() {
         _uiState.update { logInUiState ->
             logInUiState.copy(
-                registrationStatus = AccessStatus.IDLE
+                registrationResult = result,
+                isSignUpButtonEnabled = true
             )
         }
 
-        Log.d("SignInViewModel", "Snackbar status: ${_uiState.value.registrationStatus}")
-
     }
 
-    private fun authenticate(email: String, password: String) {
-        /*TODO: implement authentication*/
+    fun idleResult() {
         _uiState.update { logInUiState ->
-            when {
-                email == "admin" && password == "admin" -> {
-                    logInUiState.copy(
-                        registrationStatus = AccessStatus.SUCCESS
-                    )
-                }
-                else -> {
-                    logInUiState.copy(
-                        registrationStatus = AccessStatus.FAILURE
-                    )
-                }
-            }
+            logInUiState.copy(
+                registrationResult = null
+            )
         }
     }
-
 
 }
