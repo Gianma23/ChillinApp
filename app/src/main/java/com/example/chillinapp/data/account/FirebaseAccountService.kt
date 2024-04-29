@@ -1,10 +1,13 @@
 package com.example.chillinapp.data.account
 
-class FirebaseAccountRepository(private val accountDao: FirebaseAccountDao): AccountRepository {
+class FirebaseAccountService(private val accountDao: FirebaseAccountDao): AccountService {
 
     /*TODO: implement account creation */
     override suspend fun createAccount(account: Account): Boolean =
         accountDao.createAccount(account)
+  override suspend fun signWithGoogle(idToken: String): Boolean=
+        accountDao.signInWithGoogle(idToken)
+
 
     /*TODO: implement email check */
     override fun isEmailInUse(email: String): Boolean = false

@@ -1,8 +1,9 @@
 package com.example.chillinapp.data.account
 
-interface AccountRepository {
+interface AccountService {
 
     suspend fun createAccount(account: Account): Boolean
+  suspend fun signWithGoogle(idToken:String): Boolean
 
 
     fun isEmailInUse(email: String): Boolean

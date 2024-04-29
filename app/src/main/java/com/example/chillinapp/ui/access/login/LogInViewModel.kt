@@ -2,7 +2,7 @@ package com.example.chillinapp.ui.access.login
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.chillinapp.data.account.AccountRepository
+import com.example.chillinapp.data.account.AccountService
 import com.example.chillinapp.ui.access.utility.AccessStatus
 import com.example.chillinapp.ui.access.utility.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.PasswordValidationResult
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class LogInViewModel(private val accountRepository: AccountRepository): ViewModel() {
+class LogInViewModel(private val accountService: AccountService): ViewModel() {
 
     private val _uiState = MutableStateFlow(LogInUiState())
     val uiState: StateFlow<LogInUiState> = _uiState.asStateFlow()
