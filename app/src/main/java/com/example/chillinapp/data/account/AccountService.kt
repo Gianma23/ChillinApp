@@ -11,6 +11,7 @@ interface AccountService {
     suspend fun credentialAuth(email: String, encryptedPsw: String): ServiceResult<Unit, AccountErrorType>
 
     suspend fun getAccount(email: String): ServiceResult<Account?, AccountErrorType>
+
     suspend fun getGoogleIdToken():ServiceResult<String?,AccountErrorType>
 
     suspend fun googleAuth(idToken: String): ServiceResult<String, AccountErrorType>

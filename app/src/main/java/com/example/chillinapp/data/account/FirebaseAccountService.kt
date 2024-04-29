@@ -16,11 +16,15 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
     override suspend fun credentialAuth(email: String, encryptedPsw: String): ServiceResult<Unit, AccountErrorType> =
        accountDao.credentialAuth(email, encryptedPsw)
 
-
     override suspend fun getAccount(email: String): ServiceResult<Account?, AccountErrorType> =
        accountDao.getAccount(email)
 
-    ovveride suspend fun getGooogleIdToken(): ServiceResult<String?,AccountErrorType>=
+    override suspend fun getGoogleIdToken(): ServiceResult<String?,AccountErrorType> = ServiceResult(
+        success = false,
+        data = null,
+        error = AccountErrorType.NOT_YET_IMPLEMENTED
+    )
+
     override suspend fun googleAuth(idToken: String): ServiceResult<String, AccountErrorType> =
         ServiceResult(
             success = false,
