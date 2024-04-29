@@ -51,9 +51,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
-import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.access.AccessHeader
 import com.example.chillinapp.ui.access.utility.EmailSupportingText
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
@@ -63,11 +61,14 @@ import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidat
 import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+
 
 object LogInDestination : NavigationDestination {
     override val route = "Login"
     override val titleRes = R.string.login_title
 }
+
 
 @Composable
 fun LogInScreen(
@@ -75,10 +76,10 @@ fun LogInScreen(
     navigateToSignInScreen: () -> Unit = {},
     navigateToPswRecoveryScreen: () -> Unit = {},
     navigateToHomeScreen: (String) -> Unit = {},
-    logInViewModel: LogInViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: LogInViewModel = hiltViewModel()
 ) {
 
-    val logInUiState by logInViewModel.uiState.collectAsState()
+    val logInUiState by viewModel.uiState.collectAsState()
 
     Surface (
         modifier = modifier
@@ -109,7 +110,7 @@ fun LogInScreen(
 
                 LogInCard(
                     logInUiState = logInUiState,
-                    logInViewModel = logInViewModel,
+                    logInViewModel = viewModel,
                     navigateToPswRecoveryScreen = navigateToPswRecoveryScreen
                 )
 
@@ -175,7 +176,7 @@ fun LogInScreen(
         }
         false -> {
             SimpleNotification(
-                action = { logInViewModel.idleResult() },
+                action = { viewModel.idleResult() },
                 buttonText = stringResource(R.string.hide_notify_action),
                 bodyText = accessResultText(logInUiState.authenticationResult)
             )

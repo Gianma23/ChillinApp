@@ -1,8 +1,11 @@
 package com.example.chillinapp.data.account
 
 import com.example.chillinapp.data.ServiceResult
+import javax.inject.Inject
 
-class FirebaseAccountService(private val accountDao: FirebaseAccountDao): AccountService {
+class AccountServiceImpl @Inject constructor(
+    private val accountDao: FirebaseAccountDao
+): AccountService {
 
     /*TODO: implement account creation */
     override fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType> =

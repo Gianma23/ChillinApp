@@ -50,6 +50,7 @@ import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.access.utility.accessResultText
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
+import androidx.hilt.navigation.compose.hiltViewModel
 
 object PswRecoveryDestination : NavigationDestination {
     override val route = "PasswordRecovery"
@@ -61,7 +62,7 @@ fun PswRecoveryScreen(
     modifier: Modifier = Modifier,
     navigateToLogInScreen: () -> Unit = {},
     navigateToSignInScreen: () -> Unit = {},
-    pswRecoveryViewModel: PswRecoveryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    pswRecoveryViewModel: PswRecoveryViewModel = hiltViewModel()
 ) {
 
     val pswRecoveryUiState by pswRecoveryViewModel.uiState.collectAsState()

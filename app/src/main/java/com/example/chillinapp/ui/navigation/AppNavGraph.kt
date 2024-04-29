@@ -8,7 +8,6 @@ import androidx.navigation.compose.composable
 import com.example.chillinapp.ui.access.login.LogInDestination
 import com.example.chillinapp.ui.access.login.LogInScreen
 import com.example.chillinapp.ui.access.recovery.PswRecoveryDestination
-import com.example.chillinapp.ui.access.recovery.PswRecoveryScreen
 import com.example.chillinapp.ui.access.registration.SignInDestination
 import com.example.chillinapp.ui.access.registration.SignInScreen
 
@@ -35,12 +34,6 @@ fun ChillInAppNavHost(
         composable(route = SignInDestination.route) {
             SignInScreen(
                 navigateToLogInScreen = { navController.navigate(LogInDestination.route) }
-            )
-        }
-        composable(route = PswRecoveryDestination.route) {
-            PswRecoveryScreen(
-                navigateToLogInScreen = { navController.navigate(LogInDestination.route) },
-                navigateToSignInScreen = { navController.navigate(SignInDestination.route) }
             )
         }
     }

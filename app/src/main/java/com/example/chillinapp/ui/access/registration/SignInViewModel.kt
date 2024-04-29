@@ -7,12 +7,17 @@ import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPassword
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
-class SignInViewModel(private val accountService: AccountService): ViewModel() {
+@HiltViewModel
+class SignInViewModel @Inject constructor(
+    private val accountService: AccountService
+): ViewModel() {
 
     private val _uiState = MutableStateFlow(SignInUiState())
     val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()

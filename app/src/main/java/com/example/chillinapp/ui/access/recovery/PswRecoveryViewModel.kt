@@ -4,12 +4,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.chillinapp.data.account.AccountService
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
-class PswRecoveryViewModel(private val accountService: AccountService): ViewModel() {
+@HiltViewModel
+class PswRecoveryViewModel @Inject constructor(
+    private val accountService: AccountService
+): ViewModel() {
 
     private val _uiState = MutableStateFlow(PswRecoveryUiState())
     val uiState: StateFlow<PswRecoveryUiState> = _uiState.asStateFlow()
