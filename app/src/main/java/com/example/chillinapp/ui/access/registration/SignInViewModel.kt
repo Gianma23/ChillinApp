@@ -164,6 +164,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
             idleResult()
 
+
             _uiState.update { logInUiState ->
                 logInUiState.copy(
                     isSignUpButtonEnabled = false,
@@ -172,15 +173,18 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
             /*TODO: Correct google authentication */
             try {
-                val result = accountService.googleAuth("idToken")
-                _uiState.update { logInUiState ->
-                    logInUiState.copy(
-                        registrationResult = ServiceResult(
-                            success = result.success,
-                            data = null,
-                            error = result.error
-                        ),
-                    )
+                val idToken=accountService.getGoogleIdToken().data
+                val result = idToken?.let { accountService.googleAuth(it) }
+                if (result != null) {
+                    _uiState.update { logInUiState ->
+                        logInUiState.copy(
+                            registrationResult = ServiceResult(
+                                success = result.success,
+                                data = null,
+                                error = result.error
+                            ),
+                        )
+                    }
                 }
 
             } catch (e: Exception) {
@@ -201,7 +205,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
             Log.d("SignInViewModel", "Google sign in result: ${_uiState.value.registrationResult}")
         }
     }
-    
+
     fun signIn() {
         CoroutineScope(Dispatchers.IO).launch {
 

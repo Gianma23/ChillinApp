@@ -1,4 +1,6 @@
 <resources>
+
+    <string name="default_web_client_id">367629068374-file0rq2oldvgoaeukkgau87j6cubfon.apps.googleusercontent.com</string>
     <string name="app_name">ChillIn</string>
     <string name="login_title">Login</string>
     <string name="registration_string">Registration</string>
@@ -27,6 +29,7 @@
     <string name="login_link">Log in</string>
     <string name="registration_notify_success_text">Registration successful!</string>
     <string name="default_notify_success_text">Success!</string>
+
     <string name="default_notify_failure_text">Failure!</string>
     <string name="name_label">Name</string>
     <string name="confirm_password_label">Confirm password</string>

@@ -1,12 +1,13 @@
 package com.example.chillinapp.data.account
-
+//noinspection SuspiciousImport
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
 import com.google.firebase.Firebase
-import com.google.firebase.auth.*
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 
@@ -75,7 +76,7 @@ class FirebaseAccountDao {
 
 }
 
-    suspend fun getAccount(email: String): ServiceResult<out Account, out AccountErrorType> {
+    suspend fun getAccount(email: String): ServiceResult<Account?, AccountErrorType> {
         try {
             val account=accountCollection.document(email).get().await()
             if(!account.exists())
@@ -91,6 +92,11 @@ class FirebaseAccountDao {
         }
 
         }
+  //  suspend fun getGoogleIdToken(): String{
+
+
+
+  //  }
 
 
 
