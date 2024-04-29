@@ -3,6 +3,7 @@ package com.example.chillinapp.data.account
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.auth.*
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
