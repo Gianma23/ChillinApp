@@ -5,22 +5,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import android.view.View;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.ChannelClient;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
