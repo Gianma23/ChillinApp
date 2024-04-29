@@ -4,10 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.chillinapp.data.account.AccountService
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class PswRecoveryViewModel(private val accountService: AccountService): ViewModel() {
 
@@ -59,20 +62,41 @@ class PswRecoveryViewModel(private val accountService: AccountService): ViewMode
 
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(
+                isLoading = true,
                 isButtonEnabled = false,
             )
         }
 
-        val result = accountService.recoverPassword(_uiState.value.email)
+        CoroutineScope(Dispatchers.IO).launch {
 
-        _uiState.update { pswRecoveryUiState ->
-            pswRecoveryUiState.copy(
-                recoveryResult = result,
-                isButtonEnabled = !result.success
-            )
+            try {
+                val result = accountService.recoverPassword(_uiState.value.email)
+                _uiState.update { pswRecoveryUiState ->
+                    pswRecoveryUiState.copy(
+                        isLoading = false,
+                        recoveryResult = result,
+                        isButtonEnabled = !result.success
+                    )
+                }
+
+                if (result.success) {
+                    _uiState.value = PswRecoveryUiState(
+                        recoveryResult = result,
+                    )
+                }
+
+            } catch (e: Exception) {
+                _uiState.update { pswRecoveryUiState ->
+                    pswRecoveryUiState.copy(
+                        isLoading = false,
+                        recoveryResult = null,
+                        isButtonEnabled = true
+                    )
+                }
+            }
+
+            Log.d("PswRecoveryViewModel", "Recovery Result: ${_uiState.value.recoveryResult}")
         }
-
-        Log.d("PswRecoveryViewModel", "Recovery Result: ${_uiState.value.recoveryResult}")
 
     }
 

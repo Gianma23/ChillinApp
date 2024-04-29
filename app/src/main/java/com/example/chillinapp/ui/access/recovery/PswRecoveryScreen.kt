@@ -98,6 +98,7 @@ fun PswRecoveryScreen(
 
                     OutlinedTextField(
                         value = pswRecoveryUiState.email,
+                        enabled = pswRecoveryUiState.isLoading.not(),
                         onValueChange = { pswRecoveryViewModel.updateEmail(it) },
                         label = {
                             Text(stringResource(R.string.email_label))
@@ -126,7 +127,7 @@ fun PswRecoveryScreen(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
-                        enabled = pswRecoveryUiState.isButtonEnabled,
+                        enabled = pswRecoveryUiState.isButtonEnabled && pswRecoveryUiState.isLoading.not(),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
@@ -170,7 +171,7 @@ fun PswRecoveryScreen(
                                     append(stringResource(R.string.registration_link))
                                 }
                             },
-                            onClick = { navigateToSignInScreen() },
+                            onClick = { if(pswRecoveryUiState.isLoading.not()) navigateToSignInScreen() },
                         )
                     }
 
@@ -202,7 +203,7 @@ fun PswRecoveryScreen(
                                     append(stringResource(R.string.login_link))
                                 }
                             },
-                            onClick = { navigateToLogInScreen() },
+                            onClick = { if(pswRecoveryUiState.isLoading.not()) navigateToLogInScreen() },
                         )
                     }
                 }

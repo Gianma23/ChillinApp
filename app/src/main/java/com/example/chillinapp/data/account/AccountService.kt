@@ -8,16 +8,16 @@ interface AccountService {
 
     fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType>
 
-    fun credentialAuth(email: String, encryptedPsw: String): ServiceResult<Unit, AccountErrorType>
+    suspend fun credentialAuth(email: String, encryptedPsw: String): ServiceResult<Unit, AccountErrorType>
 
     fun getAccount(email: String): ServiceResult<Account?, AccountErrorType>
 
     suspend fun googleAuth(idToken: String): ServiceResult<String, AccountErrorType>
 
-    fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType>
+    suspend fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType>
 
-//    fun updateAccount(account: Account)
-//
-//    fun deleteAccount(email: String)
+    fun updateAccount(account: Account): ServiceResult<Unit, AccountErrorType>
+
+    fun deleteAccount(email: String): ServiceResult<Unit, AccountErrorType>
 
 }

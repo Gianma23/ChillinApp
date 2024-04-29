@@ -11,5 +11,6 @@ data class PswRecoveryUiState (
 
     val isButtonEnabled: Boolean = false,
 
+    val isLoading: Boolean = false,
     val recoveryResult: ServiceResult<Unit, AccountErrorType>? = null
 )

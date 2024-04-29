@@ -98,15 +98,17 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
     }
 
     fun googleLogin() {
-        CoroutineScope(Dispatchers.IO).launch {
 
             idleResult()
 
             _uiState.update { logInUiState ->
                 logInUiState.copy(
+                    isLoading = true,
                     isLogInButtonEnabled = false,
                 )
             }
+
+        CoroutineScope(Dispatchers.IO).launch {
 
             /*TODO: Correct Google Authentication */
             try {
@@ -118,6 +120,13 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
                             data = null,
                             error = result.error
                         ),
+                        isLoading = false,
+                    )
+                }
+
+                if(result.success){
+                    _uiState.value = LogInUiState(
+                        authenticationResult = _uiState.value.authenticationResult
                     )
                 }
 
@@ -130,6 +139,7 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
                             data = null,
                             error = null
                         ),
+                        isLoading = false,
                     )
                 }
             }
@@ -147,24 +157,50 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
 
         _uiState.update { logInUiState ->
             logInUiState.copy(
+                isLoading = true,
                 isLogInButtonEnabled = false,
             )
         }
 
-        val result = accountService.credentialAuth(
-            email = _uiState.value.email,
-            encryptedPsw = hashPassword(_uiState.value.password)
-        )
+        CoroutineScope(Dispatchers.IO).launch {
 
-        _uiState.update { logInUiState ->
-            logInUiState.copy(
-                authenticationResult = result,
-                isLogInButtonEnabled = !result.success
-            )
+            try {
+                val result = accountService.credentialAuth(
+                    email = _uiState.value.email,
+                    encryptedPsw = hashPassword(_uiState.value.password)
+                )
+
+                _uiState.update { logInUiState ->
+                    logInUiState.copy(
+                        authenticationResult = result,
+                        isLogInButtonEnabled = !result.success,
+                        isLoading = false,
+                    )
+                }
+
+                if(result.success){
+                    _uiState.value = LogInUiState(
+                        authenticationResult = _uiState.value.authenticationResult
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.e("LogInViewModel", "Login Error: ", e)
+                _uiState.update { logInUiState ->
+                    logInUiState.copy(
+                        authenticationResult = ServiceResult(
+                            success = false,
+                            data = null,
+                            error = null
+                        ),
+                        isLoading = false,
+                        isLogInButtonEnabled = true
+                    )
+                }
+            }
+
+            Log.d("LogInViewModel", "Login: ${_uiState.value.authenticationResult}")
         }
-
-        Log.d("LogInViewModel", "Login: ${_uiState.value.authenticationResult}")
-        
     }
 
 

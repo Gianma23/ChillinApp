@@ -17,7 +17,7 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
         )
 
     /*TODO: implement credential authentication */
-    override fun credentialAuth(email: String, encryptedPsw: String): ServiceResult<Unit, AccountErrorType> =
+    override suspend fun credentialAuth(email: String, encryptedPsw: String): ServiceResult<Unit, AccountErrorType> =
         ServiceResult(
             success = false,
             data = null,
@@ -41,7 +41,23 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
         )
 
     /*TODO: implement password recovery - Not needed (you can leave it like this) */
-    override fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType> =
+    override suspend fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType> =
+        ServiceResult(
+            success = false,
+            data = null,
+            error = AccountErrorType.NOT_YET_IMPLEMENTED
+        )
+
+    /*TODO: implement account update - Not needed (you can leave it like this)*/
+    override fun updateAccount(account: Account): ServiceResult<Unit, AccountErrorType> =
+        ServiceResult(
+            success = false,
+            data = null,
+            error = AccountErrorType.NOT_YET_IMPLEMENTED
+        )
+
+    /*TODO: implement account deletion - Not needed (you can leave it like this)*/
+    override fun deleteAccount(email: String): ServiceResult<Unit, AccountErrorType> =
         ServiceResult(
             success = false,
             data = null,
