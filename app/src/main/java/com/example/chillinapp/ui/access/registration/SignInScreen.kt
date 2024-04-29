@@ -62,6 +62,7 @@ import com.example.chillinapp.ui.access.utility.NameSupportingText
 import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
 import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.access.utility.PasswordSupportingText
+import com.example.chillinapp.ui.access.utility.accessResultText
 import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
@@ -161,8 +162,7 @@ fun SignInScreen(
             SimpleNotification(
                 action = { signInViewModel.idleResult() },
                 buttonText = stringResource(id = R.string.hide_notify_action),
-                bodyText = signInUiState.registrationResult?.error?.message ?:
-                    stringResource(R.string.notify_failure_text)
+                bodyText = accessResultText(signInUiState.registrationResult)
             )
         }
         else -> { }
