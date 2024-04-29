@@ -55,11 +55,13 @@ public class SynchronizationChannelHandler extends Service {
         if (intent.getAction() != null && intent.getAction().equals("SEND")) {
             Log.d(TAG, "Sending data");
             sendData();
-        } else if (intent.getAction() != null && intent.getAction().equals("STOP")) {
+        } else if (intent.getAction() != null && intent.getAction().equals("STOP_SERVICE")) {
             Log.d(TAG, "Stopping service");
             stopSelf();
+        } else if (intent.getAction() != null && intent.getAction().equals("START_SERVICE")) {
+            Log.d(TAG, "Starting service");
         } else
-            Log.d(TAG, "No action found");
+            Log.w(TAG, "No action found");
 
         return START_STICKY;
     }
