@@ -19,16 +19,16 @@ class FirebaseAccountDao {
             "name" to account.name,
             "password" to account.password
         )
-        try {
-            val existngDocument=accountCollection.document(account.email?:"").get().await()
-            if(existngDocument.exists()){
+        return try {
+            val existingDocument=accountCollection.document(account.email?:"").get().await()
+            if(existingDocument.exists()){
                 Log.d("Insert in DAO", "Email già presente nella collection")
-                return false
+                false
             } else {
                 account.password?.let { account.email?.let { it1 -> auth.createUserWithEmailAndPassword(it1, it) } }
                 account.email?.let { accountCollection.document(it).set(userData).await() }
                 Log.d("Insert in DAO", "Avvenuta con successo")
-                return true
+                true
             }
         } catch (e: Exception) {
 
@@ -53,12 +53,12 @@ class FirebaseAccountDao {
     }
     suspend fun signInWithGoogle(idToken: String): Boolean {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-        try {
+        return try {
             auth.signInWithCredential(credential).await()
-            return true
+            true
         } catch (e: Exception) {
             Log.e("AutwithGoogle", "signInWithCredential:failure", e)
-            return false
+            false
         }
     }
 
