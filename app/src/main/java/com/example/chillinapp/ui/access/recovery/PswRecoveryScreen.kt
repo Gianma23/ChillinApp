@@ -47,6 +47,7 @@ import com.example.chillinapp.ui.access.AccessHeader
 import com.example.chillinapp.ui.access.utility.EmailSupportingText
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.SimpleNotification
+import com.example.chillinapp.ui.access.utility.accessResultText
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -222,8 +223,7 @@ fun PswRecoveryScreen(
             SimpleNotification(
                 action = { pswRecoveryViewModel.idleResult() },
                 buttonText = stringResource(id = R.string.hide_notify_action),
-                bodyText = pswRecoveryUiState.recoveryResult?.error?.message ?:
-                    stringResource(R.string.notify_failure_text)
+                bodyText = accessResultText(pswRecoveryUiState.recoveryResult)
             )
         }
         else -> { }

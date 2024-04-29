@@ -5,6 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.chillinapp.R
+import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.account.AccountErrorType
 import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
@@ -63,4 +65,15 @@ fun SupportingErrorText(text: String){
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.error
     )
+}
+
+@Composable
+fun accessResultText(result: ServiceResult<Unit, AccountErrorType>?): String = when(result?.error){
+    AccountErrorType.EMAIL_IN_USE -> stringResource(R.string.email_already_exists)
+    AccountErrorType.AUTHENTICATION_FAILED -> stringResource(R.string.authentication_failed)
+    AccountErrorType.ACCOUNT_NOT_FOUND -> stringResource(R.string.account_not_found)
+    AccountErrorType.NOT_YET_IMPLEMENTED -> stringResource(R.string.not_yet_implemented)
+    AccountErrorType.INVALID_EMAIL -> stringResource(R.string.invalid_email)
+    AccountErrorType.INVALID_PASSWORD -> stringResource(R.string.invalid_password)
+    else -> stringResource(R.string.general_error)
 }
