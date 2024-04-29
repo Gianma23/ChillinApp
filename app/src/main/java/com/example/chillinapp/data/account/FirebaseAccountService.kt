@@ -6,7 +6,7 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
 
     /*TODO: implement account creation */
     override suspend fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType> =
-       accountDao.createAccount(account)
+        accountDao.createAccount(account)
 
     /*TODO: implement email check */
     override fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType> =

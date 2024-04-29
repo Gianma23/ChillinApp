@@ -2,15 +2,19 @@ package com.example.chillinapp.ui.access.registration
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.account.AccountService
 import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
@@ -156,51 +160,84 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
 
     fun googleSignIn() {
+        CoroutineScope(Dispatchers.IO).launch {
 
-        idleResult()
+            idleResult()
 
-        _uiState.update { logInUiState ->
-            logInUiState.copy(
-                isSignUpButtonEnabled = false,
-            )
+            _uiState.update { logInUiState ->
+                logInUiState.copy(
+                    isSignUpButtonEnabled = false,
+                )
+            }
+
+            /*TODO: Correct google authentication */
+            try {
+                val result = accountService.googleAuth("idToken")
+                _uiState.update { logInUiState ->
+                    logInUiState.copy(
+                        registrationResult = ServiceResult(
+                            success = result.success,
+                            data = null,
+                            error = result.error
+                        ),
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.e("LogInViewModel", "Google Login Error: ", e)
+                _uiState.update { logInUiState ->
+                    logInUiState.copy(
+                        registrationResult = ServiceResult(
+                            success = false,
+                            data = null,
+                            error = null
+                        ),
+                    )
+                }
+            }
+
+            updateSignUpButton()
+
+            Log.d("SignInViewModel", "Google sign in result: ${_uiState.value.registrationResult}")
         }
-
-        val result = accountService.googleAuth()
-
-        _uiState.update { logInUiState ->
-            logInUiState.copy(
-                registrationResult = result
-            )
-        }
-        updateSignUpButton()
-
-        Log.d("SignInViewModel", "Google sign in result: ${_uiState.value.registrationResult}")
-
     }
     
     fun signIn() {
-        
-        idleResult()
+        CoroutineScope(Dispatchers.IO).launch {
 
-        _uiState.update { logInUiState ->
-            logInUiState.copy(
-                isSignUpButtonEnabled = false
-            )
+            idleResult()
+
+            _uiState.update { logInUiState ->
+                logInUiState.copy(
+                    isSignUpButtonEnabled = false
+                )
+            }
+
+            try {
+                val result = accountService.createAccount(
+                    account = _uiState.value.account
+                )
+                _uiState.update { logInUiState ->
+                    logInUiState.copy(
+                        registrationResult = result,
+                        isSignUpButtonEnabled = !result.success
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("SignInViewModel", "Sign in error: ", e)
+                _uiState.update { logInUiState ->
+                    logInUiState.copy(
+                        registrationResult = ServiceResult(
+                            success = false,
+                            data = null,
+                            error = null
+                        ),
+                        isSignUpButtonEnabled = true
+                    )
+                }
+            }
+            Log.d("SignInViewModel", "Sign in result: ${_uiState.value.registrationResult}")
         }
-        
-        val result = accountService.createAccount(
-            account = _uiState.value.account
-        )
-
-        _uiState.update { logInUiState ->
-            logInUiState.copy(
-                registrationResult = result,
-                isSignUpButtonEnabled = !result.success
-            )
-        }
-
-        Log.d("SignInViewModel", "Sign in result: ${_uiState.value.registrationResult}")
-
     }
 
     fun idleResult() {
