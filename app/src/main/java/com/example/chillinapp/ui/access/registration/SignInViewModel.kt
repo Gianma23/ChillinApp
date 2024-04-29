@@ -71,7 +71,6 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
             email.isEmpty() -> EmailValidationResult.EMPTY
             email.length > MAX_INPUT_LENGTH -> EmailValidationResult.TOO_LONG
             !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> EmailValidationResult.INVALID_FORMAT
-
             else -> EmailValidationResult.VALID
         }
     }
@@ -212,7 +211,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
             Log.d("SignInViewModel", "Google sign in result: ${_uiState.value.registrationResult}")
         }
     }
-    
+
     fun signIn() {
         CoroutineScope(Dispatchers.IO).launch {
 

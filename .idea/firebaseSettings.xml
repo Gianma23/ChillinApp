@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="FirebaseConfiguration">
+    <option name="connectionConfigurations">
+      <map>
+        <entry key="e9d4a76f-1bb9-41c5-880c-68b0af43176d">
+          <value>
+            <FirebaseConfigInternal>
+              <option name="id" value="e9d4a76f-1bb9-41c5-880c-68b0af43176d" />
+              <option name="label" value="ChillinApp" />
+              <option name="serviceAccountPath" value="$PROJECT_DIR$" />
+            </FirebaseConfigInternal>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="version" value="2" />
+  </component>
+</project>

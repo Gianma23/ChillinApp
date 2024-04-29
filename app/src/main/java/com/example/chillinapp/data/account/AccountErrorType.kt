@@ -7,4 +7,5 @@ enum class AccountErrorType{
     NOT_YET_IMPLEMENTED,
     INVALID_EMAIL,
     INVALID_PASSWORD,
+    DATABASE_ERROR
 }
