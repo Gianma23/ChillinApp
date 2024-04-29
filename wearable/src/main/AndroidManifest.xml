@@ -49,7 +49,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".synchronization.BLEService" />
+        <service android:name=".synchronization.SynchronizationChannelHandler" />
     </application>
 
 </manifest>

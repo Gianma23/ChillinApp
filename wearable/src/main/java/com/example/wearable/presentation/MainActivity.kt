@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
         }
 
         val intent = Intent(this, SynchronizationChannelHandler::class.java)
-        intent.setAction("START")
+        intent.setAction("START_SERVICE")
         startService(intent)
     }
 
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
          */
 
         intent = Intent(this, SynchronizationChannelHandler::class.java)
-        intent.setAction("STOP")
+        intent.setAction("STOP_SERVICE")
         startService(intent)
     }
 
