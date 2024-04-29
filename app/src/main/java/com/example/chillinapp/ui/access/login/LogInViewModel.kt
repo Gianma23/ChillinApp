@@ -2,14 +2,18 @@ package com.example.chillinapp.ui.access.login
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.account.AccountService
 import com.example.chillinapp.ui.access.utility.hashPassword
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class LogInViewModel(private val accountService: AccountService): ViewModel() {
 
@@ -94,26 +98,47 @@ class LogInViewModel(private val accountService: AccountService): ViewModel() {
     }
 
     fun googleLogin() {
+        CoroutineScope(Dispatchers.IO).launch {
 
-        idleResult()
+            idleResult()
 
-        _uiState.update { logInUiState ->
-            logInUiState.copy(
-                isLogInButtonEnabled = false,
-            )
+            _uiState.update { logInUiState ->
+                logInUiState.copy(
+                    isLogInButtonEnabled = false,
+                )
+            }
+
+            /*TODO: Correct Google Authentication */
+            try {
+                val result = accountService.googleAuth("idToken")
+                _uiState.update { logInUiState ->
+                    logInUiState.copy(
+                        authenticationResult = ServiceResult(
+                            success = result.success,
+                            data = null,
+                            error = result.error
+                        ),
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.e("LogInViewModel", "Google Login Error: ", e)
+                _uiState.update { logInUiState ->
+                    logInUiState.copy(
+                        authenticationResult = ServiceResult(
+                            success = false,
+                            data = null,
+                            error = null
+                        ),
+                    )
+                }
+            }
+
+            updateLogInButton()
+
+            Log.d("LogInViewModel", "Google Login: ${_uiState.value.authenticationResult}")
+
         }
-
-        val result = accountService.googleAuth()
-
-        _uiState.update { logInUiState ->
-            logInUiState.copy(
-                authenticationResult = result
-            )
-        }
-        updateLogInButton()
-
-        Log.d("LogInViewModel", "Google Login: ${_uiState.value.authenticationResult}")
-
     }
 
     fun login() {

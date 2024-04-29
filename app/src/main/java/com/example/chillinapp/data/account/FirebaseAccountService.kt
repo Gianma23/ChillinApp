@@ -5,12 +5,8 @@ import com.example.chillinapp.data.ServiceResult
 class FirebaseAccountService(private val accountDao: FirebaseAccountDao): AccountService {
 
     /*TODO: implement account creation */
-    override fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType> =
-        ServiceResult(
-            success = false,
-            data = null,
-            error = AccountErrorType.NOT_YET_IMPLEMENTED
-        )
+    override suspend fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType> =
+        accountDao.createAccount(account)
 
     /*TODO: implement email check */
     override fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType> =
@@ -37,7 +33,7 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
         )
 
     /*TODO: implement google authentication */
-    override fun googleAuth(): ServiceResult<Unit, AccountErrorType> =
+    override suspend fun googleAuth(idToken: String): ServiceResult<String, AccountErrorType> =
         ServiceResult(
             success = false,
             data = null,
