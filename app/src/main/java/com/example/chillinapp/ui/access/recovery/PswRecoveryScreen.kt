@@ -51,11 +51,26 @@ import com.example.chillinapp.ui.access.utility.accessResultText
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
+
+/**
+ * Object representing the password recovery screen destination.
+ * It contains the route and title for the password recovery screen.
+ */
 object PswRecoveryDestination : NavigationDestination {
     override val route = "PasswordRecovery"
     override val titleRes = R.string.password_recovery
 }
 
+/**
+ * Composable function for the password recovery screen.
+ * It contains UI elements for password recovery, including a text field for email input and a button for password recovery.
+ * It also handles navigation to the login and sign-in screens.
+ *
+ * @param modifier Modifier to be applied to the layout.
+ * @param navigateToLogInScreen Function to navigate to the login screen.
+ * @param navigateToSignInScreen Function to navigate to the sign-in screen.
+ * @param pswRecoveryViewModel ViewModel for the password recovery screen.
+ */
 @Composable
 fun PswRecoveryScreen(
     modifier: Modifier = Modifier,
@@ -66,6 +81,7 @@ fun PswRecoveryScreen(
 
     val pswRecoveryUiState by pswRecoveryViewModel.uiState.collectAsState()
 
+    // Surface for the password recovery screen
     Surface (
         modifier = modifier
             .fillMaxSize()
@@ -74,28 +90,35 @@ fun PswRecoveryScreen(
             .verticalScroll(rememberScrollState())
             .height(IntrinsicSize.Max)
     ) {
+
+        // Column for the password recovery screen layout
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
 
+            // Header for the password recovery screen
             AccessHeader(
                 titleRes = PswRecoveryDestination.titleRes,
                 title = stringResource(R.string.password_recovery_header)
             )
 
+            // Column for the password recovery screen layout
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
+
+                // Column for the password recovery screen layout
                 Column(
                     modifier = Modifier,
                     verticalArrangement = Arrangement.SpaceAround,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
+                    // Text field for email input
                     OutlinedTextField(
                         value = pswRecoveryUiState.email,
                         enabled = pswRecoveryUiState.isLoading.not(),
@@ -121,6 +144,7 @@ fun PswRecoveryScreen(
 
                     Spacer(modifier = Modifier.size(8.dp))
 
+                    // Button for password recovery
                     Button(
                         onClick = { pswRecoveryViewModel.recover() },
                         colors = ButtonDefaults.buttonColors(
@@ -139,18 +163,22 @@ fun PswRecoveryScreen(
 
                 Spacer(modifier = Modifier.size(28.dp))
 
+                // Column for the password recovery screen layout
                 Column(
                     modifier = Modifier,
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.CenterHorizontally
 
                 ) {
+
+                    // Row for the password recovery screen layout
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
 
+                        // Text for the password recovery screen
                         Text(
                             text = stringResource(R.string.don_t_have_an_account),
                             style = MaterialTheme.typography.bodyMedium,
@@ -160,6 +188,7 @@ fun PswRecoveryScreen(
 
                         Spacer(modifier = Modifier.size(4.dp))
 
+                        // Clickable text for the password recovery screen
                         ClickableText(
                             text = buildAnnotatedString {
                                 withStyle(
@@ -177,12 +206,14 @@ fun PswRecoveryScreen(
 
                     Spacer(modifier = Modifier.size(8.dp))
 
+                    // Row for the password recovery screen layout
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
 
+                        // Text for the password recovery screen
                         Text(
                             text = stringResource(R.string.already_have_an_account),
                             style = MaterialTheme.typography.bodyMedium,
@@ -192,6 +223,7 @@ fun PswRecoveryScreen(
 
                         Spacer(modifier = Modifier.size(4.dp))
 
+                        // Clickable text for the password recovery screen
                         ClickableText(
                             text = buildAnnotatedString {
                                 withStyle(
@@ -211,9 +243,10 @@ fun PswRecoveryScreen(
         }
     }
 
-
+    // Handling the password recovery result
     when (pswRecoveryUiState.recoveryResult?.success) {
         true -> {
+            // Notification for successful password recovery
             SimpleNotification(
                 action = { navigateToLogInScreen() },
                 buttonText = stringResource(id = R.string.login_link),
@@ -221,6 +254,7 @@ fun PswRecoveryScreen(
             )
         }
         false -> {
+            // Notification for unsuccessful password recovery
             SimpleNotification(
                 action = { pswRecoveryViewModel.idleResult() },
                 buttonText = stringResource(id = R.string.hide_notify_action),
@@ -232,6 +266,9 @@ fun PswRecoveryScreen(
 
 }
 
+/**
+ * Preview function for the light theme of the password recovery screen.
+ */
 @Preview(showBackground = true)
 @Composable
 fun LightThemePreview() {
@@ -240,6 +277,9 @@ fun LightThemePreview() {
     }
 }
 
+/**
+ * Preview function for the dark theme of the password recovery screen.
+ */
 @Preview(showBackground = true)
 @Composable
 fun DarkThemePreview() {

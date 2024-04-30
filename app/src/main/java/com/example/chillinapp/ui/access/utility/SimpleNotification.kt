@@ -16,6 +16,13 @@ import androidx.compose.ui.unit.dp
 import com.example.chillinapp.R
 
 
+/**
+ * Composable function that displays a simple notification with an action button.
+ *
+ * @param action The action to be performed when the button is clicked.
+ * @param buttonText The text to be displayed on the button.
+ * @param bodyText The text to be displayed in the notification body.
+ */
 @Composable
 fun SimpleNotification(
     action: () -> Unit = {},
@@ -45,6 +52,9 @@ fun SimpleNotification(
     }
 }
 
+/**
+ * Preview function for SimpleNotification in portrait mode.
+ */
 @Preview()
 @Composable
 fun SimpleNotificationPreview() {
@@ -55,6 +65,9 @@ fun SimpleNotificationPreview() {
     )
 }
 
+/**
+ * Preview function for SimpleNotification in landscape mode.
+ */
 @Preview(device = "spec:parent=pixel_5,orientation=landscape")
 @Composable
 fun SimpleNotificationPreviewLandscape() {

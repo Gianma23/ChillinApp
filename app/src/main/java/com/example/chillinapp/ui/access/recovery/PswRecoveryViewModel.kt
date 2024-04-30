@@ -12,15 +12,31 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+
+/**
+ * ViewModel for the password recovery screen.
+ * It handles the UI state and interactions for the password recovery process.
+ *
+ * @property accountService The service to interact with the account data.
+ */
 class PswRecoveryViewModel(private val accountService: AccountService): ViewModel() {
 
+    // Mutable state flow for the UI state of the password recovery screen
     private val _uiState = MutableStateFlow(PswRecoveryUiState())
+
+    // State flow for the UI state of the password recovery screen
     val uiState: StateFlow<PswRecoveryUiState> = _uiState.asStateFlow()
 
+    // Companion object for constants
     companion object{
         private const val MAX_INPUT_LENGTH: Int = 254
     }
 
+    /**
+     * Function to update the email input and its validation status.
+     *
+     * @param email The email input in the password recovery screen.
+     */
     fun updateEmail(email: String) {
         idleResult()
 
@@ -37,6 +53,12 @@ class PswRecoveryViewModel(private val accountService: AccountService): ViewMode
 
     }
 
+    /**
+     * Function to validate the email input.
+     *
+     * @param email The email input in the password recovery screen.
+     * @return The validation result of the email input.
+     */
     private fun emailValidation(email: String): EmailValidationResult {
         return when {
             email.isEmpty() -> EmailValidationResult.EMPTY
@@ -45,6 +67,9 @@ class PswRecoveryViewModel(private val accountService: AccountService): ViewMode
         }
     }
 
+    /**
+     * Function to update the enabled status of the password recovery button.
+     */
     private fun updateButton(){
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(
@@ -56,6 +81,9 @@ class PswRecoveryViewModel(private val accountService: AccountService): ViewMode
 
     }
 
+    /**
+     * Function to handle the password recovery process.
+     */
     fun recover(){
 
         idleResult()
@@ -100,6 +128,9 @@ class PswRecoveryViewModel(private val accountService: AccountService): ViewMode
 
     }
 
+    /**
+     * Function to reset the recovery result to idle.
+     */
     fun idleResult() {
         _uiState.update { pswRecoveryUiState ->
             pswRecoveryUiState.copy(

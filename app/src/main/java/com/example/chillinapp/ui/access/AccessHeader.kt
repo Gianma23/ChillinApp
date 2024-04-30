@@ -15,6 +15,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+
+/**
+ * Composable function that displays a header for the access screen.
+ *
+ * This function creates a column layout with two text elements. The first text element displays a string resource
+ * passed as a parameter, and the second text element displays a string passed as a parameter. Both text elements
+ * are centered and have different styles.
+ *
+ * @param titleRes The resource ID for the string resource to be displayed as the first text element.
+ * @param title The string to be displayed as the second text element.
+ */
 @Composable
 fun AccessHeader(
     @StringRes

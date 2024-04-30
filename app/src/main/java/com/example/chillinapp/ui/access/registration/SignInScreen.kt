@@ -67,11 +67,25 @@ import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidat
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
+
+/**
+ * Object representing the sign-in screen destination.
+ * It contains the route and title for the sign-in screen.
+ */
 object SignInDestination : NavigationDestination {
     override val route = "Register"
     override val titleRes = R.string.registration_string
 }
 
+/**
+ * Composable function for the sign-in screen.
+ * It contains UI elements for sign-in, including text fields for name, email, password and confirm password input, and buttons for sign-in and Google sign-in.
+ * It also handles navigation to the login screen.
+ *
+ * @param modifier Modifier to be applied to the layout.
+ * @param navigateToLogInScreen Function to navigate to the login screen.
+ * @param signInViewModel ViewModel for the sign-in screen.
+ */
 @Composable
 fun SignInScreen(
     modifier: Modifier = Modifier,
@@ -79,8 +93,10 @@ fun SignInScreen(
     signInViewModel: SignInViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
+    // Collect the UI state from the sign-in view model
     val signInUiState by signInViewModel.uiState.collectAsState()
 
+    // Surface for the sign-in screen
     Surface (
         modifier = modifier
             .fillMaxSize()
@@ -91,34 +107,40 @@ fun SignInScreen(
 
     ) {
 
+        // Column for the sign-in screen layout
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            // Header for the sign-in screen
             AccessHeader(
                 titleRes = SignInDestination.titleRes,
                 title = stringResource(R.string.registration_header)
             )
 
+            // Column for the sign-in screen layout
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+                // Card for the sign-in screen layout
                 SignInCard(
                     signInUiState = signInUiState,
                     signInViewModel = signInViewModel
                 )
 
+                // Row for the sign-in screen layout
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
 
+                    // Text for the sign-in screen
                     Text(
                         text = stringResource(R.string.already_have_an_account),
                         style = MaterialTheme.typography.bodyMedium,
@@ -128,6 +150,7 @@ fun SignInScreen(
 
                     Spacer(modifier = Modifier.size(4.dp))
 
+                    // Clickable text for the sign-in screen
                     ClickableText(
                         text = buildAnnotatedString {
                             withStyle(
@@ -149,9 +172,10 @@ fun SignInScreen(
         }
     }
 
-
+    // Handling the sign-in result
     when (signInUiState.registrationResult?.success) {
         true -> {
+            // Notification for successful sign-in
             SimpleNotification(
                 action = { navigateToLogInScreen() },
                 buttonText = stringResource(id = R.string.login_link),
@@ -159,6 +183,7 @@ fun SignInScreen(
             )
         }
         false -> {
+            // Notification for unsuccessful sign-in
             SimpleNotification(
                 action = { signInViewModel.idleResult() },
                 buttonText = stringResource(id = R.string.hide_notify_action),
@@ -170,13 +195,20 @@ fun SignInScreen(
 
 }
 
-
+/**
+ * Composable function for the sign-in card.
+ * It contains UI elements for sign-in, including text fields for name, email, password and confirm password input, and buttons for sign-in and Google sign-in.
+ *
+ * @param signInUiState The UI state for the sign-in screen.
+ * @param signInViewModel ViewModel for the sign-in screen.
+ */
 @Composable
 fun SignInCard(
     signInUiState: SignInUiState,
     signInViewModel: SignInViewModel
 ){
 
+    // Card for the sign-in screen layout
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -185,15 +217,18 @@ fun SignInCard(
         )
     ) {
 
+        // Column for the sign-in card layout
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
         ) {
 
+            // Modifier for the outlined text fields
             val outlineTextFieldModifier: Modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp)
 
+            // Outlined text field for name input
             OutlinedTextField(
                 value = signInUiState.account.name ?: "",
                 enabled = signInUiState.isLoading.not(),
@@ -215,6 +250,7 @@ fun SignInCard(
                 modifier = outlineTextFieldModifier
             )
 
+            // Outlined text field for email input
             OutlinedTextField(
                 value = signInUiState.account.email ?: "",
                 enabled = signInUiState.isLoading.not(),
@@ -236,6 +272,7 @@ fun SignInCard(
                 modifier = outlineTextFieldModifier
             )
 
+            // Outlined text field for password input
             OutlinedTextField(
                 value = signInUiState.account.password ?: "",
                 enabled = signInUiState.isLoading.not(),
@@ -276,7 +313,7 @@ fun SignInCard(
                 modifier = outlineTextFieldModifier
             )
 
-
+            // Outlined text field for confirm password input
             OutlinedTextField(
                 value = signInUiState.confirmPassword,
                 enabled = signInUiState.isLoading.not(),
@@ -319,6 +356,7 @@ fun SignInCard(
 
             Spacer(modifier = Modifier.size(28.dp))
 
+            // Button for sign-in
             Button(
                 onClick = { signInViewModel.signIn() },
                 colors = ButtonDefaults.buttonColors(
@@ -338,6 +376,7 @@ fun SignInCard(
 
         Spacer(modifier = Modifier.size(16.dp))
 
+        // Divider for the sign-in screen
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ){
@@ -360,6 +399,7 @@ fun SignInCard(
 
         Spacer(modifier = Modifier.size(16.dp))
 
+        // Button for Google sign-in
         Button(
             onClick = { signInViewModel.googleSignIn() },
             colors = ButtonDefaults.buttonColors(
@@ -393,7 +433,9 @@ fun SignInCard(
     }
 }
 
-
+/**
+ * Preview for the light theme of the sign-in screen.
+ */
 @Preview(showBackground = true)
 @Composable
 fun LightThemePreview() {
@@ -402,6 +444,9 @@ fun LightThemePreview() {
     }
 }
 
+/**
+ * Preview for the dark theme of the sign-in screen.
+ */
 @Preview(showBackground = true)
 @Composable
 fun DarkThemePreview() {

@@ -64,11 +64,27 @@ import com.example.chillinapp.ui.access.utility.SimpleNotification
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
+
+/**
+ * Object that represents the login destination in the navigation system.
+ * It contains the route and the title resource for the login screen.
+ */
 object LogInDestination : NavigationDestination {
     override val route = "Login"
     override val titleRes = R.string.login_title
 }
 
+
+/**
+ * Composable function that represents the login screen.
+ * It contains the UI elements and the logic for the login process.
+ *
+ * @param modifier Modifier to be applied to the layout.
+ * @param navigateToSignInScreen Function to navigate to the sign in screen.
+ * @param navigateToPswRecoveryScreen Function to navigate to the password recovery screen.
+ * @param navigateToHomeScreen Function to navigate to the home screen.
+ * @param logInViewModel ViewModel that contains the state and the logic for the login process.
+ */
 @Composable
 fun LogInScreen(
     modifier: Modifier = Modifier,
@@ -78,8 +94,10 @@ fun LogInScreen(
     logInViewModel: LogInViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
+    // Collect the state of the login process
     val logInUiState by logInViewModel.uiState.collectAsState()
 
+    // Create the UI for the login screen
     Surface (
         modifier = modifier
             .fillMaxSize()
@@ -90,12 +108,14 @@ fun LogInScreen(
 
     ) {
 
+        // Login screen layout
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            // Header
             AccessHeader(
                 titleRes = LogInDestination.titleRes,
                 title = stringResource(R.string.login_header)
@@ -152,6 +172,7 @@ fun LogInScreen(
         }
     }
 
+    // Handle the result of the login process
     when (logInUiState.authenticationResult?.success) {
          true -> {
             Column(
@@ -189,7 +210,14 @@ fun LogInScreen(
 }
 
 
-
+/**
+ * Composable function that represents the login card.
+ * It contains the UI elements and the logic for the login form.
+ *
+ * @param logInUiState The state of the UI for the login process.
+ * @param logInViewModel ViewModel that contains the state and the logic for the login process.
+ * @param navigateToPswRecoveryScreen Function to navigate to the password recovery screen.
+ */
 @Composable
 fun LogInCard(
     logInUiState: LogInUiState,
@@ -204,6 +232,7 @@ fun LogInCard(
         )
     ) {
 
+        // Login input fields and button
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -317,6 +346,7 @@ fun LogInCard(
 
         Spacer(modifier = Modifier.size(16.dp))
 
+        // Button divider
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ){
@@ -339,6 +369,7 @@ fun LogInCard(
 
         Spacer(modifier = Modifier.size(16.dp))
 
+        // Google login button
         Button(
             onClick = { logInViewModel.googleLogin() },
             colors = ButtonDefaults.buttonColors(
@@ -373,6 +404,9 @@ fun LogInCard(
     }
 }
 
+/**
+ * Composable function that represents the preview of the login screen in light theme.
+ */
 @Preview(showBackground = true)
 @Composable
 fun LightThemePreview() {
@@ -381,6 +415,9 @@ fun LightThemePreview() {
     }
 }
 
+/**
+ * Composable function that represents the preview of the login screen in dark theme.
+ */
 @Preview(showBackground = true)
 @Composable
 fun DarkThemePreview() {
