@@ -11,6 +11,10 @@
     <!-- Needed only if your app makes the device discoverable to Bluetooth
          devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+    <!-- Needed for sensors data sampling -->
+    <uses-permission android:name="android.permission.BODY_SENSORS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH"/>
 
     <!-- Needed only if your app communicates with already-paired Bluetooth
          devices. -->
@@ -49,7 +53,13 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".synchronization.SynchronizationChannelHandler" />
+        <service
+                android:name=".SensorService"
+                android:foregroundServiceType="health"
+                android:exported="false">
+        </service>
+
+        <service android:name=".synchronization.WearableDataProvider" />
     </application>
 
 </manifest>
