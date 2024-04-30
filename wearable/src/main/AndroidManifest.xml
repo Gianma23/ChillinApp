@@ -53,12 +53,13 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".synchronization.BLEService" />
         <service
                 android:name=".SensorService"
                 android:foregroundServiceType="health"
                 android:exported="false">
         </service>
+
+        <service android:name=".synchronization.WearableDataProvider" />
     </application>
 
 </manifest>
