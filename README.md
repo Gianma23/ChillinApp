@@ -13,3 +13,4 @@ The data exchange format is defined as follows:
 | Timestamp (8 bytes) | EDA Sensor Value (8 bytes) | Skin Temperature Sensor Value (8 bytes) |
 ```
 for a total of 24 bytes.
+In order to perform fewer data exchange, it has been decided to send 30 seconds of data at a time (bulk data). This means that the data exchange format will be repeated 30 times, for a total of 720 bytes.

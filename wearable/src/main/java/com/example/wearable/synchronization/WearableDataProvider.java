@@ -49,14 +49,11 @@ public class WearableDataProvider extends Service {
         // Check the action received
         if (intent.getAction() != null && intent.getAction().equals("SEND")) {
             Log.d(TAG, "Sending data");
-            // if the action is SEND, there must be an additional data parameter to send
-            if (intent.getStringExtra("sensor_data") != null) {
-                Log.d(TAG, "Data: " + intent.getStringExtra("sensor_data"));
-                byte[] data = parseSensorData(intent.getStringExtra("sensor_data"));
-                sendData(data);
-            } else {
-                Log.e(TAG, "No data found to send");
-            }
+
+            SensorDataHandler sensorDataHandler = SensorDataHandler.getInstance();
+            byte[] data = sensorDataHandler.getBulkData();
+            sendData(data);
+
         } else if (intent.getAction() != null && intent.getAction().equals("STOP_SERVICE")) {
             Log.d(TAG, "Stopping service");
             stopSelf();
@@ -67,12 +64,6 @@ public class WearableDataProvider extends Service {
 
         // Return START_STICKY to restart the service if it gets killed
         return START_STICKY;
-    }
-
-    // TODO: define the format of the sensor data received by SensorService
-    private byte[] parseSensorData(String sensorData) {
-        // Parse the sensor data
-        return sensorData.getBytes();
     }
 
     private void sendData(byte[] data) {

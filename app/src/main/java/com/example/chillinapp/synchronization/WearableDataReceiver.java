@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -99,7 +100,7 @@ public class WearableDataReceiver extends Service {
                                 Log.d(TAG, "Reading: " + text);
 
                                 /* Parse the data received from the wearable device */
-                                // SensorData sensorData = parseData(buffer.toByteArray());
+                                // List<SensorData> bulkData = parseBulkData(buffer.toByteArray());
                                 // Log.d(TAG, "Received data: " + sensorData.toString());
                                 /* ------------------------------- */
                                 inputStream.close();
@@ -117,11 +118,24 @@ public class WearableDataReceiver extends Service {
     }
 
     /**
-     * Parses the data received from the wearable device
-     * @param data
-     * @return
+     * Parse the data received from the wearable device. The data is composed by a list of 30 SensorData objects.
+     * @param data The data received from the wearable device.
+     * @return A list of SensorData objects.
      */
-    private SensorData parseData(byte[] data) {
+    private List<SensorData> parseBulkData(byte[] data){
+        List<SensorData> sensorDataList = new ArrayList<>();
+        int i = 0;
+        while (i < data.length) {
+            byte[] singleData = new byte[24];
+            System.arraycopy(data, i, singleData, 0, 24);
+            SensorData sensorData = parseSingleData(singleData);
+            sensorDataList.add(sensorData);
+            i += 24;
+        }
+        return sensorDataList;
+    }
+
+    private SensorData parseSingleData(byte[] data) {
         // Array of bytes composed by:
         // 8 bytes for timestamp
         // 8 bytes for EDA
@@ -142,7 +156,7 @@ public class WearableDataReceiver extends Service {
         System.arraycopy(data, 16, skinTemperatureBytes, 0, 8);
         double skinTemperature = bytesToDouble(skinTemperatureBytes);
 
-        return new SensorData(timestamp, eda, skinTemperature, 0.0);
+        return new SensorData(timestamp, eda, skinTemperature);
     }
 
     /**
