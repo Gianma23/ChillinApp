@@ -257,6 +257,28 @@ class FirebaseAccountDao {
             response
         }
     }
+    suspend fun signOut(): ServiceResult<Unit,AccountErrorType> {
+        return try {
+            auth.signOut()
+            val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                success = true,
+                data = null,
+                error = null
+            )
+            Log.d("FirebaseAccountDao: signOut", "Logout successful")
+            response
+        } catch (e: Exception) {
+            Log.e("FirebaseAccountDao: signOut", "An exception occurred: ", e)
+            val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                success = false,
+                data = null,
+                error = AccountErrorType.AUTHENTICATION_ERROR
+            )
+            Log.d("FirebaseAccountDao: signOut", "Returning: $response")
+            response
+        }
+    }
+
 
 }
 
