@@ -1,98 +1,130 @@
-/* While this template provides a good starting point for using Wear Compose, you can always
- * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter and
- * https://github.com/android/wear-os-samples/tree/main/ComposeAdvanced to find the most up to date
- * changes to the libraries and their usages.
- */
-
 package com.example.wearable.presentation
 
+import android.Manifest
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.IBinder
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startForegroundService
+import androidx.wear.compose.material.*
 import com.example.wearable.R
+import com.example.wearable.SensorService
 import com.example.wearable.presentation.theme.ChillinAppTheme
-import com.example.wearable.synchronization.WearableDataProvider
 
+private const val TAG = "MainActivity"
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-
         super.onCreate(savedInstanceState)
-
+        Log.d(TAG, "onCreate")
         setTheme(android.R.style.Theme_DeviceDefault)
 
         setContent {
-            WearApp("Android")
+            WearApp(modifier = Modifier.fillMaxSize())
         }
-
-        val intent = Intent(this, WearableDataProvider::class.java)
-        intent.setAction("START_SERVICE")
-        startService(intent)
+        checkPermission(Manifest.permission.BODY_SENSORS, 100)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // TODO: stop sensor services
-        /*
-        var intent = Intent(this, SensorHandler::class.java)
-        intent.setAction("stop_sensors")
-        startService(intent)
-         */
-
-        intent = Intent(this, WearableDataProvider::class.java)
-        intent.setAction("STOP_SERVICE")
-        startService(intent)
+        Log.d(TAG, "onDestroy")
+        stopService(Intent(this, SensorService::class.java))
     }
 
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop")
+    }
 
-}
-
-@Composable
-fun WearApp(greetingName: String) {
-    ChillinAppTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background),
-            contentAlignment = Alignment.Center
+    fun checkPermission(permission: String, requestCode: Int) {
+        if (ContextCompat.checkSelfPermission(this@MainActivity, permission)
+            == PackageManager.PERMISSION_DENIED
         ) {
-            TimeText()
-            Greeting(greetingName = greetingName)
+            // Requesting the permission
+            ActivityCompat.requestPermissions(this@MainActivity, arrayOf(permission), requestCode)
         }
     }
 }
 
 @Composable
-fun Greeting(greetingName: String) {
-    Text(
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.primary,
-        text = stringResource(R.string.hello_world, greetingName)
-    )
+fun WearApp(modifier: Modifier = Modifier) {
+    ChillinAppTheme {
+        Scaffold (
+            modifier = modifier
+                .background(MaterialTheme.colors.background),
+            timeText = { TimeText() },
+            content = { SensorSwitch(modifier) }
+        )
+    }
 }
 
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
+@Composable
+fun SensorSwitch(modifier: Modifier = Modifier) {
+    var isChecked by rememberSaveable { mutableStateOf(false) }
+    toggleSensorService(LocalContext.current, isChecked)
+
+    Column (
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            modifier = modifier,
+            lineHeight = 24.sp,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colors.primary,
+            text = stringResource(R.string.sensor_disabled),
+        )
+        Switch(
+            modifier = modifier
+                .scale(4f),
+            checked = isChecked,
+            onCheckedChange = {
+                isChecked = it
+                Log.d("SensorSwitch", "Switch is checked: $it")
+            }
+        )
+    }
+}
+
+fun toggleSensorService(context: Context, isChecked: Boolean) {
+    val intent = Intent(context, SensorService::class.java)
+
+    if (isChecked) {
+        intent.setAction("start_sensors")
+        startForegroundService(context, intent)
+    } else {
+        context.stopService(intent)
+    }
+}
+
+@Preview(device = Devices.WEAR_OS_LARGE_ROUND, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
-    WearApp("Preview Android")
+    WearApp(modifier = Modifier.fillMaxSize())
 }

@@ -4,5 +4,6 @@
     This string is used for square devices and overridden by hello_world in
     values-round/strings.xml for round devices.
     -->
-    <string name="hello_world">From the Square world,\nHello, %1$s!</string>
+    <string name="sensor_disabled">Sensors disabled</string>
+    <string name="sensor_enabled">Sensors enabled</string>
 </resources>
