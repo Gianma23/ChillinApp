@@ -18,15 +18,12 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class SynchronizationChannelHandler extends Service {
-    // private ChannelClient.Channel channel;
-    // private OutputStream outputStream;
-    // private String smartphoneID;
-    // private final String communicationPath = "chillinapp";
-    private final String TAG = "SynchronizationChannelHandler";
+public class WearableDataProvider extends Service {
+
+    private final String TAG = "WearableDataProvider";
     private final String CHANNEL_MSG = "chillinapp";
 
-    public SynchronizationChannelHandler() {
+    public WearableDataProvider() {
     }
 
     @Nullable

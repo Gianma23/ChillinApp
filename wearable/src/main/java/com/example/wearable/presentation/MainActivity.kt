@@ -8,6 +8,8 @@ package com.example.wearable.presentation
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -27,7 +29,7 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import com.example.wearable.R
 import com.example.wearable.presentation.theme.ChillinAppTheme
-import com.example.wearable.synchronization.SynchronizationChannelHandler
+import com.example.wearable.synchronization.WearableDataProvider
 
 class MainActivity : ComponentActivity() {
 
@@ -42,9 +44,23 @@ class MainActivity : ComponentActivity() {
             WearApp("Android")
         }
 
-        val intent = Intent(this, SynchronizationChannelHandler::class.java)
+        /*
+        val intent = Intent(this, WearableDataProvider::class.java)
         intent.setAction("START_SERVICE")
         startService(intent)
+            */
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            val intent = Intent(this, WearableDataProvider::class.java)
+            intent.action = "START_SERVICE"
+            startService(intent)
+        }, 30000)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            val intent = Intent(this, WearableDataProvider::class.java)
+            intent.action = "SEND"
+            startService(intent)
+        }, 10000)
     }
 
     override fun onDestroy() {
@@ -56,7 +72,7 @@ class MainActivity : ComponentActivity() {
         startService(intent)
          */
 
-        intent = Intent(this, SynchronizationChannelHandler::class.java)
+        intent = Intent(this, WearableDataProvider::class.java)
         intent.setAction("STOP_SERVICE")
         startService(intent)
     }

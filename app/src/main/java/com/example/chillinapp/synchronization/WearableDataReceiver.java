@@ -2,6 +2,7 @@ package com.example.chillinapp.synchronization;
 
 import android.app.Service;
 import android.content.Intent;
+import android.hardware.Sensor;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
@@ -82,7 +84,7 @@ public class WearableDataReceiver extends Service {
                                 int read;
                                 byte[] data = new byte[1024];
                                 while ((read = inputStream.read(data, 0, data.length)) != -1) {
-                                    Log.d(TAG, "data length " + read); /** use Log.e to force print, if Log.d does not work */
+                                    Log.d(TAG, "Data length " + read);
                                     buffer.write(data, 0, read);
 
                                     buffer.flush();
@@ -90,8 +92,12 @@ public class WearableDataReceiver extends Service {
 
                                     text.append(new String(byteArray, StandardCharsets.UTF_8));
                                 }
-                                Log.d(TAG, "reading: " + text);
+                                Log.d(TAG, "Reading: " + text);
 
+                                /* Parse the data received from the wearable device */
+                                // SensorData sensorData = parseData(buffer.toByteArray());
+                                // Log.d(TAG, "Received data: " + sensorData.toString());
+                                /* ------------------------------- */
                                 inputStream.close();
                             } catch (IOException e) {
                                Log.e(TAG, "Error in receiving data: " + e);
@@ -106,4 +112,56 @@ public class WearableDataReceiver extends Service {
         });
     }
 
+    /**
+     * Parses the data received from the wearable device
+     * @param data
+     * @return
+     */
+    private SensorData parseData(byte[] data) {
+        // Array of bytes composed by:
+        // 8 bytes for timestamp
+        // 8 bytes for EDA
+        // 8 bytes for skin temperature
+
+        // Timestamp
+        byte[] timestampBytes = new byte[8];
+        System.arraycopy(data, 0, timestampBytes, 0, 8);
+        long timestamp = bytesToLong(timestampBytes);
+
+        // EDA
+        byte[] edaBytes = new byte[8];
+        System.arraycopy(data, 8, edaBytes, 0, 8);
+        double eda = bytesToDouble(edaBytes);
+
+        // Skin temperature
+        byte[] skinTemperatureBytes = new byte[8];
+        System.arraycopy(data, 16, skinTemperatureBytes, 0, 8);
+        double skinTemperature = bytesToDouble(skinTemperatureBytes);
+
+        return new SensorData(timestamp, eda, skinTemperature, 0.0);
+    }
+
+    /**
+     * Converts a byte array to a long
+     * @param timestampBytes
+     * @return
+     */
+    private long bytesToLong(byte[] timestampBytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(timestampBytes);
+        buffer.flip();
+        return buffer.getLong();
+    }
+
+    /**
+     * Converts a byte array to a double
+     * @param sensorBytes
+     * @return
+     */
+    private double bytesToDouble(byte[] sensorBytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(Double.BYTES);
+        buffer.put(sensorBytes);
+        buffer.flip();
+        return buffer.getDouble();
+    }
 }
