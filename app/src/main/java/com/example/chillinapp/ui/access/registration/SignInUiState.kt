@@ -24,6 +24,7 @@ data class SignInUiState (
 
     val isSignUpButtonEnabled: Boolean = false,
 
+    val isLoading: Boolean = false,
     val registrationResult: ServiceResult<Unit, AccountErrorType>? = null
 
 )

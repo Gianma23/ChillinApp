@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.account.AccountService
+import com.example.chillinapp.ui.access.utility.hashPassword
 import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
@@ -70,6 +71,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
             email.isEmpty() -> EmailValidationResult.EMPTY
             email.length > MAX_INPUT_LENGTH -> EmailValidationResult.TOO_LONG
             !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> EmailValidationResult.INVALID_FORMAT
+            /*TODO: Implement in-use validation */
             else -> EmailValidationResult.VALID
         }
     }
@@ -166,6 +168,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
             _uiState.update { logInUiState ->
                 logInUiState.copy(
+                    isLoading = true,
                     isSignUpButtonEnabled = false,
                 )
             }
@@ -180,6 +183,13 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
                             data = null,
                             error = result.error
                         ),
+                        isLoading = false,
+                    )
+                }
+
+                if(result.success){
+                    _uiState.value = SignInUiState(
+                        registrationResult = _uiState.value.registrationResult
                     )
                 }
 
@@ -192,6 +202,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
                             data = null,
                             error = null
                         ),
+                        isLoading = false,
                     )
                 }
             }
@@ -201,7 +212,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
             Log.d("SignInViewModel", "Google sign in result: ${_uiState.value.registrationResult}")
         }
     }
-    
+
     fun signIn() {
         CoroutineScope(Dispatchers.IO).launch {
 
@@ -209,20 +220,31 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
 
             _uiState.update { logInUiState ->
                 logInUiState.copy(
+                    isLoading = true,
                     isSignUpButtonEnabled = false
                 )
             }
 
             try {
                 val result = accountService.createAccount(
-                    account = _uiState.value.account
+                    account = _uiState.value.account.copy(
+                        password = hashPassword(_uiState.value.account.password!!)
+                    )
                 )
                 _uiState.update { logInUiState ->
                     logInUiState.copy(
+                        isLoading = false,
                         registrationResult = result,
                         isSignUpButtonEnabled = !result.success
                     )
                 }
+
+                if(result.success){
+                    _uiState.value = SignInUiState(
+                        registrationResult = result
+                    )
+                }
+
             } catch (e: Exception) {
                 Log.e("SignInViewModel", "Sign in error: ", e)
                 _uiState.update { logInUiState ->
@@ -232,6 +254,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
                             data = null,
                             error = null
                         ),
+                        isLoading = false,
                         isSignUpButtonEnabled = true
                     )
                 }

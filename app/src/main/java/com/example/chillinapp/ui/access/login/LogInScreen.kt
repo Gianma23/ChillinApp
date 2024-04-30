@@ -139,7 +139,10 @@ fun LogInScreen(
                                 append(stringResource(R.string.registration_link))
                             }
                         },
-                        onClick = { navigateToSignInScreen() },
+                        onClick = {
+                            if(logInUiState.authenticationResult?.success != true && !logInUiState.isLoading)
+                                navigateToSignInScreen()
+                        },
                     )
 
                 }
@@ -212,6 +215,7 @@ fun LogInCard(
 
             OutlinedTextField(
                 value = logInUiState.email,
+                enabled = logInUiState.authenticationResult?.success != true && !logInUiState.isLoading,
                 onValueChange = { logInViewModel.updateEmail(it) },
                 label = {
                     Text(stringResource(R.string.email_label))
@@ -232,6 +236,7 @@ fun LogInCard(
 
             OutlinedTextField(
                 value = logInUiState.password,
+                enabled = logInUiState.authenticationResult?.success != true && !logInUiState.isLoading,
                 onValueChange = { logInViewModel.updatePassword(it) },
                 label = {
                     Text(stringResource(R.string.password_label))
@@ -283,7 +288,10 @@ fun LogInCard(
                         append(stringResource(R.string.password_recovery_link))
                     }
                 },
-                onClick = { navigateToPswRecoveryScreen() },
+                onClick = {
+                    if(logInUiState.authenticationResult?.success != true && !logInUiState.isLoading)
+                        navigateToPswRecoveryScreen()
+                },
             )
 
             Spacer(modifier = Modifier.size(28.dp))
@@ -294,7 +302,9 @@ fun LogInCard(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                enabled = logInUiState.isLogInButtonEnabled,
+                enabled = logInUiState.isLogInButtonEnabled &&
+                        logInUiState.authenticationResult?.success != true &&
+                        !logInUiState.isLoading,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -335,6 +345,8 @@ fun LogInCard(
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onSecondary
             ),
+            enabled = logInUiState.authenticationResult?.success != true &&
+                    !logInUiState.isLoading,
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(

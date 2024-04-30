@@ -17,6 +17,7 @@ data class LogInUiState (
 
     val isLogInButtonEnabled: Boolean = false,
 
+    val isLoading: Boolean = false,
     val authenticationResult: ServiceResult<Unit, AccountErrorType>? = null
 
 )
