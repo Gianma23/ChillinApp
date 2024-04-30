@@ -35,9 +35,9 @@ class ChillInActivity : ComponentActivity() {
 
         setContent {
             ChillInAppTheme {
-                Box(modifier = Modifier.safeDrawingPadding()) {
+
                     ChillInApp()
-                }
+
             }
         }
         val intent = Intent(this, WearableDataReceiver::class.java)
