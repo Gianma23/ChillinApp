@@ -16,10 +16,10 @@ interface AccountService {
 
     suspend fun googleAuth(idToken: String): ServiceResult<String, AccountErrorType>
 
-    fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType>
+    suspend fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType>
 
-//    fun updateAccount(account: Account)
-//
-//    fun deleteAccount(email: String)
+    fun updateAccount(account: Account): ServiceResult<Boolean, AccountErrorType>
+
+    fun deleteAccount(email: String): ServiceResult<Boolean, AccountErrorType>
 
 }

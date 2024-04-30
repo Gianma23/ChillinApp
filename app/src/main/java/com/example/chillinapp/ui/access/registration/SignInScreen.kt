@@ -139,7 +139,7 @@ fun SignInScreen(
                                 append(stringResource(R.string.login_link))
                             }
                         },
-                        onClick = { navigateToLogInScreen() }
+                        onClick = { if(signInUiState.isLoading.not()) navigateToLogInScreen() }
                     )
 
                 }
@@ -196,6 +196,7 @@ fun SignInCard(
 
             OutlinedTextField(
                 value = signInUiState.account.name ?: "",
+                enabled = signInUiState.isLoading.not(),
                 onValueChange = { signInViewModel.updateName(it) },
                 label = {
                     Text(stringResource(R.string.name_label))
@@ -216,6 +217,7 @@ fun SignInCard(
 
             OutlinedTextField(
                 value = signInUiState.account.email ?: "",
+                enabled = signInUiState.isLoading.not(),
                 onValueChange = { signInViewModel.updateEmail(it) },
                 label = {
                     Text(stringResource(id = R.string.email_label))
@@ -236,6 +238,7 @@ fun SignInCard(
 
             OutlinedTextField(
                 value = signInUiState.account.password ?: "",
+                enabled = signInUiState.isLoading.not(),
                 onValueChange = { signInViewModel.updatePassword(it) },
                 label = {
                     Text(stringResource(id = R.string.password_label))
@@ -276,6 +279,7 @@ fun SignInCard(
 
             OutlinedTextField(
                 value = signInUiState.confirmPassword,
+                enabled = signInUiState.isLoading.not(),
                 onValueChange = { signInViewModel.updateConfirmPassword(it) },
                 label = {
                     Text(stringResource(R.string.confirm_password_label))
@@ -321,7 +325,7 @@ fun SignInCard(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                enabled = signInUiState.isSignUpButtonEnabled,
+                enabled = signInUiState.isSignUpButtonEnabled && signInUiState.isLoading.not(),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -362,6 +366,7 @@ fun SignInCard(
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onSecondary
             ),
+            enabled = signInUiState.isLoading.not(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(

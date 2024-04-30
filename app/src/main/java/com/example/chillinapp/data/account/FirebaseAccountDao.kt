@@ -23,95 +23,204 @@ class FirebaseAccountDao {
             "name" to account.name,
             "password" to account.password
         )
-         try {
-            val existingDocument=accountCollection.document(account.email?:"").get().await()
-            if(existingDocument.exists()){
-                Log.d("Insert in DAO", "Email già presente nella collection")
-               return  ServiceResult(false,null,AccountErrorType.EMAIL_IN_USE)
+        return try {
+            val existingDocument = accountCollection.document(account.email ?: "").get().await()
+            if (existingDocument.exists()) {
+                val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                    success = false,
+                    data = null,
+                    error = AccountErrorType.EMAIL_IN_USE
+                )
+                Log.d("FirebaseAccountDao: createAccount", "The account already exists: $account")
+                response
             } else {
-                account.password?.let { account.email?.let { it1 -> auth.createUserWithEmailAndPassword(it1, it) } }
+                account.password?.let {
+                    account.email?.let { it1 ->
+                        auth.createUserWithEmailAndPassword(
+                            it1,
+                            it
+                        )
+                    }
+                }
                 account.email?.let { accountCollection.document(it).set(userData).await() }
-                Log.d("Insert in DAO", "Avvenuta con successo")
-                return ServiceResult(true,null,null)
+                val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                    success = true,
+                    data = null,
+                    error = null
+                )
+                Log.d("FirebaseAccountDao: createAccount", "Account creation successful: $account")
+                response
             }
         } catch (e: Exception) {
-            Log.d("Insert in DAO", e.toString())
-             return ServiceResult(false,null,AccountErrorType.DATABASE_ERROR)
-
-
-
+            Log.e("FirebaseAccountDao: createAccount", "An exception occurred: ", e)
+            val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                success = true,
+                data = null,
+                error = AccountErrorType.DATABASE_ERROR
+            )
+            Log.d("FirebaseAccountDao: createAccount", "Returning: $account")
+            response
         }
-
     }
 
-    suspend fun isEmailInUse(email: String): ServiceResult<Unit ,AccountErrorType> {
-
-        try {
+    suspend fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType> {
+        return try {
             val account=accountCollection.document(email).get().await()
-            if(account.exists())
-                return ServiceResult(true,null,null)
-            else
-                return ServiceResult(false,null,AccountErrorType.ACCOUNT_NOT_FOUND)
+
+            if(account.exists()){
+                val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                    success = true,
+                    data = null,
+                    error = null
+                )
+                Log.d("FirebaseAccountDao: isEmailInUse", "The email is in use: $email")
+                response
+            }
+            else{
+                val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                    success = false,
+                    data = null,
+                    error = AccountErrorType.ACCOUNT_NOT_FOUND
+                )
+                Log.d("FirebaseAccountDao: isEmailInUse", "The email is not in use: $email")
+                response
+            }
 
         } catch (e:Exception){
-            return ServiceResult(false,null,AccountErrorType.DATABASE_ERROR)
+            Log.e("FirebaseAccountDao: isEmailInUse", "An exception occurred: ", e)
+
+            val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                success = false,
+                data = null,
+                error = AccountErrorType.DATABASE_ERROR
+            )
+            Log.d("FirebaseAccountDao: isEmailInUse", "Returning: $response")
+            response
         }
     }
 
     suspend fun credentialAuth(email: String, password: String): ServiceResult<Unit,AccountErrorType> {
-
-   return  try{
+        return try{
             auth.signInWithEmailAndPassword(email, password).await()
-           ServiceResult(true,null,null)
+
+            val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                success = true,
+                data = null,
+                error = null
+            )
+            Log.d("FirebaseAccountDao: credentialAuth", "Credential authentication successful: $response")
+            response
+
         } catch (e:Exception){
             when (e){
-                is FirebaseAuthInvalidCredentialsException-> ServiceResult(false,null,AccountErrorType.INVALID_PASSWORD)
-                is FirebaseAuthInvalidUserException->  ServiceResult(false, null, AccountErrorType.ACCOUNT_NOT_FOUND)
+                is FirebaseAuthInvalidCredentialsException-> {
+                    val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                        success = false,
+                        data = null,
+                        error = AccountErrorType.INVALID_PASSWORD
+                    )
+                    Log.d("FirebaseAccountDao: credentialAuth", "Invalid password: $password")
+                    response
+                }
+                is FirebaseAuthInvalidUserException->  { val response: ServiceResult<Unit, AccountErrorType> =
+                    ServiceResult(
+                        success = false,
+                        data = null,
+                        error = AccountErrorType.ACCOUNT_NOT_FOUND
+                    )
+                    Log.d("FirebaseAccountDao: credentialAuth", "The account does not exist: $email")
+                    response
+                }
                 else -> {
-                    ServiceResult(false,null,AccountErrorType.DATABASE_ERROR)
+                    Log.e("FirebaseAccountDao: credentialAuth", "An exception occurred: ", e)
+
+                    val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                        success = false,
+                        data = null,
+                        error = AccountErrorType.DATABASE_ERROR
+                    )
+                    Log.d("FirebaseAccountDao: credentialAuth", "Returning: $response")
+                    response
                 }
             }
         }
-
-
-}
+    }
 
     suspend fun getAccount(email: String): ServiceResult<Account?, AccountErrorType> {
         try {
-            val account=accountCollection.document(email).get().await()
-            if(!account.exists())
-                return ServiceResult(false,null,AccountErrorType.ACCOUNT_NOT_FOUND)
+            val account = accountCollection.document(email).get().await()
 
+            if(!account.exists()) {
+                val response: ServiceResult<Account?, AccountErrorType> = ServiceResult(
+                    success = false,
+                    data = null,
+                    error = AccountErrorType.ACCOUNT_NOT_FOUND
+                )
 
-          return  ServiceResult(true,  Account(account.get("name").toString(), account.get("email").toString(),
-              account.get("password").toString()
-          ),null)
+                Log.d("FirebaseAccountDao: getAccount", "The account does not exist: $email")
+                return response
+            }
+
+            val response: ServiceResult<Account?, AccountErrorType> = ServiceResult(
+                success = true,
+                data = Account(
+                    name = account.get("name").toString(),
+                    email = account.get("email").toString(),
+                    password = account.get("password").toString()
+                ),
+                error = null
+            )
+
+            Log.d("FirebaseAccountDao: getAccount", "Account retrieval successful: $response")
+            return response
 
         } catch (e:Exception){
-            return ServiceResult(false,null,AccountErrorType.DATABASE_ERROR)
+            Log.e("FirebaseAccountDao: getAccount", "An exception occurred: ", e)
+
+            val response: ServiceResult<Account?, AccountErrorType> = ServiceResult(
+                success = false,
+                data = null,
+                error = AccountErrorType.DATABASE_ERROR
+            )
+
+            Log.d("FirebaseAccountDao: getAccount", "Returning: $response")
+            return response
         }
+    }
 
-        }
-  //  suspend fun getGoogleIdToken(): String{
+    /**
+     * Not yet implemented - NOT NEEDED AT THE MOMENT
+     */
+    //  suspend fun getGoogleIdToken(): String{
+    //  }
 
-
-
-  //  }
-
-
-
-    suspend fun signInWithGoogle(idToken: String): Boolean {
+    /**
+     * Not yet implemented - NOT NEEDED AT THE MOMENT
+     */
+    suspend fun signInWithGoogle(idToken: String): ServiceResult<String, AccountErrorType>{
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         return try {
             auth.signInWithCredential(credential).await()
-            true
+            val response: ServiceResult<String, AccountErrorType> = ServiceResult(
+                success = true,
+                data = idToken,
+                error = null
+            )
+            Log.d("FirebaseAccountDao: signInWithGoogle", "Google sign in successful: $response")
+            response
         } catch (e: Exception) {
-            Log.e("AutwithGoogle", "signInWithCredential:failure", e)
-            false
+            Log.e("FirebaseAccountDao: signInWithGoogle", "An exception occurred: ", e)
+            val response: ServiceResult<String, AccountErrorType> = ServiceResult(
+                success = true,
+                data = null,
+                error = null
+            )
+            Log.d("FirebaseAccountDao: signInWithGoogle", "Returning: $response")
+            response
         }
     }
 
-    }
+}
 
 
 
