@@ -49,7 +49,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".synchronization.SynchronizationChannelHandler" />
+        <service android:name=".synchronization.WearableDataProvider" />
     </application>
 
 </manifest>
