@@ -4,8 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import com.example.chillinapp.synchronization.WearableDataReceiver
 import com.example.chillinapp.ui.theme.ChillInAppTheme
+import java.lang.reflect.Modifier
 
 
 /**
@@ -27,9 +30,14 @@ class ChillInActivity : ComponentActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+
         setContent {
             ChillInAppTheme {
-                ChillInApp()
+                Box(modifier = Modifier.safeDrawingPadding()) {
+                    ChillInApp()
+                }
             }
         }
         val intent = Intent(this, WearableDataReceiver::class.java)
