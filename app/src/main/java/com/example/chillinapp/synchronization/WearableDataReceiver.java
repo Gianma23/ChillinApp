@@ -55,6 +55,7 @@ public class WearableDataReceiver extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
+        // Check the action received
         if (intent.getAction() != null && intent.getAction().equals("RECEIVE")) {
             Log.d(TAG, "Receiving data");
             receiveData();
@@ -66,10 +67,12 @@ public class WearableDataReceiver extends Service {
         } else
             Log.w(TAG, "No action found");
 
+        // Return START_STICKY to restart the service if it gets killed
         return START_STICKY;
     }
 
     private void receiveData() {
+        // Register a channel callback to receive data from the wearable device
         Wearable.getChannelClient(getApplicationContext()).registerChannelCallback(new ChannelClient.ChannelCallback() {
             @Override
             public void onChannelOpened(@NonNull ChannelClient.Channel channel) {
@@ -77,6 +80,7 @@ public class WearableDataReceiver extends Service {
                 Log.d(TAG, "onChannelOpened");
                 Task<InputStream> inputStreamTask = Wearable.getChannelClient(getApplicationContext()).getInputStream(channel);
                 inputStreamTask.addOnSuccessListener(inputStream -> {
+                        // Read the data received from the wearable device
                         Runnable toRun = () -> {
                             try {
                                 StringBuilder text = new StringBuilder();
