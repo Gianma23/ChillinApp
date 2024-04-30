@@ -75,5 +75,6 @@ fun accessResultText(result: ServiceResult<Unit, AccountErrorType>?): String = w
     AccountErrorType.NOT_YET_IMPLEMENTED -> stringResource(R.string.not_yet_implemented)
     AccountErrorType.INVALID_EMAIL -> stringResource(R.string.invalid_email)
     AccountErrorType.INVALID_PASSWORD -> stringResource(R.string.invalid_password)
+    AccountErrorType.DATABASE_ERROR -> stringResource(R.string.database_error)
     else -> stringResource(R.string.general_error)
 }

@@ -32,11 +32,33 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
             error = AccountErrorType.NOT_YET_IMPLEMENTED
         )
 
-    override fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType> =
+    /**
+     * Not yet implemented - NOT NEEDED
+     */
+    override suspend fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType> =
         ServiceResult(
             success = false,
             data = null,
             error = AccountErrorType.NOT_YET_IMPLEMENTED
         )
 
+    /**
+     * Not yet implemented - NOT NEEDED
+     */
+    override fun updateAccount(account: Account): ServiceResult<Boolean, AccountErrorType> =
+        ServiceResult(
+            success = false,
+            data = null,
+            error = AccountErrorType.NOT_YET_IMPLEMENTED
+        )
+
+    /**
+     * Not yet implemented - NOT NEEDED
+     */
+    override fun deleteAccount(email: String): ServiceResult<Boolean, AccountErrorType> =
+        ServiceResult(
+            success = false,
+            data = null,
+            error = AccountErrorType.NOT_YET_IMPLEMENTED
+        )
 }

@@ -50,9 +50,10 @@
     <string name="invalid_characters_label">Invalid characters</string>
     <string name="email_does_not_exist">Email does not exist</string>
     <string name="email_already_exists">Email already exists</string>
-    <string name="not_yet_implemented">Service not yet implemented</string>
+    <string name="not_yet_implemented">Service not yet implemented :/</string>
     <string name="authentication_failed">Authentication failed</string>
     <string name="account_not_found">Account not found</string>
     <string name="invalid_email">Invalid email</string>
     <string name="invalid_password">Invalid password</string>
+    <string name="database_error">Database error occurred. Try again later.</string>
 </resources>
