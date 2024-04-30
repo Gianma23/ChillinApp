@@ -57,4 +57,6 @@
     <string name="invalid_password">Invalid password</string>
     <string name="database_error">Database error occurred. Try again later.</string>
     <string name="overview_title">ChillIn</string>
+    <string name="loading_text">Loading…</string>
+    <string name="chillin_logo_description">ChillIn Logo</string>
 </resources>

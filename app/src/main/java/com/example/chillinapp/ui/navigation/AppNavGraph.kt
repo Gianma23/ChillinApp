@@ -11,6 +11,8 @@ import com.example.chillinapp.ui.access.recovery.PswRecoveryDestination
 import com.example.chillinapp.ui.access.recovery.PswRecoveryScreen
 import com.example.chillinapp.ui.access.registration.SignInDestination
 import com.example.chillinapp.ui.access.registration.SignInScreen
+import com.example.chillinapp.ui.splash.LandingScreen
+import com.example.chillinapp.ui.splash.LandingDestination
 
 
 /**
@@ -31,9 +33,15 @@ fun ChillInAppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = LogInDestination.route,
+        startDestination = LandingDestination.route,
         modifier = modifier
     ) {
+        composable(route = LandingDestination.route) {
+            LandingScreen(
+                onTimeout = { navController.navigate(LogInDestination.route) },
+                navController = navController
+            )
+        }
         composable(route = LogInDestination.route) {
             LogInScreen(
                 navigateToSignInScreen = { navController.navigate(SignInDestination.route) },
