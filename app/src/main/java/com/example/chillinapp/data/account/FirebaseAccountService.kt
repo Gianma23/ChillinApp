@@ -111,4 +111,7 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
             data = null,
             error = AccountErrorType.NOT_YET_IMPLEMENTED
         )
+
+    override fun signOut(): ServiceResult<Unit,AccountErrorType> =
+        accountDao.signOut()
 }
