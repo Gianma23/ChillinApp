@@ -18,6 +18,9 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * This class is responsible for sending data to the handheld device.
+ */
 public class WearableDataProvider extends Service {
 
     private final String TAG = "WearableDataProvider";
@@ -43,6 +46,7 @@ public class WearableDataProvider extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
+        // Check the action received
         if (intent.getAction() != null && intent.getAction().equals("SEND")) {
             Log.d(TAG, "Sending data");
             sendData();
@@ -54,6 +58,7 @@ public class WearableDataProvider extends Service {
         } else
             Log.w(TAG, "No action found");
 
+        // Return START_STICKY to restart the service if it gets killed
         return START_STICKY;
     }
 
@@ -62,9 +67,11 @@ public class WearableDataProvider extends Service {
             String nodeId = getNode();
             Log.d(TAG, "Node: " + nodeId);
 
+            // Open a channel to send data
             Task<ChannelClient.Channel> channelTask = Wearable.getChannelClient(getApplicationContext()).openChannel(nodeId, CHANNEL_MSG);
             channelTask.addOnSuccessListener(channel -> {
                 Log.d(TAG, "onSuccess " + channel.getNodeId());
+                // Get the output stream
                 Task<OutputStream> outputStreamTask = Wearable.getChannelClient(getApplicationContext()).getOutputStream(channel);
                 outputStreamTask.addOnSuccessListener(outputStream -> {
                     Log.d(TAG, "output stream onSuccess");
@@ -82,6 +89,10 @@ public class WearableDataProvider extends Service {
         run.start();
     }
 
+    /**
+     * Get the node ID of the handheld device.
+     * @return The node ID of the handheld device.
+     */
     private String getNode() {
         String nodeId = null;
 

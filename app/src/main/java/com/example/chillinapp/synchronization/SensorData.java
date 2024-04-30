@@ -2,6 +2,9 @@ package com.example.chillinapp.synchronization;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Class that represents the data that is sent from the wearable to the mobile device.
+ */
 public class SensorData {
 
     private Long timestamp;
@@ -10,6 +13,12 @@ public class SensorData {
     private Double heartRate;
 
 
+    /**
+     * Constructor for the SensorData class.
+     * @param eda The Electrodermal Activity value.
+     * @param skinTemperature The skin temperature value.
+     * @param heartRate The heart rate value.
+     */
     public SensorData(Double eda, Double skinTemperature, Double heartRate) {
         this.eda = eda;
         this.skinTemperature = skinTemperature;
@@ -17,6 +26,13 @@ public class SensorData {
         this.timestamp = setCurrentTimestamp();
     }
 
+    /**
+     * Constructor for the SensorData class.
+     * @param timestamp The timestamp of the data.
+     * @param eda The Electrodermal Activity value.
+     * @param skinTemperature The skin temperature value.
+     * @param heartRate The heart rate value.
+     */
     public SensorData(Long timestamp, Double eda, Double skinTemperature, Double heartRate) {
         this.eda = eda;
         this.skinTemperature = skinTemperature;
@@ -56,6 +72,10 @@ public class SensorData {
         this.timestamp = timestamp;
     }
 
+    /**
+     * Method that sets the timestamp of the data to the current time.
+     * @return The current timestamp.
+     */
     private long setCurrentTimestamp() {
         return System.currentTimeMillis();
     }
