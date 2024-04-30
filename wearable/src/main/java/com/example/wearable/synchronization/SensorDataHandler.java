@@ -22,7 +22,7 @@ public class SensorDataHandler {
         return instance;
     }
 
-    public int pushData(byte[] data) {
+    public boolean pushData(byte[] data) {
         // If samples have reached the maximum, create a new bulk data and start over
         if (samplingCount == MAX_SAMPLING){
             bulkData = new byte[MAX_DATA_SIZE];
@@ -34,7 +34,7 @@ public class SensorDataHandler {
             samplingCount++;
         }
 
-        return samplingCount;
+        return samplingCount == MAX_DATA_SIZE;
     }
 
     public byte[] getBulkData() {
