@@ -56,4 +56,5 @@
     <string name="invalid_email">Invalid email</string>
     <string name="invalid_password">Invalid password</string>
     <string name="database_error">Database error occurred. Try again later.</string>
+    <string name="overview_title">ChillIn</string>
 </resources>
