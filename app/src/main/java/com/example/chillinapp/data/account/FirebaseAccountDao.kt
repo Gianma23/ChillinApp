@@ -101,6 +101,7 @@ class FirebaseAccountDao {
 
     suspend fun credentialAuth(email: String, password: String): ServiceResult<Unit,AccountErrorType> {
         return try{
+
             auth.signInWithEmailAndPassword(email, password).await()
 
             val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(

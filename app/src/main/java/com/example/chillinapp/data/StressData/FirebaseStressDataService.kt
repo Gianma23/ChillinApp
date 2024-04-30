@@ -2,10 +2,9 @@ package com.example.chillinapp.data.StressData
 
 import com.example.chillinapp.data.ServiceResult
 
-class FirebaseStressDataService():
+class FirebaseStressDataService(private val stressDataDao: FirebaseStressDataDao):
     StressDataService {
-    override suspend fun InsertData(stressData: StressData): ServiceResult<Unit, StressErrorType> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun InsertRawData(stressData: StressRawData): ServiceResult<Unit, StressErrorType> =
+        stressDataDao.InsertRawData(stressData)
 
 }

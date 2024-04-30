@@ -11,29 +11,20 @@ class FirebaseStressDataDao {
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
     private val auth= Firebase.auth
-    suspend fun InsertData(stressData:StressData): ServiceResult<Unit,StressErrorType>{
+    suspend fun InsertRawData(stressData:StressRawData): ServiceResult<Unit,StressErrorType>{
         val user=auth.currentUser
         val email= user?.email
         val userDocument= email?.let { accountCollection.document(it) }
         val rawDocument= userDocument?.collection("RawData")?.document(stressData.timeStamp.toString())
-        val derivedDocument= userDocument?.collection("DerivedData")?.document(stressData.timeStamp.toString())
+
         try {
             val rawData= hashMapOf(
                 "HR" to stressData.HR,
                 "GDR" to stressData.GDR,
                 "TEMP" to stressData.TEMP,
             )
-            val derivedData= hashMapOf(
-                "BINTERVAL" to stressData.BINTERVAL,
-                "excpected_prediction" to stressData.prediction,
-                "STRESS_LEVEL" to stressData.stressLevel
-            )
             rawDocument?.set(rawData)?.await()
-            derivedDocument?.set(derivedData)?.await()
             return ServiceResult(true,null,null)
-
-
-
 
         } catch (e:Exception){
             return ServiceResult(false,null,StressErrorType.NETWORK_ERROR)
