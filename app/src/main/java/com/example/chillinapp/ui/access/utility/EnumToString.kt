@@ -13,6 +13,11 @@ import com.example.chillinapp.ui.access.utility.validationResult.NameValidationR
 import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 
 
+/**
+ * Composable function that displays a supporting text based on the validation status of the name input.
+ *
+ * @param status The validation status of the name input.
+ */
 @Composable
 fun NameSupportingText(status: NameValidationResult){
     when(status){
@@ -23,6 +28,11 @@ fun NameSupportingText(status: NameValidationResult){
     }
 }
 
+/**
+ * Composable function that displays a supporting text based on the validation status of the email input.
+ *
+ * @param emailStatus The validation status of the email input.
+ */
 @Composable
 fun EmailSupportingText(emailStatus: EmailValidationResult) {
     when(emailStatus){
@@ -35,6 +45,11 @@ fun EmailSupportingText(emailStatus: EmailValidationResult) {
     }
 }
 
+/**
+ * Composable function that displays a supporting text based on the validation status of the password input.
+ *
+ * @param passwordStatus The validation status of the password input.
+ */
 @Composable
 fun PasswordSupportingText(passwordStatus: PasswordValidationResult) {
     when(passwordStatus){
@@ -49,6 +64,11 @@ fun PasswordSupportingText(passwordStatus: PasswordValidationResult) {
     }
 }
 
+/**
+ * Composable function that displays a supporting text based on the validation status of the confirm password input.
+ *
+ * @param confirmPasswordStatus The validation status of the confirm password input.
+ */
 @Composable
 fun ConfirmPasswordSupportingText(confirmPasswordStatus: ConfirmPasswordValidationResult) {
     when(confirmPasswordStatus){
@@ -58,6 +78,11 @@ fun ConfirmPasswordSupportingText(confirmPasswordStatus: ConfirmPasswordValidati
     }
 }
 
+/**
+ * Composable function that displays an error text.
+ *
+ * @param text The error text to be displayed.
+ */
 @Composable
 fun SupportingErrorText(text: String){
     Text(
@@ -67,6 +92,12 @@ fun SupportingErrorText(text: String){
     )
 }
 
+/**
+ * Composable function that returns a string based on the result of the account access.
+ *
+ * @param result The result of the account access.
+ * @return A string representing the result of the account access.
+ */
 @Composable
 fun accessResultText(result: ServiceResult<Unit, AccountErrorType>?): String = when(result?.error){
     AccountErrorType.EMAIL_IN_USE -> stringResource(R.string.email_already_exists)

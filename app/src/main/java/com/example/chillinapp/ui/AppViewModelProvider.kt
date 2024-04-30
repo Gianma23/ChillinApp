@@ -10,8 +10,13 @@ import com.example.chillinapp.ui.access.login.LogInViewModel
 import com.example.chillinapp.ui.access.recovery.PswRecoveryViewModel
 import com.example.chillinapp.ui.access.registration.SignInViewModel
 
+
 /**
- * Provides Factory to create instance of ViewModel for the entire Inventory app
+ * Object that provides a factory to create instances of ViewModel for the entire ChillIn app.
+ *
+ * This object uses the viewModelFactory function from the androidx.lifecycle.viewmodel library to create
+ * initializers for each ViewModel in the application. Each initializer creates an instance of a ViewModel
+ * with the accountService from the ChillInApplication's container.
  */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -31,8 +36,13 @@ object AppViewModelProvider {
 }
 
 /**
- * Extension function to queries for [Application] object and returns an instance of
+ * Extension function to query for [Application] object and return an instance of
  * [ChillInApplication].
+ *
+ * This function uses the AndroidViewModelFactory.APPLICATION_KEY to retrieve the Application object from
+ * the CreationExtras. It then casts this object to a ChillInApplication and returns it.
+ *
+ * @return The Application object cast to a ChillInApplication.
  */
 fun CreationExtras.chillInApplication(): ChillInApplication =
     (this[AndroidViewModelFactory.APPLICATION_KEY] as ChillInApplication)

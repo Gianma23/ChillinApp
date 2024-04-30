@@ -11,12 +11,28 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 
+/**
+ * Class that provides an implementation of the AccountDao interface using Firebase.
+ *
+ * This class provides concrete implementations of the AccountDao methods using Firebase as the backend. It uses
+ * Firebase's Firestore database to store account data and Firebase's Authentication service to authenticate users.
+ *
+ * @property db An instance of FirebaseFirestore used to interact with the Firestore database.
+ * @property accountCollection A reference to the "account" collection in the Firestore database.
+ * @property auth An instance of Firebase's Authentication service.
+ */
 class FirebaseAccountDao {
+
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
     private val auth=Firebase.auth
 
-
+    /**
+     * Creates a new account in the Firestore database and authenticates the user with Firebase's Authentication service.
+     *
+     * @param account The account to be created.
+     * @return A ServiceResult instance containing the result of the operation.
+     */
     suspend fun createAccount(account: Account): ServiceResult<Unit, AccountErrorType> {
         val userData = hashMapOf(
             "email" to account.email,
@@ -63,6 +79,12 @@ class FirebaseAccountDao {
         }
     }
 
+    /**
+     * Checks if an email is already in use by querying the Firestore database.
+     *
+     * @param email The email to be checked.
+     * @return A ServiceResult instance containing the result of the operation.
+     */
     suspend fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType> {
         return try {
             val account=accountCollection.document(email).get().await()
@@ -99,6 +121,13 @@ class FirebaseAccountDao {
         }
     }
 
+    /**
+     * Authenticates credentials with Firebase's Authentication service.
+     *
+     * @param email The email to be authenticated.
+     * @param password The password to be authenticated.
+     * @return A ServiceResult instance containing the result of the operation.
+     */
     suspend fun credentialAuth(email: String, password: String): ServiceResult<Unit,AccountErrorType> {
         return try{
             auth.signInWithEmailAndPassword(email, password).await()
@@ -146,6 +175,12 @@ class FirebaseAccountDao {
         }
     }
 
+    /**
+     * Retrieves an account from the Firestore database.
+     *
+     * @param email The email of the account to be retrieved.
+     * @return A ServiceResult instance containing the result of the operation.
+     */
     suspend fun getAccount(email: String): ServiceResult<Account?, AccountErrorType> {
         try {
             val account = accountCollection.document(email).get().await()
@@ -195,7 +230,10 @@ class FirebaseAccountDao {
     //  }
 
     /**
-     * Not yet implemented - NOT NEEDED AT THE MOMENT
+     * Authenticates with Google using Firebase's Authentication service.
+     *
+     * @param idToken The Google ID token to be authenticated.
+     * @return A ServiceResult instance containing the result of the operation.
      */
     suspend fun signInWithGoogle(idToken: String): ServiceResult<String, AccountErrorType>{
         val credential = GoogleAuthProvider.getCredential(idToken, null)
