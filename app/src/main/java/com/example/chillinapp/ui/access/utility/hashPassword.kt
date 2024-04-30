@@ -1,6 +1,6 @@
 package com.example.chillinapp.ui.access.utility
 
-import at.favre.lib.crypto.bcrypt.BCrypt
+import java.security.MessageDigest
 
 
 /**
@@ -13,5 +13,8 @@ import at.favre.lib.crypto.bcrypt.BCrypt
  * @return The hashed password as a string.
  */
 fun hashPassword(password: String): String {
-    return BCrypt.withDefaults().hashToString(12, password.toCharArray())
+    val bytes = password.toByteArray()
+    val md = MessageDigest.getInstance("SHA-256")
+    val digest = md.digest(bytes)
+    return digest.fold("") { str, it -> str + "%02x".format(it) }
 }
