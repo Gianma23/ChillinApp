@@ -44,23 +44,9 @@ class MainActivity : ComponentActivity() {
             WearApp("Android")
         }
 
-        /*
         val intent = Intent(this, WearableDataProvider::class.java)
         intent.setAction("START_SERVICE")
         startService(intent)
-            */
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, WearableDataProvider::class.java)
-            intent.action = "START_SERVICE"
-            startService(intent)
-        }, 30000)
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, WearableDataProvider::class.java)
-            intent.action = "SEND"
-            startService(intent)
-        }, 10000)
     }
 
     override fun onDestroy() {
