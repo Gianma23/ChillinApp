@@ -257,7 +257,13 @@ class FirebaseAccountDao {
             response
         }
     }
-    suspend fun signOut(): ServiceResult<Unit,AccountErrorType> {
+
+    /**
+     * Signs out the current user from Firebase's Authentication service.
+     *
+     * @return A ServiceResult instance containing the result of the operation.
+     */
+    fun signOut(): ServiceResult<Unit,AccountErrorType> {
         return try {
             auth.signOut()
             val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
