@@ -79,6 +79,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
                 inputStreamTask.addOnSuccessListener{ inputStream ->
                     launch {
                         try {
+                            // TODO: remove useless logs after testing
                             val text = StringBuilder()
                             val buffer = ByteArrayOutputStream()
                             var read: Int
@@ -128,23 +129,23 @@ class WearableDataReceiver : Service(), CoroutineScope {
     private fun parseSingleData(data: ByteArray): StressRawData {
         // Array of bytes composed by:
         // 8 bytes for timestamp
-        // 8 bytes for EDA
-        // 8 bytes for skin temperature
+        // 8 bytes for heart rate
+        // 8 bytes for gps
 
         // Timestamp
         val timestampBytes = ByteArray(8)
         System.arraycopy(data, 0, timestampBytes, 0, 8)
         val timestamp = bytesToLong(timestampBytes)
 
-        // EDA
-        val edaBytes = ByteArray(8)
-        System.arraycopy(data, 8, edaBytes, 0, 8)
-        val eda = bytesToDouble(edaBytes)
+        // heart rate
+        val heartRateBytes = ByteArray(8)
+        System.arraycopy(data, 8, heartRateBytes, 0, 8)
+        val eda = bytesToDouble(heartRateBytes)
 
-        // Skin temperature
-        val skinTemperatureBytes = ByteArray(8)
-        System.arraycopy(data, 16, skinTemperatureBytes, 0, 8)
-        val skinTemperature = bytesToDouble(skinTemperatureBytes)
+        // GPS
+        val gpsBytes = ByteArray(8)
+        System.arraycopy(data, 16, gpsBytes, 0, 8)
+        val skinTemperature = bytesToDouble(gpsBytes)
 
         return StressRawData(timestamp, eda, skinTemperature)
     }
