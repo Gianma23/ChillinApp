@@ -34,7 +34,7 @@ public class SensorDataHandler {
             samplingCount++;
         }
 
-        return samplingCount == MAX_DATA_SIZE;
+        return samplingCount == MAX_SAMPLING;
     }
 
     public byte[] getBulkData() {

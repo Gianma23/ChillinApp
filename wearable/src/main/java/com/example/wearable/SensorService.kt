@@ -15,15 +15,17 @@ import android.util.Log
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.example.wearable.NotificationsHelper
+import com.example.wearable.synchronization.SensorDataHandler
+import com.example.wearable.synchronization.WearableDataProvider
+import java.nio.ByteBuffer
 
 private val TAG = "SensorService"
 
 class SensorService: Service(), SensorEventListener {
 
     private var sensorManager: SensorManager? = null
-    private var EDAsensor: Sensor? = null
-    private var tempSensor: Sensor? = null
-    private var nSample = 0
+    private var hrSensor: Sensor? = null
+
     override fun onCreate() {
         super.onCreate()
 
@@ -35,14 +37,13 @@ class SensorService: Service(), SensorEventListener {
             return
         }
 
-        val manager = NotificationsHelper.createNotificationChannel(this)
+        NotificationsHelper.createNotificationChannel(this)
         startForeground(
             1,
             NotificationsHelper.buildNotification(this),
         )
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        EDAsensor = sensorManager?.getDefaultSensor(Sensor.TYPE_HEART_RATE) // TODO change to EDA sensor
-        tempSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE)
+        hrSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_HEART_RATE)
     }
 
     override fun onDestroy() {
@@ -55,7 +56,6 @@ class SensorService: Service(), SensorEventListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         if(intent?.action != null) {
             when(intent.action) {
                 "start_sensors" -> startSensors()
@@ -65,24 +65,36 @@ class SensorService: Service(), SensorEventListener {
                 }
             }
         }
-        Log.d(TAG, sensorManager?.getSensorList(Sensor.TYPE_ALL).toString())
-        // startForeground()
         return START_STICKY
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        val value: Float?
-        if(event?.sensor == EDAsensor) {
+        var value: Float? = 0f
+        var timestamp: Long? = 0
+        if(event?.sensor == hrSensor) {
             value = event?.values?.get(0)
-            Log.d(TAG, "EDA value: $value")
+            timestamp = event?.timestamp
+            Log.d(TAG, "Sensor value: $value")
         }
-        else if(event?.sensor == tempSensor) {
-            value = event?.values?.get(0)
-            Log.d(TAG, "Temperature value: $value")
+        val byteTimestamp = timestamp?.let { ByteBuffer.allocate(8).putLong(it).array() }
+        val byteValue = value?.let { ByteBuffer.allocate(4).putFloat(it).array() }
+        var data : ByteArray? = ByteArray(0)
+        if (byteValue != null) {
+            data = byteTimestamp?.plus(byteValue)
+            data = data?.plus(ByteArray(12))
         }
-        // inserisci in coda
-        nSample++
-        // se coda piena, invia dati
+        Log.d(TAG, "data length ${data?.size}")
+
+        val dataHandler = SensorDataHandler.getInstance()
+        val isFull = dataHandler.pushData(data)
+        Log.d(TAG, "Data pushed to handler")
+
+        if(isFull) {
+            val intent = Intent(this, WearableDataProvider::class.java)
+            intent.action = "SEND"
+            startService(intent)
+            Log.d(TAG, "Provider service called to send data")
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -92,16 +104,14 @@ class SensorService: Service(), SensorEventListener {
     // ============================= PRIVATE METHODS =============================
 
     private fun startSensors() {
-        nSample = 0
-        sensorManager?.registerListener(this, EDAsensor, SensorManager.SENSOR_DELAY_NORMAL)
-        sensorManager?.registerListener(this, tempSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        // TODO controllare che i sensori siano disponibili
+        sensorManager?.registerListener(this, hrSensor, SensorManager.SENSOR_DELAY_NORMAL)
         Log.d(TAG, "Sensors started")
     }
 
     private fun stopSensors() {
         //dump dati sensori
-        sensorManager?.unregisterListener(this, EDAsensor)
-        sensorManager?.unregisterListener(this, tempSensor)
+        sensorManager?.unregisterListener(this, hrSensor)
         Log.d(TAG, "Sensors stopped")
     }
 }

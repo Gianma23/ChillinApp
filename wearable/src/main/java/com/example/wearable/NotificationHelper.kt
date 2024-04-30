@@ -10,7 +10,7 @@ internal object NotificationsHelper {
 
     private const val NOTIFICATION_CHANNEL_ID = "general_notification_channel"
 
-    fun createNotificationChannel(context: Context): NotificationManager {
+    fun createNotificationChannel(context: Context) {
         val notificationManager = context.getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
 
         // create the notification channel
@@ -20,7 +20,6 @@ internal object NotificationsHelper {
             NotificationManager.IMPORTANCE_DEFAULT
         )
         notificationManager.createNotificationChannel(channel)
-        return notificationManager
     }
 
     fun buildNotification(context: Context): Notification {
