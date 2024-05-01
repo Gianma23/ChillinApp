@@ -258,6 +258,12 @@ class FirebaseAccountDao {
             response
         }
     }
+    suspend fun getcurrentAccount(): ServiceResult<Account?, AccountErrorType>? {
+        val currentuser=auth.currentUser
+        val currentemail=currentuser?.email
+        return currentemail?.let { getAccount(it) }
+
+    }
 
     /**
      * Signs out the current user from Firebase's Authentication service.
