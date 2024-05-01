@@ -41,11 +41,18 @@ class ChillInActivity : ComponentActivity() {
                 }
             }
         }
+
         val intent = Intent(this, WearableDataReceiver::class.java)
         intent.setAction("START_SERVICE")
         startService(intent)
+
     }
 
+    /**
+     * Called when the activity is destroyed.
+     *
+     * This method stops the WearableDataReceiver service.
+     */
     override fun onDestroy() {
         super.onDestroy()
         val intent = Intent(this, WearableDataReceiver::class.java)
