@@ -1,4 +1,4 @@
-package com.example.chillinapp.data.StressData
+package com.example.chillinapp.data.stress
 
 enum class StressErrorType{
   NOT_IMPLEMENTED_YET,
