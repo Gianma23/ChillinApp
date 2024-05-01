@@ -17,7 +17,6 @@ object SettingsDestination : NavigationDestination {
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     navigateToLogInScreen: () -> Unit = {},
-    navigateToOverallScreen: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
 

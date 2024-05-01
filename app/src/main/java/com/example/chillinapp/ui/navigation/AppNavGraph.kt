@@ -11,12 +11,8 @@ import com.example.chillinapp.ui.access.recovery.PswRecoveryDestination
 import com.example.chillinapp.ui.access.recovery.PswRecoveryScreen
 import com.example.chillinapp.ui.access.registration.SignInDestination
 import com.example.chillinapp.ui.access.registration.SignInScreen
-import com.example.chillinapp.ui.home.map.MapDestination
-import com.example.chillinapp.ui.home.map.MapScreen
-import com.example.chillinapp.ui.home.overall.OverallDestination
-import com.example.chillinapp.ui.home.overall.OverallScreen
-import com.example.chillinapp.ui.home.settings.SettingsDestination
-import com.example.chillinapp.ui.home.settings.SettingsScreen
+import com.example.chillinapp.ui.home.HomeDestination
+import com.example.chillinapp.ui.home.HomeScreen
 import com.example.chillinapp.ui.splash.LandingScreen
 import com.example.chillinapp.ui.splash.LandingDestination
 
@@ -29,7 +25,7 @@ import com.example.chillinapp.ui.splash.LandingDestination
  * - LogInDestination: Displays the LogInScreen and provides navigation actions to the SignInScreen, PswRecoveryScreen and OverallScreen.
  * - SignInDestination: Displays the SignInScreen and provides a navigation action to the LogInScreen.
  * - PswRecoveryDestination: Displays the PswRecoveryScreen and provides navigation actions to the LogInScreen and SignInScreen.
- * - OverallDestination: Displays the OverallScreen and provides navigation actions to the SettingsScreen and MapScreen.
+ * - MonitorDestination: Displays the OverallScreen and provides navigation actions to the SettingsScreen and MapScreen.
  * - SettingsDestination: Displays the SettingsScreen and provides navigation actions to the LogInScreen and OverallScreen.
  * - MapDestination: Displays the MapScreen and provides navigation actions to the SettingsScreen and OverallScreen.
  *
@@ -60,7 +56,12 @@ fun ChillInAppNavHost(
             LogInScreen(
                 navigateToSignInScreen = { navController.navigate(SignInDestination.route) },
                 navigateToPswRecoveryScreen = { navController.navigate(PswRecoveryDestination.route) },
-                navigateToHomeScreen = { navController.navigate(OverallDestination.route) }
+                screenIfSuccess = {
+                    navController.popBackStack()
+                    navController.navigate(HomeDestination.route) {
+                        popUpTo(LogInDestination.route) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -79,28 +80,10 @@ fun ChillInAppNavHost(
             )
         }
 
-        // Overall screen route
-        composable(route = OverallDestination.route) {
-            OverallScreen(
-                navigateToSettingsScreen = { navController.navigate(SettingsDestination.route) },
-                navigateToMapScreen = { navController.navigate(MapDestination.route) }
-            )
+        // Home screen route
+        composable(route = HomeDestination.route) {
+            HomeScreen()
         }
 
-        // Settings screen route
-        composable(route = SettingsDestination.route) {
-            SettingsScreen(
-                navigateToLogInScreen = { navController.navigate(LogInDestination.route) },
-                navigateToOverallScreen = { navController.navigate(OverallDestination.route) }
-            )
-        }
-
-        // Map screen route
-        composable(route = MapDestination.route) {
-            MapScreen(
-                navigateToSettingsScreen = { navController.navigate(SettingsDestination.route) },
-                navigateToOverallScreen = { navController.navigate(OverallDestination.route) }
-            )
-        }
     }
 }

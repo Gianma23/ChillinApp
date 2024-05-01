@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.overall
+package com.example.chillinapp.ui.home.monitor
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -8,21 +8,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.navigation.NavigationDestination
 
-object OverallDestination: NavigationDestination {
+object MonitorDestination: NavigationDestination {
     override val route: String = "overall"
     override val titleRes: Int = R.string.overview_title
 }
 
 @Composable
-fun OverallScreen(
+fun MonitorScreen(
     modifier: Modifier = Modifier,
-    navigateToSettingsScreen: () -> Unit = {},
-    navigateToMapScreen: () -> Unit = {},
-    viewModel: OverallViewModel = viewModel()
+    viewModel: MonitorViewModel = viewModel()
 ) {
 
     /*TODO: Implement the UI for the Overall screen.*/
 
-    Text(text = stringResource(id = OverallDestination.titleRes))
+    Text(text = stringResource(id = MonitorDestination.titleRes))
 
 }

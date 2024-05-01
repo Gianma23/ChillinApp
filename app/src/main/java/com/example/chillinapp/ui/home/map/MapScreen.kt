@@ -16,8 +16,6 @@ object MapDestination : NavigationDestination {
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
-    navigateToOverallScreen: () -> Unit = {},
-    navigateToSettingsScreen: () -> Unit = {},
     viewModel: MapViewModel = viewModel()
 ) {
 
