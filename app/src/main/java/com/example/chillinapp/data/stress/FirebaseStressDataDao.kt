@@ -2,8 +2,6 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
-import com.example.chillinapp.data.account.AccountService
-import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
@@ -17,7 +15,7 @@ class FirebaseStressDataDao {
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
     private val auth= Firebase.auth
-    private val dbreference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
+    private val dbReference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
 
     /**
      * Insert raw data to the database. Protocol is defined to get 30 samples of data at a time.
@@ -25,38 +23,36 @@ class FirebaseStressDataDao {
      * @return [ServiceResult] with Unit as success type and [StressErrorType] as error type
      */
     suspend fun insertRawData(stressData: List<StressRawData>): ServiceResult<Unit,StressErrorType>{
+
         val user=auth.currentUser
         val email= user?.email
         val userDocument= email?.let { accountCollection.document(it) }
 
-
         return try {
-            var i:Int=0
             // Insert raw data for each sample
-            for (data in stressData){
+            for ((i, data) in stressData.withIndex()){
                 val rawDocument= userDocument?.collection("RawData")?.document(stressData[i].timestamp.toString())
                 val rawData= hashMapOf(
                     "timestamp" to data.timestamp,
-                    "heartrateSensor" to data.heartrateSensor,
+                    "heartRateSensor" to data.heartRateSensor,
                     "skinTemperatureSensor" to data.skinTemperatureSensor,
                 )
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(rawData)?.await()
-                i++
-
-
             }
 
-            val fastreturn=fastInsert(stressData)
-            if (fastreturn.success)
-            ServiceResult(true,null,null)
+            val fastReturn = fastInsert(stressData)
+            if (fastReturn.success)
+                ServiceResult(true,null,null)
             else
-                fastreturn
-        } catch (e:Exception){
-            ServiceResult(false,null,StressErrorType.NETWORK_ERROR)
+                fastReturn
 
+        } catch (e:Exception){
+            Log.e("Insert", "An exception occurred", e)
+            ServiceResult(false,null,StressErrorType.NETWORK_ERROR)
         }
     }
+
     suspend fun getRawData(n: Int): ServiceResult <List <StressRawData>,StressErrorType> {
         val user = auth.currentUser
         val email = user?.email
@@ -72,11 +68,11 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartrateSensor:Double = (document.get("heartrateSensor") as Double)
+                    val heartRateSensor:Double = (document.get("heartRateSensor") as Double)
                     val skinTemperatureSensor : Double= (document.get("skinTemperatureSensor" ) as Double)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
-                    val stressRawData = StressRawData(timestamp, heartrateSensor, skinTemperatureSensor)
+                    val stressRawData = StressRawData(timestamp, heartRateSensor, skinTemperatureSensor)
                     rawDataList.add(stressRawData)
                 }
 
@@ -84,20 +80,20 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
+            Log.e("getRawData", "An exception occurred", e)
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
-
-
         }
     }
+
     suspend fun fastInsert(stressData: List<StressRawData>) :ServiceResult<Unit,StressErrorType>{
         val email= auth.currentUser?.email
         val key= email?.substringBefore("@")
-        val rawdatareference= key?.let { dbreference.child(it).child("RawData") }
-        if (rawdatareference != null) {
+        val rawDataReference= key?.let { dbReference.child(it).child("RawData") }
+        if (rawDataReference != null) {
             return try {
-                rawdatareference.removeValue().await()
+                rawDataReference.removeValue().await()
                 stressData.forEach{data->
-                rawdatareference.child(data.timestamp.toString()).setValue(data).await()
+                rawDataReference.child(data.timestamp.toString()).setValue(data).await()
                 }
                 Log.d("fastInsert", "Insert completed")
                 ServiceResult(success = true, data = null, error = null)
@@ -113,20 +109,21 @@ class FirebaseStressDataDao {
 
 
     }
-    suspend fun fastget():ServiceResult<List<StressRawData>,StressErrorType>{
-        val user=auth.currentUser
-        val email=user?.email
-        val keyname= email?.substringBefore("@")
-        val rawDataref= keyname?.let { dbreference.child(it).child("RawData") }
+
+    suspend fun fastGet():ServiceResult<List<StressRawData>,StressErrorType>{
+        val user = auth.currentUser
+        val email = user?.email
+        val keyName = email?.substringBefore("@")
+        val rawDataRef = keyName?.let { dbReference.child(it).child("RawData") }
         return try {
-            val snapshot= rawDataref?.get()?.await()
+            val snapshot= rawDataRef?.get()?.await()
             val stressDataList= mutableListOf<StressRawData>()
             snapshot?.children?.forEach{ childSnapshot->
                 val timestamp=childSnapshot.key?.toLongOrNull()
-                val heartrateSensor=childSnapshot.child("heartrateSensor").getValue() as Double
-                val skinTemperatureSensor=childSnapshot.child("skinTemperatureSensor").getValue() as Double
-                if (timestamp != null && heartrateSensor != null && skinTemperatureSensor != null) {
-                    val stressData = StressRawData(timestamp, heartrateSensor, skinTemperatureSensor)
+                val heartRateSensor=childSnapshot.child("heartRateSensor").value as Double
+                val skinTemperatureSensor=childSnapshot.child("skinTemperatureSensor").value as Double
+                if (timestamp != null) {
+                    val stressData = StressRawData(timestamp, heartRateSensor, skinTemperatureSensor)
                     stressDataList.add(stressData)
                 }
             }
@@ -138,6 +135,6 @@ class FirebaseStressDataDao {
             Log.e("readStressDataFromFirebase", "An exception occurred", e)
             ServiceResult(success = false, data = null, error = StressErrorType.COMMUNICATION_PROBLEM)
         }
+    }
 
-    }
-    }
+}

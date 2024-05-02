@@ -1,10 +1,6 @@
-package com.example.chillinapp.ui.home
+package com.example.chillinapp.ui.navigation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
@@ -13,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,7 +22,6 @@ import com.example.chillinapp.ui.home.monitor.MonitorDestination
 import com.example.chillinapp.ui.home.monitor.MonitorScreen
 import com.example.chillinapp.ui.home.settings.SettingsDestination
 import com.example.chillinapp.ui.home.settings.SettingsScreen
-import com.example.chillinapp.ui.navigation.NavigationDestination
 
 
 object HomeDestination : NavigationDestination {
@@ -36,14 +30,14 @@ object HomeDestination : NavigationDestination {
 }
 
 @Composable
-fun HomeScreen(
+fun HomeNavGraph(
     modifier: Modifier = Modifier,
 ) {
 
     val homeNavController = rememberNavController()
 
     val items = listOf(
-        Screen.Overall,
+        Screen.Monitor,
         Screen.Map,
         Screen.Settings
     )
@@ -85,11 +79,11 @@ fun HomeNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Overall.route,
+        startDestination = Screen.Monitor.route,
         modifier = modifier
     ) {
 
-        // Overall screen route
+        // Monitor screen route
         composable(route = MonitorDestination.route) {
             MonitorScreen()
         }
@@ -106,10 +100,4 @@ fun HomeNavHost(
             MapScreen()
         }
     }
-}
-
-sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
-    data object Overall : Screen(MonitorDestination.route, "Overall", Icons.Default.Home)
-    data object Map : Screen(MapDestination.route, "Map", Icons.Default.Map)
-    data object Settings : Screen(SettingsDestination.route, "Settings", Icons.Default.Settings)
 }

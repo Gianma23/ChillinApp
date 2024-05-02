@@ -10,5 +10,4 @@ class FirebaseStressDataService(private val stressDataDao: FirebaseStressDataDao
     override suspend fun getRawData(n: Int): ServiceResult<List<StressRawData>, StressErrorType> =
         stressDataDao.getRawData(n)
 
-
 }

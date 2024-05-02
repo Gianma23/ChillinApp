@@ -9,6 +9,9 @@ import com.example.chillinapp.ChillInApplication
 import com.example.chillinapp.ui.access.login.LogInViewModel
 import com.example.chillinapp.ui.access.recovery.PswRecoveryViewModel
 import com.example.chillinapp.ui.access.registration.SignInViewModel
+import com.example.chillinapp.ui.home.map.MapViewModel
+import com.example.chillinapp.ui.home.monitor.MonitorViewModel
+import com.example.chillinapp.ui.home.settings.SettingsViewModel
 
 
 /**
@@ -31,6 +34,19 @@ object AppViewModelProvider {
         initializer {
             // PswRecoveryScreen
             PswRecoveryViewModel(accountService = chillInApplication().container.accountService)
+        }
+        initializer {
+            // MonitorViewModel
+            MonitorViewModel(
+//                dataService = chillInApplication().container.stressDataService
+            )
+        }
+        initializer {
+            // MapViewModel
+            MapViewModel(dataService = chillInApplication().container.stressDataService)
+        }
+        initializer {
+            SettingsViewModel()
         }
     }
 }

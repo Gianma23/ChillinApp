@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.navigation.NavigationDestination
 
 object SettingsDestination : NavigationDestination {
@@ -17,7 +18,7 @@ object SettingsDestination : NavigationDestination {
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     navigateToLogInScreen: () -> Unit = {},
-    viewModel: SettingsViewModel = viewModel()
+    viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     /*TODO: Implement the Settings screen.*/
