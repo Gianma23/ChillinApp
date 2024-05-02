@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
@@ -26,6 +27,7 @@ class FirebaseAccountDao {
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
     private val auth=Firebase.auth
+    private val dbreference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
 
     /**
      * Creates a new account in the Firestore database and authenticates the user with Firebase's Authentication service.
@@ -48,6 +50,7 @@ class FirebaseAccountDao {
                     error = AccountErrorType.EMAIL_IN_USE
                 )
                 Log.d("FirebaseAccountDao: createAccount", "The account already exists: $account")
+
                 response
             } else {
                 account.password?.let {
@@ -59,6 +62,8 @@ class FirebaseAccountDao {
                     }
                 }
                 account.email?.let { accountCollection.document(it).set(userData).await() }
+
+
                 val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
                     success = true,
                     data = null,
@@ -129,21 +134,30 @@ class FirebaseAccountDao {
      * @return A ServiceResult instance containing the result of the operation.
      */
     suspend fun credentialAuth(email: String, password: String): ServiceResult<Unit,AccountErrorType> {
-        return try{
+        return try {
+
 
             auth.signInWithEmailAndPassword(email, password).await()
+
+            val account = getcurrentAccount()?.data
+            val name = account?.name
+
 
             val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
                 success = true,
                 data = null,
                 error = null
             )
-            Log.d("FirebaseAccountDao: credentialAuth", "Credential authentication successful: $response")
+
+
+
+
             response
 
-        } catch (e:Exception){
-            when (e){
-                is FirebaseAuthInvalidCredentialsException-> {
+
+        } catch (e: Exception) {
+            when (e) {
+                is FirebaseAuthInvalidCredentialsException -> {
                     val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
                         success = false,
                         data = null,
@@ -152,15 +166,18 @@ class FirebaseAccountDao {
                     Log.d("FirebaseAccountDao: credentialAuth", "Invalid password: $password")
                     response
                 }
-                is FirebaseAuthInvalidUserException->  { val response: ServiceResult<Unit, AccountErrorType> =
-                    ServiceResult(
-                        success = false,
-                        data = null,
-                        error = AccountErrorType.ACCOUNT_NOT_FOUND
-                    )
+
+                is FirebaseAuthInvalidUserException -> {
+                    val response: ServiceResult<Unit, AccountErrorType> =
+                        ServiceResult(
+                            success = false,
+                            data = null,
+                            error = AccountErrorType.ACCOUNT_NOT_FOUND
+                        )
                     Log.d("FirebaseAccountDao: credentialAuth", "The account does not exist: $email")
                     response
                 }
+
                 else -> {
                     Log.e("FirebaseAccountDao: credentialAuth", "An exception occurred: ", e)
 
@@ -257,6 +274,13 @@ class FirebaseAccountDao {
             Log.d("FirebaseAccountDao: signInWithGoogle", "Returning: $response")
             response
         }
+    }
+    suspend fun getcurrentAccount(): ServiceResult<Account?, AccountErrorType>? {
+        val currentuser=auth.currentUser
+        val currentemail=currentuser?.email
+        Log.d("Prova currentuser", "l'user attuale ${currentemail?.let { getAccount(it) }}")
+        return currentemail?.let { getAccount(it) }
+
     }
 
     /**
