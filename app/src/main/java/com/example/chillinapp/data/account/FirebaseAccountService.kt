@@ -112,9 +112,10 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
             error = AccountErrorType.NOT_YET_IMPLEMENTED
         )
 
-    override fun getcurrentAccount(): ServiceResult<Account?, AccountErrorType> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getcurrentAccount(): ServiceResult<Account?, AccountErrorType> =
+        accountDao.getcurrentAccount()
+
+
 
     override fun signOut(): ServiceResult<Unit,AccountErrorType> =
         accountDao.signOut()

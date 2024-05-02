@@ -275,11 +275,15 @@ class FirebaseAccountDao {
             response
         }
     }
-    suspend fun getcurrentAccount(): ServiceResult<Account?, AccountErrorType>? {
+    suspend fun getcurrentAccount(): ServiceResult<Account?, AccountErrorType>{
         val currentuser=auth.currentUser
         val currentemail=currentuser?.email
         Log.d("Prova currentuser", "l'user attuale ${currentemail?.let { getAccount(it) }}")
-        return currentemail?.let { getAccount(it) }
+        val account= currentemail?.let { getAccount(it) }?.data
+        if(currentemail !=null)
+            return ServiceResult(true,account,null )
+        else
+          return  ServiceResult(false,null,AccountErrorType.ACCOUNT_NOT_FOUND)
 
     }
 
@@ -309,6 +313,17 @@ class FirebaseAccountDao {
             response
         }
     }
+   /* suspend fun deleteAccount(email: String): ServiceResult<Unit,AccountErrorType>{
+        val documentref=accountCollection.document(email).get().await()
+
+        try {
+            val psw=documentref.get("passwo")
+            auth.signInWithCredential(email,)
+            documentref.delete()
+
+        }
+    }
+*/
 
 
 }
