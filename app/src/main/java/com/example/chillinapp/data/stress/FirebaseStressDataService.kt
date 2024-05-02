@@ -7,4 +7,12 @@ class FirebaseStressDataService(private val stressDataDao: FirebaseStressDataDao
     override suspend fun insertRawData(stressData: List<StressRawData>): ServiceResult<Unit, StressErrorType> =
         stressDataDao.insertRawData(stressData)
 
+    override suspend fun getRawData(n: Int): ServiceResult<List<StressRawData>, StressErrorType> =
+        stressDataDao.getRawData(n)
+
+    override suspend fun getfaster(): ServiceResult<List<StressRawData>, StressErrorType> =
+        stressDataDao.fastget()
+
+
+
 }

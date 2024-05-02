@@ -1,8 +1,8 @@
 package com.example.chillinapp.data.stress
 
-data class StressRawData (
+data class StressRawData(
     val timestamp: Long = 0,
-    val edaSensor: Double = 0.0,
+    val heartrateSensor: Double = 0.0,
     val skinTemperatureSensor: Double = 0.0
 )
 

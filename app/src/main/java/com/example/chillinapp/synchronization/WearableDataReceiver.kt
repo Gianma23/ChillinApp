@@ -3,8 +3,6 @@ package com.example.chillinapp.synchronization;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import androidx.annotation.Nullable;
-import androidx.annotation.NonNull;
 
 import android.util.Log;
 
