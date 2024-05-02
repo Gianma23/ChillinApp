@@ -77,6 +77,8 @@ public class WearableDataProvider extends Service {
                 Log.d(TAG, "onSuccess " + channel.getNodeId());
                 // Get the output stream
                 Task<OutputStream> outputStreamTask = Wearable.getChannelClient(getApplicationContext()).getOutputStream(channel);
+                // print details of the output stream task
+                Log.d(TAG, "output stream task: " + outputStreamTask);
                 outputStreamTask.addOnSuccessListener(outputStream -> {
                     Log.d(TAG, "output stream onSuccess");
                     try {

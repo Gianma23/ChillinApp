@@ -50,15 +50,20 @@ class WearableDataReceiver : Service(), CoroutineScope {
 
         // Check the action received
         when (intent?.action) {
-            "RECEIVE" -> {
-                Log.d(TAG, "Receiving data")
+            "START_SERVICE" -> {
+                Log.d(TAG, "Starting service")
                 receiveData()
+
+                // Get the node id of itself
+                Wearable.getNodeClient(applicationContext).localNode.addOnSuccessListener { node ->
+                    val nodeId = node.id
+                    Log.d(TAG, "Node id: $nodeId")
+                }
             }
             "STOP_SERVICE" -> {
                 Log.d(TAG, "Stopping service")
                 stopSelf()
             }
-            "START_SERVICE" -> Log.d(TAG, "Starting service")
             else -> Log.w(TAG, "No action found")
         }
 
@@ -67,12 +72,13 @@ class WearableDataReceiver : Service(), CoroutineScope {
     }
 
     private fun receiveData() {
+        Log.d(TAG, "Receiving data")
         // Register a channel callback to receive data from the wearable device
         Wearable.getChannelClient(applicationContext).registerChannelCallback(object : ChannelClient.ChannelCallback() {
 
             override fun onChannelOpened(channel: ChannelClient.Channel) {
                 super.onChannelOpened(channel);
-                Log.d(TAG, "onChannelOpened");
+                Log.e(TAG, "onChannelOpened");
                 val inputStreamTask: Task<InputStream> = Wearable.getChannelClient(applicationContext).getInputStream(channel)
                 inputStreamTask.addOnSuccessListener{ inputStream ->
                     launch {
@@ -83,13 +89,13 @@ class WearableDataReceiver : Service(), CoroutineScope {
                             var read: Int
                             val data = ByteArray(1024)
                             while (inputStream.read(data, 0, data.size).also { read = it } != -1) {
-                                Log.d(TAG, "Data length $read")
+                                Log.e(TAG, "Data length $read")
                                 buffer.write(data, 0, read)
                                 buffer.flush()
                                 val byteArray = buffer.toByteArray()
                                 text.append(String(byteArray, StandardCharsets.UTF_8))
                             }
-                            Log.d(TAG, "Reading: $text")
+                            Log.e(TAG, "Reading: $text")
 
                             val stressRawDataList = parseBulkData(buffer.toByteArray())
                             val firebaseStressDataService = FirebaseStressDataService(FirebaseStressDataDao())
