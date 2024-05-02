@@ -80,8 +80,7 @@ public class WearableDataProvider extends Service {
                 outputStreamTask.addOnSuccessListener(outputStream -> {
                     Log.d(TAG, "output stream onSuccess");
                     try {
-                        // outputStream.write(data);
-                        outputStream.write("Hello".getBytes());
+                        outputStream.write(data);
                         outputStream.flush();
                         outputStream.close();
                     } catch (IOException e) {
