@@ -47,6 +47,7 @@ class FirebaseStressDataDao {
 
             }
 
+
             val fastreturn=fastInsert(stressData)
             if (fastreturn.success)
             ServiceResult(true,null,null)
@@ -55,6 +56,34 @@ class FirebaseStressDataDao {
         } catch (e:Exception){
             ServiceResult(false,null,StressErrorType.NETWORK_ERROR)
 
+        }
+    }
+    suspend fun insertDerivedData(stressData: List<StressDerivedData>) : ServiceResult<Unit,StressErrorType> {
+        val user = auth.currentUser
+        val email = user?.email
+        val userDocument = email?.let { accountCollection.document(it) }
+        return try {
+            var i: Int = 0
+            // Insert raw data for each sample
+            for (data in stressData) {
+                val rawDocument = userDocument?.collection("DerivedData")?.document(stressData[i].timestamp.toString())
+                val derivedData = hashMapOf(
+                    "timestamp" to data.timestamp,
+                    "binterval" to data.BINTERVAL,
+                    "prediction" to data.prediction,
+                    "stress_level" to data.stressLevel
+                )
+                Log.d("Insert", "Insert completed")
+                rawDocument?.set(derivedData)?.await()
+                i++
+
+
+            }
+            ServiceResult(true, null, null)
+
+
+        } catch (e:Exception){
+            ServiceResult(false,null,StressErrorType.COMMUNICATION_PROBLEM)
         }
     }
     suspend fun getRawData(n: Int): ServiceResult <List <StressRawData>,StressErrorType> {
@@ -82,6 +111,7 @@ class FirebaseStressDataDao {
 
             }
 
+
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
@@ -89,7 +119,40 @@ class FirebaseStressDataDao {
 
         }
     }
-    suspend fun fastInsert(stressData: List<StressRawData>) :ServiceResult<Unit,StressErrorType>{
+    suspend fun getDerivedData(n: Int): ServiceResult <List <StressDerivedData>,StressErrorType> {
+        val user = auth.currentUser
+        val email = user?.email
+        val userDocument = email?.let { accountCollection.document(it) }
+        val derivedDataCollection = userDocument?.collection("RawData")
+        return try {
+            val derivedDataList = mutableListOf<StressDerivedData>()
+
+            // Effettua una query per ottenere un numero specifico di documenti raw data
+            val querySnapshot = derivedDataCollection?.limit(n.toLong())?.get()?.await()
+
+            // Itera sui documenti restituiti e converte i dati in oggetti StressRawData
+            querySnapshot?.forEach { document ->
+                val timestamp = document.id.toLongOrNull()
+                if (timestamp != null) {
+                    val binterval:Array<Float> = (document.get("binterval") as Array<Float>)
+                    val prediction : Double= (document.get("preditiction" ) as Double)
+                    val stress_level:Float=(document.get("stress_level") as Float)
+
+                    // Costruisci l'oggetto StressRawData e aggiungilo alla lista
+                    val stressDerivedData = StressDerivedData(timestamp,binterval, prediction, stress_level)
+                    derivedDataList.add(stressDerivedData)
+                }
+
+            }
+
+            ServiceResult(true, derivedDataList, null)
+        } catch (e: Exception) {
+            ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
+
+
+        }
+    }
+    private suspend fun fastInsert(stressData: List<StressRawData>) :ServiceResult<Unit,StressErrorType>{
         val email= auth.currentUser?.email
         val key= email?.substringBefore("@")
         val rawdatareference= key?.let { dbreference.child(it).child("RawData") }

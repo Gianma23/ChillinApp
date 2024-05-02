@@ -313,17 +313,21 @@ class FirebaseAccountDao {
             response
         }
     }
-   /* suspend fun deleteAccount(email: String): ServiceResult<Unit,AccountErrorType>{
-        val documentref=accountCollection.document(email).get().await()
+    //the user that want to delete his account must be logged
+    suspend fun deletecurrentAccount(email: String): ServiceResult<Unit,AccountErrorType>{
+        val documentref=accountCollection.document(email)
+
 
         try {
-            val psw=documentref.get("passwo")
-            auth.signInWithCredential(email,)
-            documentref.delete()
+          documentref.delete().await()
+            auth.currentUser?.delete()
+            return ServiceResult(true,null,null)
 
+        } catch(e:Exception){
+            return ServiceResult(false,null,AccountErrorType.DATABASE_ERROR)
         }
     }
-*/
+
 
 
 }
