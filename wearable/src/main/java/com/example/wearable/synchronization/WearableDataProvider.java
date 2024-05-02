@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.ChannelClient;
+import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
@@ -89,6 +90,7 @@ public class WearableDataProvider extends Service {
                     } catch (IOException e) {
                         Log.e(TAG, "Error in sending data: " + e);
                     }
+                    Log.d(TAG, "Data sent");
                 });
             });
         };

@@ -10,8 +10,7 @@ import com.example.chillinapp.data.stress.FirebaseStressDataDao;
 import com.example.chillinapp.data.stress.FirebaseStressDataService;
 import com.example.chillinapp.data.stress.StressRawData;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.wearable.ChannelClient;
-import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.*
 import kotlinx.coroutines.*
 
 import java.io.ByteArrayOutputStream;
@@ -22,18 +21,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import kotlin.coroutines.CoroutineContext
 
-class WearableDataReceiver : Service(), CoroutineScope {
+class WearableDataReceiver : WearableListenerService(), CoroutineScope {
     private val TAG = "WearableDataReceiver"
     private val CHANNEL_MSG = "/chillinapp"
     private lateinit var job: Job
 
-
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
-
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
 
     override fun onCreate(){
         super.onCreate();
@@ -54,13 +48,6 @@ class WearableDataReceiver : Service(), CoroutineScope {
         when (intent?.action) {
             "START_SERVICE" -> {
                 Log.d(TAG, "Starting service")
-                receiveData()
-
-                // Get the node id of itself
-                Wearable.getNodeClient(applicationContext).localNode.addOnSuccessListener { node ->
-                    val nodeId = node.id
-                    Log.d(TAG, "Node id: $nodeId")
-                }
             }
             "STOP_SERVICE" -> {
                 Log.d(TAG, "Stopping service")
@@ -73,11 +60,76 @@ class WearableDataReceiver : Service(), CoroutineScope {
         return START_STICKY
     }
 
+    override fun onConnectedNodes(p0: MutableList<Node>) {
+        super.onConnectedNodes(p0)
+        Log.d(TAG, "Connected nodes: $p0")
+    }
+
+    override fun onDataChanged(p0: DataEventBuffer) {
+        super.onDataChanged(p0)
+        Log.d(TAG, "Data changed: $p0")
+    }
+
+    override fun onMessageReceived(messageEvent: MessageEvent) {
+        super.onMessageReceived(messageEvent)
+        Log.d(TAG, "Message received: $messageEvent")
+    }
+
+    override fun onChannelClosed(channel: ChannelClient.Channel, p1: Int, p2: Int) {
+        super.onChannelClosed(channel, p1, p2)
+        Log.d(TAG, "Channel closed")
+    }
+
+    override fun onOutputClosed(p0: Channel, p1: Int, p2: Int) {
+        super.onOutputClosed(p0, p1, p2)
+        Log.d(TAG, "Output closed")
+    }
+
+    override fun onChannelOpened(channel: ChannelClient.Channel) {
+        Log.d(TAG, "onChannelOpened")
+        super.onChannelOpened(channel);
+        if (channel.path != CHANNEL_MSG) {
+            Log.e(TAG, "Channel not found")
+            return
+        }
+        Log.e(TAG, "onChannelOpened");
+        Log.d(TAG, "Channel: ${channel.path}")
+        val inputStreamTask: Task<InputStream> = Wearable.getChannelClient(applicationContext).getInputStream(channel)
+        inputStreamTask.addOnSuccessListener{ inputStream ->
+            launch {
+                try {
+                    // TODO: remove useless logs after testing
+                    val text = StringBuilder()
+                    val buffer = ByteArrayOutputStream()
+                    var read: Int
+                    val data = ByteArray(1024)
+                    while (inputStream.read(data, 0, data.size).also { read = it } != -1) {
+                        Log.e(TAG, "Data length $read")
+                        buffer.write(data, 0, read)
+                        buffer.flush()
+                        val byteArray = buffer.toByteArray()
+                        text.append(String(byteArray, StandardCharsets.UTF_8))
+                    }
+                    Log.e(TAG, "Reading: $text")
+
+                    val stressRawDataList = parseBulkData(buffer.toByteArray())
+                    val firebaseStressDataService = FirebaseStressDataService(FirebaseStressDataDao())
+                    firebaseStressDataService.insertRawData(stressRawDataList)
+                    inputStream.close()
+                } catch (e: IOException) {
+                    Log.e(TAG, "Error in receiving data: $e")
+                } finally {
+                    Wearable.getChannelClient(applicationContext).close(channel)
+                }
+            }
+        }
+    }
+
     private fun receiveData() {
         Log.d(TAG, "Receiving data")
         Log.d(TAG, "Channel client: ${Wearable.getChannelClient(applicationContext)}")
         // Register a channel callback to receive data from the wearable device
-        Wearable.getChannelClient(applicationContext).registerChannelCallback(object : ChannelClient.ChannelCallback() {
+        /*Wearable.getChannelClient(applicationContext).registerChannelCallback(object : ChannelClient.ChannelCallback() {
 
             override fun onChannelOpened(channel: ChannelClient.Channel) {
                 super.onChannelOpened(channel);
@@ -117,7 +169,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
                     }
                 }
             }
-        })
+        })*/
     }
 
     /**
