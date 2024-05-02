@@ -24,7 +24,9 @@ import kotlin.coroutines.CoroutineContext
 
 class WearableDataReceiver : Service(), CoroutineScope {
     private val TAG = "WearableDataReceiver"
+    private val CHANNEL_MSG = "/chillinapp"
     private lateinit var job: Job
+
 
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
@@ -73,12 +75,18 @@ class WearableDataReceiver : Service(), CoroutineScope {
 
     private fun receiveData() {
         Log.d(TAG, "Receiving data")
+        Log.d(TAG, "Channel client: ${Wearable.getChannelClient(applicationContext)}")
         // Register a channel callback to receive data from the wearable device
         Wearable.getChannelClient(applicationContext).registerChannelCallback(object : ChannelClient.ChannelCallback() {
 
             override fun onChannelOpened(channel: ChannelClient.Channel) {
                 super.onChannelOpened(channel);
+                if (channel.path != CHANNEL_MSG) {
+                    Log.e(TAG, "Channel not found")
+                    return
+                }
                 Log.e(TAG, "onChannelOpened");
+                Log.d(TAG, "Channel: ${channel.path}")
                 val inputStreamTask: Task<InputStream> = Wearable.getChannelClient(applicationContext).getInputStream(channel)
                 inputStreamTask.addOnSuccessListener{ inputStream ->
                     launch {

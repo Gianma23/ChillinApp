@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class WearableDataProvider extends Service {
 
     private final String TAG = "WearableDataProvider";
-    private final String CHANNEL_MSG = "chillinapp";
+    private final String CHANNEL_MSG = "/chillinapp";
 
     public WearableDataProvider() {
     }
@@ -75,6 +75,7 @@ public class WearableDataProvider extends Service {
             Task<ChannelClient.Channel> channelTask = Wearable.getChannelClient(getApplicationContext()).openChannel(nodeId, CHANNEL_MSG);
             channelTask.addOnSuccessListener(channel -> {
                 Log.d(TAG, "onSuccess " + channel.getNodeId());
+                Log.d(TAG, "Channel: " + channel.getPath());
                 // Get the output stream
                 Task<OutputStream> outputStreamTask = Wearable.getChannelClient(getApplicationContext()).getOutputStream(channel);
                 // print details of the output stream task
