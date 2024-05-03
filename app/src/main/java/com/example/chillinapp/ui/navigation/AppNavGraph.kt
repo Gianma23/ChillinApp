@@ -11,6 +11,8 @@ import com.example.chillinapp.ui.access.recovery.PswRecoveryDestination
 import com.example.chillinapp.ui.access.recovery.PswRecoveryScreen
 import com.example.chillinapp.ui.access.registration.SignInDestination
 import com.example.chillinapp.ui.access.registration.SignInScreen
+import com.example.chillinapp.ui.home.HomeDestination
+import com.example.chillinapp.ui.home.HomeScreen
 import com.example.chillinapp.ui.splash.LandingDestination
 import com.example.chillinapp.ui.splash.LandingScreen
 
@@ -45,9 +47,11 @@ fun ChillInAppNavHost(
         composable(route = LandingDestination.route) {
             LandingScreen(
                 ifLogged = { navController.navigate(HomeDestination.route){
+                    navController.popBackStack()
                     popUpTo(LandingDestination.route) { inclusive = true }
                 } },
                 ifNotLogged = { navController.navigate(LogInDestination.route) {
+                    navController.popBackStack()
                     popUpTo(LandingDestination.route) { inclusive = true }
                 } }
             )
@@ -84,7 +88,7 @@ fun ChillInAppNavHost(
 
         // Home screen route
         composable(route = HomeDestination.route) {
-            HomeNavGraph()
+            HomeScreen()
         }
 
     }

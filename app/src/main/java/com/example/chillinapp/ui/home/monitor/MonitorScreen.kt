@@ -1,5 +1,7 @@
 package com.example.chillinapp.ui.home.monitor
 
+import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,7 +44,6 @@ import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
-import kotlin.math.round
 
 object MonitorDestination: NavigationDestination {
     override val route: String = "monitor"
@@ -75,78 +77,128 @@ fun MonitorScreen(
                 .padding(16.dp)
         ) {
             items(uiState.fieldValuesMap.entries.toList()) { entry ->
-                Card(
-                    modifier = Modifier
-                        .padding(top = 8.dp, bottom = 8.dp)
-                        .fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(0.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        val titleFormatFunction = titleFormatMap[entry.key]
-                        Text(
-                            text = titleFormatFunction ?: entry.key,
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-
-                        val points = entry.value.map { (timestamp, value) ->
-                            Point(timestampToHourOfDay(timestamp), (value as Double).toFloat())
-                        }
-
-                        when {
-                            uiState.isLoading -> {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ){
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(50.dp)
-                                    )
-                                }
-                            }
-                            uiState.error != null -> {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ){
-                                    Text(
-                                        text = "Error loading data: ${uiState.error}",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                }
-                            }
-                            else -> {
-                                Chart(points)
-                            }
-                        }
-
-
-                    }
-                }
+                MonitorCard(titleFormatMap, entry, uiState)
             }
         }
     }
 }
 
 @Composable
-private fun Chart(points: List<Point>) {
+private fun MonitorCard(
+    titleFormatMap: Map<String, String>,
+    entry: Map.Entry<String, List<Pair<String, Any>>>,
+    uiState: MonitorUiState
+) {
+    Card(
+        modifier = Modifier
+            .padding(top = 8.dp, bottom = 8.dp)
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            val titleFormatFunction = titleFormatMap[entry.key]
+            Text(
+                text = titleFormatFunction ?: entry.key,
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            val points = entry.value.map { (timestamp, value) ->
+                Point(timestampToHourOfDay(timestamp), (value as Double).toFloat())
+            }
+
+            CardContent(uiState, points)
+
+        }
+    }
+}
+
+@Composable
+private fun CardContent(
+    uiState: MonitorUiState,
+    points: List<Point>
+) {
+    when {
+        uiState.isLoading -> {
+            Log.d("MonitorScreen", "Loading data...")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+        }
+
+        uiState.error != null -> {
+            Log.e("MonitorScreen", "Error loading data: ${uiState.error}")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Card (
+                    modifier = Modifier
+                        .padding(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ){
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Error loading data: ${uiState.error}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+
+        else -> {
+            Log.d("MonitorScreen", "Loaded data")
+            Chart(
+                points = points,
+                xSteps = 24,
+                ySteps = 3,
+                xLabelFun = { if (it < 10) "          0$it:00" else "          $it:00" },
+                yLabelFun = { step ->
+                    val yScale = points.maxOf { it.y } / (3)
+                    "${(step * yScale).toInt()}     " }
+            )
+        }
+    }
+}
+
+@Composable
+private fun Chart(
+    points: List<Point>,
+    xSteps: Int,
+    ySteps: Int,
+    xLabelFun: (Int) -> String,
+    yLabelFun: (Int) -> String
+) {
     val xAxisData = AxisData.Builder()
         .axisLabelColor(MaterialTheme.colorScheme.tertiary)
         .axisLineColor(MaterialTheme.colorScheme.tertiary)
         .backgroundColor(Color.Transparent)
         .labelAndAxisLinePadding(8.dp)
-        .steps(24)
+        .steps(xSteps)
         .axisStepSize(100.dp)
-        .labelData { it.toString() }
+        .labelData(xLabelFun)
         .build()
 
     val yAxisData = AxisData.Builder()
@@ -154,11 +206,8 @@ private fun Chart(points: List<Point>) {
         .axisLineColor(MaterialTheme.colorScheme.tertiary)
         .backgroundColor(Color.Transparent)
         .labelAndAxisLinePadding(8.dp)
-        .steps(3)
-        .labelData { it ->
-            val yScale = 1000 / points.maxOf { it.y }
-            round(it * yScale).toString()
-        }
+        .steps(ySteps)
+        .labelData(yLabelFun)
         .build()
 
     val lineChartData = LineChartData(
@@ -176,7 +225,7 @@ private fun Chart(points: List<Point>) {
                     ),
                     SelectionHighlightPoint(
                         color = MaterialTheme.colorScheme.tertiary,
-                        radius = 8.dp
+                        radius = 3.dp
                     ),
                     ShadowUnderLine(
                         alpha = 0.5f,

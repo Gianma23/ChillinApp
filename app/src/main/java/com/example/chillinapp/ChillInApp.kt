@@ -1,6 +1,8 @@
 package com.example.chillinapp
 
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.chillinapp.ui.navigation.ChillInAppNavHost
@@ -20,5 +22,8 @@ import com.example.chillinapp.ui.navigation.ChillInAppNavHost
  */
 @Composable
 fun ChillInApp(navController: NavHostController = rememberNavController()) {
-    ChillInAppNavHost(navController = navController)
+    ChillInAppNavHost(
+        navController = navController,
+        modifier = Modifier.safeDrawingPadding()
+    )
 }

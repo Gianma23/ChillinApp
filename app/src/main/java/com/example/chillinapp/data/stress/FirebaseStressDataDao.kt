@@ -61,24 +61,30 @@ class FirebaseStressDataDao {
         return try {
             val rawDataList = mutableListOf<StressRawData>()
 
-            // Effettua una query per ottenere un numero specifico di documenti raw data
+            // Get the last n samples of raw data
             val querySnapshot = rawDataCollection?.limit(n.toLong())?.get()?.await()
 
-            // Itera sui documenti restituiti e converte i dati in oggetti StressRawData
+            // Iterate over the query results and create a StressRawData object for each document
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
                     val heartRateSensor:Double = (document.get("heartRateSensor") as Double)
                     val skinTemperatureSensor : Double= (document.get("skinTemperatureSensor" ) as Double)
 
-                    // Costruisci l'oggetto StressRawData e aggiungilo alla lista
+                    // Generate the StressRawData object and add it to the list
                     val stressRawData = StressRawData(timestamp, heartRateSensor, skinTemperatureSensor)
                     rawDataList.add(stressRawData)
                 }
-
             }
 
-            ServiceResult(true, rawDataList, null)
+            val response: ServiceResult<List<StressRawData>, StressErrorType> =
+                ServiceResult(
+                    success = true,
+                    data = rawDataList,
+                    error = null
+                )
+            Log.d("getRawData", "Data retrieved successfully")
+            response
         } catch (e: Exception) {
             Log.e("getRawData", "An exception occurred", e)
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
@@ -102,12 +108,10 @@ class FirebaseStressDataDao {
                 ServiceResult(success = false, data = null, error = StressErrorType.COMMUNICATION_PROBLEM)
             }
         }
-       else
-
-        return ServiceResult(success = false, data = null, error = StressErrorType.NO_ACCOUNT)
-
-
-
+       else {
+            Log.e("fastInsert", "No account found")
+            return ServiceResult(success = false, data = null, error = StressErrorType.NO_ACCOUNT)
+        }
     }
 
     suspend fun fastGet():ServiceResult<List<StressRawData>,StressErrorType>{

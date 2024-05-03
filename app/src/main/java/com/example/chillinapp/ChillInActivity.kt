@@ -5,9 +5,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.ui.Modifier
 import com.example.chillinapp.simulation.SimulationService
 import com.example.chillinapp.synchronization.WearableDataReceiver
 import com.example.chillinapp.ui.theme.ChillInAppTheme
@@ -37,9 +34,7 @@ class ChillInActivity : ComponentActivity() {
 
         setContent {
             ChillInAppTheme {
-                Box(modifier = Modifier.safeDrawingPadding()) {
-                    ChillInApp()
-                }
+                ChillInApp()
             }
         }
 
