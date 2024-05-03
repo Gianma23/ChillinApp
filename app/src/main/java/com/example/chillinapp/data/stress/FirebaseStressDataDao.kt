@@ -104,7 +104,7 @@ class FirebaseStressDataDao {
         }
        else
 
-        return ServiceResult(success = false, data = null, error = StressErrorType.NOACCOUNT)
+        return ServiceResult(success = false, data = null, error = StressErrorType.NO_ACCOUNT)
 
 
 

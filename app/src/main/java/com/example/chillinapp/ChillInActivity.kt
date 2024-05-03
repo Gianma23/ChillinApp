@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.ui.Modifier
+import com.example.chillinapp.simulation.SimulationService
 import com.example.chillinapp.synchronization.WearableDataReceiver
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -42,6 +43,10 @@ class ChillInActivity : ComponentActivity() {
             }
         }
 
+        // TODO: Delete simulation service
+        // startService(Intent(this, SimulationService::class.java))
+
+        // Start the WearableDataReceiver service
         val intent = Intent(this, WearableDataReceiver::class.java)
         intent.setAction("START_SERVICE")
         startService(intent)
@@ -55,6 +60,11 @@ class ChillInActivity : ComponentActivity() {
      */
     override fun onDestroy() {
         super.onDestroy()
+        
+        // TODO: Delete simulation service
+        stopService(Intent(this, SimulationService::class.java))
+        
+        // Stop the WearableDataReceiver service
         val intent = Intent(this, WearableDataReceiver::class.java)
         intent.setAction("STOP_SERVICE")
         startService(intent)

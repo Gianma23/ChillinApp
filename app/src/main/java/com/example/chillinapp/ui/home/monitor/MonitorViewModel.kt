@@ -6,12 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
+import com.example.chillinapp.simulation.generateStressRawDataList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
 
 class MonitorViewModel(
 //    private val dataService :  StressDataService
@@ -23,9 +25,22 @@ class MonitorViewModel(
     // State flow for the UI state of the overall screen
     val uiState: StateFlow<MonitorUiState> = _uiState.asStateFlow()
 
+    companion object{
+        // Number of items to display initially (one each 30 seconds)
+        const val STEP_SIZE: Long = 1000 * 30
+    }
+
     init {
 
-        viewModelScope.launch{
+        // Set the initial UI state to a loading state
+        _uiState.value = MonitorUiState(
+            stressData = emptyList(),
+            error = null,
+            isLoading = true
+        )
+        Log.d("MonitorViewModel", "Initial data loading started.")
+
+        viewModelScope.launch(Dispatchers.IO) {
 
             /*TODO: Get the initial data from the data service and update the UI state with it.*/
 //            val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
@@ -35,9 +50,29 @@ class MonitorViewModel(
             val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
                 ServiceResult(
                     success = true,
-                    data = generateStressRawDataList(),
+                    data = generateStressRawDataList(
+                        start = Calendar.getInstance().apply {
+                            set(Calendar.HOUR_OF_DAY, 0)
+                            set(Calendar.MINUTE, 0)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        },
+                        end = Calendar.getInstance(),
+                        step = STEP_SIZE
+                    ),
                     error = null
                 )
+
+            if(startingData.success.not()){
+                Log.e("MonitorViewModel", "Error loading initial data: ${startingData.error}")
+                _uiState.value = MonitorUiState(
+                    stressData = emptyList(),
+                    error = startingData.error,
+                    isLoading = false
+                )
+                return@launch
+            }
+            Log.d("MonitorViewModel", "Initial data loaded successfully. (${startingData.data?.size} items)")
 
             // Order by timestamp
             startingData.data?.sortedBy { it.timestamp }
@@ -54,36 +89,30 @@ class MonitorViewModel(
                 error = startingData.error
             )
 
-            Log.d("MonitorViewModel", "Initial data loaded successfully. (${startingData.data?.size} items)")
-        }
-    }
-
-    private fun generateStressRawDataList(): List<StressRawData> {
-        val list = mutableListOf<StressRawData>()
-        val now = Calendar.getInstance()
-        val startOfDay = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
-        val hours = TimeUnit.MILLISECONDS.toHours(now.timeInMillis - startOfDay.timeInMillis).toInt()
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(now.timeInMillis - startOfDay.timeInMillis).toInt() % 60
-
-        for (hour in 0..hours) {
-            val endMinute = if (hour == hours) minutes else 59
-            for (minute in 0..endMinute) {
-                val timestamp = startOfDay.timeInMillis + TimeUnit.HOURS.toMillis(hour.toLong()) + TimeUnit.MINUTES.toMillis(minute.toLong())
-                val stressRawData = StressRawData(
-                    timestamp = timestamp,
-                    heartRateSensor = (60..100).random().toDouble(), // Random value between 60 and 100
-                    skinTemperatureSensor = (30..40).random().toDouble() // Random value between 30 and 40
-                )
-                list.add(stressRawData)
+            // Create a map where the key is the field name and the value is a list of pairs (timestamp, field value)
+            _uiState.value.stressData.forEach { data ->
+                FormattedStressRawData::class.java.declaredFields
+                    .filter { it.name != "timestamp" && it.name != "\$stable" }
+                    .forEach { field ->
+                        field.isAccessible = true
+                        field.get(data)?.let { value ->
+                            _uiState.update {
+                                it.copy(
+                                    fieldValuesMap = it.fieldValuesMap + mapOf(
+                                        field.name to (it.fieldValuesMap[field.name] ?: emptyList()) + Pair(data.timestamp, value)
+                                    )
+                                )
+                            }
+                        }
+                    }
             }
-        }
-        return list
-    }
 
+            // Set the loading state to false
+            _uiState.update {
+                it.copy(isLoading = false)
+            }
+
+        }
+    }
 }
+

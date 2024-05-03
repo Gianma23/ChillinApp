@@ -1,8 +1,8 @@
 package com.example.chillinapp.data.stress
 
 enum class StressErrorType{
-  NOT_IMPLEMENTED_YET,
+    NOT_YET_IMPLEMENTED,
     NETWORK_ERROR,
     COMMUNICATION_PROBLEM,
-  NOACCOUNT
+    NO_ACCOUNT
 }
