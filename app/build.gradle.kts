@@ -73,6 +73,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.1.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
+    implementation("co.yml:ycharts:2.1.0")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 

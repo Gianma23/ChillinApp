@@ -1,5 +1,6 @@
 package com.example.chillinapp.ui.home.monitor
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chillinapp.data.ServiceResult
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 class MonitorViewModel(
@@ -41,6 +43,9 @@ class MonitorViewModel(
                     error = null
                 )
 
+            // Order by timestamp
+            startingData.data?.sortedBy { it.timestamp }
+
             // Update the UI state with the starting data
             _uiState.value = MonitorUiState(
                 stressData = startingData.data?.map { rawData ->
@@ -52,16 +57,31 @@ class MonitorViewModel(
                 } ?: emptyList(),
                 error = startingData.error
             )
+
+            Log.d("MonitorViewModel", "Initial data loaded:")
+            for (data in _uiState.value.stressData) {
+                Log.d("MonitorViewModel", "Timestamp: ${data.timestamp}, Heart Rate: ${data.heartRateSensor}, Skin Temperature: ${data.skinTemperatureSensor}")
+            }
         }
     }
 
     private fun generateStressRawDataList(): List<StressRawData> {
         val list = mutableListOf<StressRawData>()
-        val currentTimeMillis = System.currentTimeMillis()
+        val now = Calendar.getInstance()
+        val startOfDay = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
 
-        for (hour in 0 until 24) {
-            for (minute in 0 until 60) {
-                val timestamp = currentTimeMillis - TimeUnit.HOURS.toMillis((23 - hour).toLong()) - TimeUnit.MINUTES.toMillis((59 - minute).toLong())
+        val hours = TimeUnit.MILLISECONDS.toHours(now.timeInMillis - startOfDay.timeInMillis).toInt()
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(now.timeInMillis - startOfDay.timeInMillis).toInt() % 60
+
+        for (hour in 0..hours) {
+            val endMinute = if (hour == hours) minutes else 59
+            for (minute in 0..endMinute) {
+                val timestamp = startOfDay.timeInMillis + TimeUnit.HOURS.toMillis(hour.toLong()) + TimeUnit.MINUTES.toMillis(minute.toLong())
                 val stressRawData = StressRawData(
                     timestamp = timestamp,
                     heartRateSensor = (60..100).random().toDouble(), // Random value between 60 and 100

@@ -12,6 +12,7 @@ import com.example.chillinapp.ui.access.registration.SignInViewModel
 import com.example.chillinapp.ui.home.map.MapViewModel
 import com.example.chillinapp.ui.home.monitor.MonitorViewModel
 import com.example.chillinapp.ui.home.settings.SettingsViewModel
+import com.example.chillinapp.ui.splash.LandingViewModel
 
 
 /**
@@ -23,6 +24,10 @@ import com.example.chillinapp.ui.home.settings.SettingsViewModel
  */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
+        initializer {
+            // LandingViewModel
+            LandingViewModel(accountService = chillInApplication().container.accountService)
+        }
         initializer {
             // LogInViewModel
             LogInViewModel(accountService = chillInApplication().container.accountService)

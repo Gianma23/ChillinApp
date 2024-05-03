@@ -44,8 +44,12 @@ fun ChillInAppNavHost(
         // Landing screen route
         composable(route = LandingDestination.route) {
             LandingScreen(
-                onTimeout = { navController.navigate(LogInDestination.route) },
-                navController = navController
+                ifLogged = { navController.navigate(HomeDestination.route){
+                    popUpTo(LandingDestination.route) { inclusive = true }
+                } },
+                ifNotLogged = { navController.navigate(LogInDestination.route) {
+                    popUpTo(LandingDestination.route) { inclusive = true }
+                } }
             )
         }
 
