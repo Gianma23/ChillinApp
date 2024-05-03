@@ -36,6 +36,7 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.navigation.NavigationDestination
+import com.example.chillinapp.ui.theme.ChillInAppTheme
 import kotlin.math.round
 
 object MonitorDestination: NavigationDestination {
@@ -142,7 +143,7 @@ fun MonitorScreen(
                                             radius = 8.dp
                                         ),
                                         ShadowUnderLine(
-                                            alpha = 0.7f,
+                                            alpha = 0.5f,
                                             brush = Brush.verticalGradient(
                                                 colors = listOf(
                                                     MaterialTheme.colorScheme.inversePrimary,
@@ -177,5 +178,7 @@ fun MonitorScreen(
 @Preview(showBackground = true)
 @Composable
 fun MonitorScreenPreview() {
-    MonitorScreen()
+    ChillInAppTheme {
+        MonitorScreen()
+    }
 }

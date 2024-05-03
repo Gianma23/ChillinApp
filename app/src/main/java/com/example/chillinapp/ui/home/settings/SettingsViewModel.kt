@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SettingsViewModel : ViewModel() {
+class SettingsViewModel: ViewModel() {
 
     // Mutable state flow for the UI state of the settings screen
     private val _uiState = MutableStateFlow(SettingsUiState())

@@ -23,10 +23,6 @@ class MonitorViewModel(
     // State flow for the UI state of the overall screen
     val uiState: StateFlow<MonitorUiState> = _uiState.asStateFlow()
 
-    companion object {
-        private const val DISPLAY_LENGTH = 30
-    }
-
     init {
 
         viewModelScope.launch{
@@ -58,10 +54,7 @@ class MonitorViewModel(
                 error = startingData.error
             )
 
-            Log.d("MonitorViewModel", "Initial data loaded:")
-            for (data in _uiState.value.stressData) {
-                Log.d("MonitorViewModel", "Timestamp: ${data.timestamp}, Heart Rate: ${data.heartRateSensor}, Skin Temperature: ${data.skinTemperatureSensor}")
-            }
+            Log.d("MonitorViewModel", "Initial data loaded successfully. (${startingData.data?.size} items)")
         }
     }
 
