@@ -139,7 +139,7 @@ class FirebaseAccountDao {
 
             auth.signInWithEmailAndPassword(email, password).await()
 
-            val account = getcurrentAccount()?.data
+            val account = getCurrentAccount()?.data
             val name = account?.name
 
 
@@ -148,12 +148,8 @@ class FirebaseAccountDao {
                 data = null,
                 error = null
             )
-
-
-
-
+            Log.d("FirebaseAccountDao: credentialAuth", "Result: $response")
             response
-
 
         } catch (e: Exception) {
             when (e) {
@@ -275,16 +271,19 @@ class FirebaseAccountDao {
             response
         }
     }
-    suspend fun getcurrentAccount(): ServiceResult<Account?, AccountErrorType>{
-        val currentuser=auth.currentUser
-        val currentemail=currentuser?.email
-        Log.d("Prova currentuser", "l'user attuale ${currentemail?.let { getAccount(it) }}")
-        val account= currentemail?.let { getAccount(it) }?.data
-        if(currentemail !=null)
-            return ServiceResult(true,account,null )
-        else
-          return  ServiceResult(false,null,AccountErrorType.ACCOUNT_NOT_FOUND)
-
+    suspend fun getCurrentAccount(): ServiceResult<Account?, AccountErrorType> {
+        val currentUser = auth.currentUser
+        val currentEmail = currentUser?.email
+        Log.d("getCurrentAccount", "Current user: ${currentEmail?.let { getAccount(it) }}")
+        return if (currentEmail != null) {
+            getAccount(currentEmail)
+        } else {
+            ServiceResult(
+                success = false,
+                data = null,
+                error = AccountErrorType.ACCOUNT_NOT_FOUND
+            )
+        }
     }
 
     /**

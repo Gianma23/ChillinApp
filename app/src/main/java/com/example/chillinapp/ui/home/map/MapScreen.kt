@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.navigation.NavigationDestination
 
 object MapDestination : NavigationDestination {
@@ -16,9 +17,7 @@ object MapDestination : NavigationDestination {
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
-    navigateToOverallScreen: () -> Unit = {},
-    navigateToSettingsScreen: () -> Unit = {},
-    viewModel: MapViewModel = viewModel()
+    viewModel: MapViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     /*TODO: Implement Map screen*/

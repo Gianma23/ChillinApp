@@ -5,7 +5,7 @@
     <string name="login_title">Login</string>
     <string name="registration_string">Registration</string>
     <string name="password_recovery">Recovery</string>
-    <string name="login_header">Welcome back!</string>
+    <string name="login_header">Welcome!</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="registration_link">Sign Up</string>
     <string name="home_link">Home</string>
@@ -61,4 +61,5 @@
     <string name="chillin_logo_description">ChillIn Logo</string>
     <string name="settings_title">Settings</string>
     <string name="map_screen_title">Maps</string>
+    <string name="home_screen_title">ChillIn</string>
 </resources>

@@ -32,8 +32,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -56,13 +56,14 @@ import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.access.AccessHeader
 import com.example.chillinapp.ui.access.utility.EmailSupportingText
-import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.PasswordSupportingText
-import com.example.chillinapp.ui.access.utility.accessResultText
-import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 import com.example.chillinapp.ui.access.utility.SimpleNotification
+import com.example.chillinapp.ui.access.utility.accessResultText
+import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
+import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
+import kotlinx.coroutines.delay
 
 
 /**
@@ -75,6 +76,8 @@ object LogInDestination : NavigationDestination {
 }
 
 
+private const val AccessDelay: Long = 1000L
+
 /**
  * Composable function that represents the login screen.
  * It contains the UI elements and the logic for the login process.
@@ -82,20 +85,20 @@ object LogInDestination : NavigationDestination {
  * @param modifier Modifier to be applied to the layout.
  * @param navigateToSignInScreen Function to navigate to the sign in screen.
  * @param navigateToPswRecoveryScreen Function to navigate to the password recovery screen.
- * @param navigateToHomeScreen Function to navigate to the home screen.
- * @param logInViewModel ViewModel that contains the state and the logic for the login process.
+ * @param screenIfSuccess Function to navigate to the home screen.
+ * @param viewModel ViewModel that contains the state and the logic for the login process.
  */
 @Composable
 fun LogInScreen(
     modifier: Modifier = Modifier,
     navigateToSignInScreen: () -> Unit = {},
     navigateToPswRecoveryScreen: () -> Unit = {},
-    navigateToHomeScreen: (String) -> Unit = {},
-    logInViewModel: LogInViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    screenIfSuccess: (String) -> Unit = {},
+    viewModel: LogInViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     // Collect the state of the login process
-    val logInUiState by logInViewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     // Create the UI for the login screen
     Surface (
@@ -128,8 +131,8 @@ fun LogInScreen(
             ) {
 
                 LogInCard(
-                    logInUiState = logInUiState,
-                    logInViewModel = logInViewModel,
+                    logInUiState = uiState,
+                    logInViewModel = viewModel,
                     navigateToPswRecoveryScreen = navigateToPswRecoveryScreen
                 )
 
@@ -160,7 +163,7 @@ fun LogInScreen(
                             }
                         },
                         onClick = {
-                            if(logInUiState.authenticationResult?.success != true && !logInUiState.isLoading)
+                            if(uiState.authenticationResult?.success != true && !uiState.isLoading)
                                 navigateToSignInScreen()
                         },
                     )
@@ -173,8 +176,8 @@ fun LogInScreen(
     }
 
     // Handle the result of the login process
-    when (logInUiState.authenticationResult?.success) {
-         true -> {
+    when (uiState.authenticationResult?.success) {
+        true -> {
             Column(
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -183,25 +186,22 @@ fun LogInScreen(
                     .fillMaxSize()
             ) {
                 Snackbar(
-                    action = {
-                        TextButton(
-                            onClick = { navigateToHomeScreen(logInUiState.email) }
-                        ) {
-                            Text(stringResource(R.string.home_link))
-                        }
-                    },
                     modifier = Modifier
                 ) {
                     Text(text = stringResource(R.string.login_notify_success_text))
                 }
             }
-            navigateToHomeScreen(logInUiState.email)
+
+            LaunchedEffect(Unit) {
+                delay(AccessDelay)
+                screenIfSuccess(uiState.email)
+            }
         }
         false -> {
             SimpleNotification(
-                action = { logInViewModel.idleResult() },
+                action = { viewModel.idleResult() },
                 buttonText = stringResource(R.string.hide_notify_action),
-                bodyText = accessResultText(logInUiState.authenticationResult)
+                bodyText = accessResultText(uiState.authenticationResult)
             )
         }
         else -> { }

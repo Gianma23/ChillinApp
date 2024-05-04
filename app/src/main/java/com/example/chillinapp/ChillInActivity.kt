@@ -6,9 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.ui.Modifier
 import com.example.chillinapp.synchronization.WearableDataReceiver
 import com.example.chillinapp.ui.theme.ChillInAppTheme
-import java.lang.reflect.Modifier
 
 
 /**
@@ -35,16 +36,23 @@ class ChillInActivity : ComponentActivity() {
 
         setContent {
             ChillInAppTheme {
-
+                Box(modifier = Modifier.safeDrawingPadding()) {
                     ChillInApp()
-
+                }
             }
         }
+
         val intent = Intent(this, WearableDataReceiver::class.java)
         intent.setAction("START_SERVICE")
         startService(intent)
+
     }
 
+    /**
+     * Called when the activity is destroyed.
+     *
+     * This method stops the WearableDataReceiver service.
+     */
     override fun onDestroy() {
         super.onDestroy()
         val intent = Intent(this, WearableDataReceiver::class.java)
