@@ -7,7 +7,8 @@ public class SensorDataHandler {
 
     private static SensorDataHandler instance;
     private static final int MAX_SAMPLING = 30;
-    private static final int MAX_DATA_SIZE = MAX_SAMPLING * 24; // 24 bytes per sample
+    private static final int BYTES_PER_SAMPLE = 20;
+    private static final int MAX_DATA_SIZE = MAX_SAMPLING * BYTES_PER_SAMPLE; // 24 bytes per sample
     private byte[] bulkData;
     private int samplingCount = 0;
 
@@ -30,7 +31,7 @@ public class SensorDataHandler {
         }
 
         if (samplingCount < MAX_SAMPLING) {
-            System.arraycopy(data, 0, bulkData, samplingCount * 24, 24);
+            System.arraycopy(data, 0, bulkData, samplingCount * BYTES_PER_SAMPLE, BYTES_PER_SAMPLE);
             samplingCount++;
         }
 

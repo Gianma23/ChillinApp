@@ -72,7 +72,7 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartrateSensor:Double = (document.get("heartrateSensor") as Double)
+                    val heartrateSensor:Float = (document.get("heartrateSensor") as Float)
                     val skinTemperatureSensor : Double= (document.get("skinTemperatureSensor" ) as Double)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
@@ -123,7 +123,7 @@ class FirebaseStressDataDao {
             val stressDataList= mutableListOf<StressRawData>()
             snapshot?.children?.forEach{ childSnapshot->
                 val timestamp=childSnapshot.key?.toLongOrNull()
-                val heartrateSensor=childSnapshot.child("heartrateSensor").getValue() as Double
+                val heartrateSensor=childSnapshot.child("heartrateSensor").getValue() as Float
                 val skinTemperatureSensor=childSnapshot.child("skinTemperatureSensor").getValue() as Double
                 if (timestamp != null && heartrateSensor != null && skinTemperatureSensor != null) {
                     val stressData = StressRawData(timestamp, heartrateSensor, skinTemperatureSensor)

@@ -77,7 +77,7 @@ class SensorService: Service(), SensorEventListener {
         var data : ByteArray? = ByteArray(0)
         if (byteValue != null) {
             data = byteTimestamp?.plus(byteValue)
-            data = data?.plus(ByteArray(12))
+            data = data?.plus(ByteArray(8))
         }
         Log.d(TAG, "data length ${data?.size}")
 

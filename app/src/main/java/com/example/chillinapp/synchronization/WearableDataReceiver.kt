@@ -26,6 +26,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
     private val TAG = "WearableDataReceiver"
     private val CHANNEL_MSG = "/chillinapp"
     private lateinit var job: Job
+    private val BYTES_PER_SAMPLE = 20
 
 
     override val coroutineContext: CoroutineContext
@@ -91,19 +92,13 @@ class WearableDataReceiver : Service(), CoroutineScope {
                 inputStreamTask.addOnSuccessListener{ inputStream ->
                     launch {
                         try {
-                            // TODO: remove useless logs after testing
-                            val text = StringBuilder()
                             val buffer = ByteArrayOutputStream()
                             var read: Int
                             val data = ByteArray(1024)
                             while (inputStream.read(data, 0, data.size).also { read = it } != -1) {
-                                Log.d(TAG, "Data length $read")
                                 buffer.write(data, 0, read)
                                 buffer.flush()
-                                val byteArray = buffer.toByteArray()
-                                text.append(String(byteArray, StandardCharsets.UTF_8))
                             }
-                            Log.d(TAG, "Reading: $text")
 
                             val stressRawDataList = parseBulkData(buffer.toByteArray())
                             val firebaseStressDataService = FirebaseStressDataService(FirebaseStressDataDao())
@@ -129,11 +124,11 @@ class WearableDataReceiver : Service(), CoroutineScope {
         val sensorDataList = ArrayList<StressRawData>()
         var i = 0
         while (i < data.size) {
-            val singleData = ByteArray(24)
-            System.arraycopy(data, i, singleData, 0, 24)
+            val singleData = ByteArray(BYTES_PER_SAMPLE)
+            System.arraycopy(data, i, singleData, 0, BYTES_PER_SAMPLE)
             val sensorData = parseSingleData(singleData)
             sensorDataList.add(sensorData)
-            i += 24
+            i += BYTES_PER_SAMPLE
         }
         return sensorDataList
     }
@@ -150,16 +145,16 @@ class WearableDataReceiver : Service(), CoroutineScope {
         val timestamp = bytesToLong(timestampBytes)
 
         // heart rate
-        val heartRateBytes = ByteArray(8)
-        System.arraycopy(data, 8, heartRateBytes, 0, 8)
-        val eda = bytesToDouble(heartRateBytes)
+        val heartRateBytes = ByteArray(4)
+        System.arraycopy(data, 8, heartRateBytes, 0, 4)
+        val hr = bytesToFloat(heartRateBytes)
 
         // GPS
         val gpsBytes = ByteArray(8)
-        System.arraycopy(data, 16, gpsBytes, 0, 8)
+        System.arraycopy(data, 12, gpsBytes, 0, 8)
         val skinTemperature = bytesToDouble(gpsBytes)
 
-        return StressRawData(timestamp, eda, skinTemperature)
+        return StressRawData(timestamp, hr, skinTemperature)
     }
 
     /**
@@ -184,5 +179,12 @@ class WearableDataReceiver : Service(), CoroutineScope {
         buffer.put(sensorBytes)
         buffer.flip()
         return buffer.double
+    }
+
+    private fun bytesToFloat(sensorBytes: ByteArray): Float {
+        val buffer = ByteBuffer.allocate(java.lang.Float.BYTES)
+        buffer.put(sensorBytes)
+        buffer.flip()
+        return buffer.float
     }
 }
