@@ -1,25 +1,21 @@
-package com.example.wearable
+package com.example.chillinapp
 
 import android.Manifest
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ServiceInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import com.example.wearable.NotificationsHelper
-import com.example.wearable.synchronization.SensorDataHandler
-import com.example.wearable.synchronization.WearableDataProvider
+import com.example.chillinapp.synchronization.SensorDataHandler
+import com.example.chillinapp.synchronization.WearableDataProvider
 import java.nio.ByteBuffer
 
-private val TAG = "SensorService"
+private const val TAG = "SensorService"
 
 class SensorService: Service(), SensorEventListener {
 
@@ -81,7 +77,7 @@ class SensorService: Service(), SensorEventListener {
         var data : ByteArray? = ByteArray(0)
         if (byteValue != null) {
             data = byteTimestamp?.plus(byteValue)
-            data = data?.plus(ByteArray(12))
+            data = data?.plus(ByteArray(8))
         }
         Log.d(TAG, "data length ${data?.size}")
 
