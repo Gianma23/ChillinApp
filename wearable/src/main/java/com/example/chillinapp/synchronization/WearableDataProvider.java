@@ -1,4 +1,4 @@
-package com.example.wearable.synchronization;
+package com.example.chillinapp.synchronization;
 
 import android.app.Service;
 import android.content.Intent;

@@ -1,4 +1,4 @@
-package com.example.wearable.synchronization;
+package com.example.chillinapp.synchronization;
 
 /**
  * Singleton class that handles the data collected from the sensor. The data is stored in a byte array

@@ -28,7 +28,13 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".synchronization.WearableDataReceiver" />
+        <service android:name=".synchronization.WearableDataReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.CHANNEL_EVENT" />
+                <data android:scheme="wear" android:host="*"
+                      android:pathPrefix="/chillinapp" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

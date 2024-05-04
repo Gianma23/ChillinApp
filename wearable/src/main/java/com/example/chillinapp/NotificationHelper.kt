@@ -1,10 +1,10 @@
-package com.example.wearable
+package com.example.chillinapp
 
 import android.app.*
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import com.example.wearable.presentation.MainActivity
+import com.example.chillinapp.presentation.MainActivity
 
 internal object NotificationsHelper {
 

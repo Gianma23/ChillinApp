@@ -85,7 +85,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
                     Log.e(TAG, "Channel not found")
                     return
                 }
-                Log.e(TAG, "onChannelOpened");
+                Log.d(TAG, "onChannelOpened");
                 Log.d(TAG, "Channel: ${channel.path}")
                 val inputStreamTask: Task<InputStream> = Wearable.getChannelClient(applicationContext).getInputStream(channel)
                 inputStreamTask.addOnSuccessListener{ inputStream ->
@@ -97,13 +97,13 @@ class WearableDataReceiver : Service(), CoroutineScope {
                             var read: Int
                             val data = ByteArray(1024)
                             while (inputStream.read(data, 0, data.size).also { read = it } != -1) {
-                                Log.e(TAG, "Data length $read")
+                                Log.d(TAG, "Data length $read")
                                 buffer.write(data, 0, read)
                                 buffer.flush()
                                 val byteArray = buffer.toByteArray()
                                 text.append(String(byteArray, StandardCharsets.UTF_8))
                             }
-                            Log.e(TAG, "Reading: $text")
+                            Log.d(TAG, "Reading: $text")
 
                             val stressRawDataList = parseBulkData(buffer.toByteArray())
                             val firebaseStressDataService = FirebaseStressDataService(FirebaseStressDataDao())
