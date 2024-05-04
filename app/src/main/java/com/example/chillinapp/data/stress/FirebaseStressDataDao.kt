@@ -29,7 +29,6 @@ class FirebaseStressDataDao {
         val email= user?.email
         val userDocument= email?.let { accountCollection.document(it) }
 
-
         return try {
             var i:Int=0
             // Insert raw data for each sample
@@ -40,11 +39,10 @@ class FirebaseStressDataDao {
                     "heartrateSensor" to data.heartrateSensor,
                     "skinTemperatureSensor" to data.skinTemperatureSensor,
                 )
+
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(rawData)?.await()
                 i++
-
-
             }
 
             val fastreturn=fastInsert(stressData)
@@ -54,9 +52,9 @@ class FirebaseStressDataDao {
                 fastreturn
         } catch (e:Exception){
             ServiceResult(false,null,StressErrorType.NETWORK_ERROR)
-
         }
     }
+
     suspend fun getRawData(n: Int): ServiceResult <List <StressRawData>,StressErrorType> {
         val user = auth.currentUser
         val email = user?.email
@@ -79,20 +77,19 @@ class FirebaseStressDataDao {
                     val stressRawData = StressRawData(timestamp, heartrateSensor, skinTemperatureSensor)
                     rawDataList.add(stressRawData)
                 }
-
             }
 
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
-
-
         }
     }
+
     suspend fun fastInsert(stressData: List<StressRawData>) :ServiceResult<Unit,StressErrorType>{
         val email= auth.currentUser?.email
         val key= email?.substringBefore("@")
         val rawdatareference= key?.let { dbreference.child(it).child("RawData") }
+
         if (rawdatareference != null) {
             return try {
                 rawdatareference.removeValue().await()
@@ -107,12 +104,9 @@ class FirebaseStressDataDao {
             }
         }
        else
-
-        return ServiceResult(success = false, data = null, error = StressErrorType.NOACCOUNT)
-
-
-
+           return ServiceResult(success = false, data = null, error = StressErrorType.NOACCOUNT)
     }
+
     suspend fun fastget():ServiceResult<List<StressRawData>,StressErrorType>{
         val user=auth.currentUser
         val email=user?.email
@@ -130,14 +124,11 @@ class FirebaseStressDataDao {
                     stressDataList.add(stressData)
                 }
             }
-
             ServiceResult(success = true, data = stressDataList, error = null)
 
-            }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e("readStressDataFromFirebase", "An exception occurred", e)
             ServiceResult(success = false, data = null, error = StressErrorType.COMMUNICATION_PROBLEM)
         }
-
     }
-    }
+}
