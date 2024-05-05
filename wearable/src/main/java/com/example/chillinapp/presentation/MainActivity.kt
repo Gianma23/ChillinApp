@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -102,15 +103,19 @@ fun SensorSwitch(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            modifier = modifier,
             lineHeight = 24.sp,
+            fontSize = 20.sp,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.primary,
-            text = stringResource(R.string.sensor_disabled),
+            color = MaterialTheme.colors.secondary,
+            text =
+            if (isChecked)
+                stringResource(R.string.sensor_enabled)
+            else
+                stringResource(R.string.sensor_disabled),
         )
+        Spacer(modifier = Modifier.height(28.dp))
         Switch(
-            modifier = modifier
-                .scale(4f),
+            modifier = Modifier.scale(4f),
             checked = isChecked,
             onCheckedChange = {
                 isChecked = it
