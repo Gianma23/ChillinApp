@@ -2,8 +2,6 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
-import com.example.chillinapp.data.account.AccountService
-import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
@@ -17,7 +15,7 @@ class FirebaseStressDataDao {
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
     private val auth= Firebase.auth
-    private val dbreference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
+    private val dbReference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
 
     /**
      * Insert raw data to the database. Protocol is defined to get 30 samples of data at a time.
@@ -70,10 +68,14 @@ class FirebaseStressDataDao {
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
                     val heartRateSensor:Float = (document.get("heartRateSensor") as Float)
-                    val skinTemperatureSensor : Double= (document.get("skinTemperatureSensor" ) as Double)
+                    val skinTemperatureSensor : Float= (document.get("skinTemperatureSensor" ) as Float)
 
                     // Generate the StressRawData object and add it to the list
-                    val stressRawData = StressRawData(timestamp, heartRateSensor, skinTemperatureSensor)
+                    val stressRawData = StressRawData(
+                        timestamp = timestamp,
+                        heartRateSensor = heartRateSensor,
+                        skinTemperatureSensor = skinTemperatureSensor
+                    )
                     rawDataList.add(stressRawData)
                 }
             }
@@ -127,7 +129,7 @@ class FirebaseStressDataDao {
             snapshot?.children?.forEach{ childSnapshot->
                 val timestamp=childSnapshot.key?.toLongOrNull()
                 val heartRateSensor=childSnapshot.child("heartRateSensor").value as Float
-                val skinTemperatureSensor=childSnapshot.child("skinTemperatureSensor").value as Double
+                val skinTemperatureSensor=childSnapshot.child("skinTemperatureSensor").value as Float
                 if (timestamp != null) {
                     val stressData = StressRawData(timestamp, heartRateSensor, skinTemperatureSensor)
                     stressDataList.add(stressData)

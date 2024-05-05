@@ -28,7 +28,7 @@ fun HomeNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Monitor.route,
+        startDestination = MonitorDestination.route,
         modifier = modifier
     ) {
 

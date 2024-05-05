@@ -28,7 +28,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.navigation.HomeNavGraph
 import com.example.chillinapp.ui.navigation.NavigationDestination
-import com.example.chillinapp.ui.navigation.Screen
 
 
 object HomeDestination : NavigationDestination {

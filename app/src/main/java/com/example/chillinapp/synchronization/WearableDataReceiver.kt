@@ -1,32 +1,30 @@
-package com.example.chillinapp.synchronization;
+package com.example.chillinapp.synchronization
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-
-import android.util.Log;
-
-import com.example.chillinapp.data.stress.FirebaseStressDataDao;
-import com.example.chillinapp.data.stress.FirebaseStressDataService;
-import com.example.chillinapp.data.stress.StressRawData;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.wearable.ChannelClient;
-import com.google.android.gms.wearable.Wearable;
-import kotlinx.coroutines.*
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
+import android.util.Log
+import com.example.chillinapp.data.stress.FirebaseStressDataDao
+import com.example.chillinapp.data.stress.FirebaseStressDataService
+import com.example.chillinapp.data.stress.StressRawData
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.wearable.ChannelClient
+import com.google.android.gms.wearable.Wearable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
 
 class WearableDataReceiver : Service(), CoroutineScope {
-    private val TAG = "WearableDataReceiver"
-    private val CHANNEL_MSG = "/chillinapp"
+    private val tag = "WearableDataReceiver"
+    private val channelMsg = "/chillinapp"
     private lateinit var job: Job
-    private val BYTES_PER_SAMPLE = 20
+    private val bytesPerSample = 20
 
 
     override val coroutineContext: CoroutineContext
@@ -37,15 +35,15 @@ class WearableDataReceiver : Service(), CoroutineScope {
     }
 
     override fun onCreate(){
-        super.onCreate();
+        super.onCreate()
         job = Job()
-        Log.d(TAG, "Service created")
+        Log.d(tag, "Service created")
     }
 
     override fun onDestroy(){
-        super.onDestroy();
+        super.onDestroy()
         job.cancel()
-        Log.d(TAG, "Service destroyed")
+        Log.d(tag, "Service destroyed")
     }
 
     override fun onStartCommand(intent: Intent?,flags: Int,startId: Int): Int {
@@ -54,20 +52,20 @@ class WearableDataReceiver : Service(), CoroutineScope {
         // Check the action received
         when (intent?.action) {
             "START_SERVICE" -> {
-                Log.d(TAG, "Starting service")
+                Log.d(tag, "Starting service")
                 receiveData()
 
                 // Get the node id of itself
                 Wearable.getNodeClient(applicationContext).localNode.addOnSuccessListener { node ->
                     val nodeId = node.id
-                    Log.d(TAG, "Node id: $nodeId")
+                    Log.d(tag, "Node id: $nodeId")
                 }
             }
             "STOP_SERVICE" -> {
-                Log.d(TAG, "Stopping service")
+                Log.d(tag, "Stopping service")
                 stopSelf()
             }
-            else -> Log.w(TAG, "No action found")
+            else -> Log.w(tag, "No action found")
         }
 
         // Return START_STICKY to restart the service if it gets killed
@@ -75,19 +73,19 @@ class WearableDataReceiver : Service(), CoroutineScope {
     }
 
     private fun receiveData() {
-        Log.d(TAG, "Receiving data")
-        Log.d(TAG, "Channel client: ${Wearable.getChannelClient(applicationContext)}")
+        Log.d(tag, "Receiving data")
+        Log.d(tag, "Channel client: ${Wearable.getChannelClient(applicationContext)}")
         // Register a channel callback to receive data from the wearable device
         Wearable.getChannelClient(applicationContext).registerChannelCallback(object : ChannelClient.ChannelCallback() {
 
             override fun onChannelOpened(channel: ChannelClient.Channel) {
-                super.onChannelOpened(channel);
-                if (channel.path != CHANNEL_MSG) {
-                    Log.e(TAG, "Channel not found")
+                super.onChannelOpened(channel)
+                if (channel.path != channelMsg) {
+                    Log.e(tag, "Channel not found")
                     return
                 }
-                Log.d(TAG, "onChannelOpened");
-                Log.d(TAG, "Channel: ${channel.path}")
+                Log.d(tag, "onChannelOpened")
+                Log.d(tag, "Channel: ${channel.path}")
                 val inputStreamTask: Task<InputStream> = Wearable.getChannelClient(applicationContext).getInputStream(channel)
                 inputStreamTask.addOnSuccessListener{ inputStream ->
                     launch {
@@ -105,7 +103,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
                             firebaseStressDataService.insertRawData(stressRawDataList)
                             inputStream.close()
                         } catch (e: IOException) {
-                            Log.e(TAG, "Error in receiving data: $e")
+                            Log.e(tag, "Error in receiving data: $e")
                         } finally {
                             Wearable.getChannelClient(applicationContext).close(channel)
                         }
@@ -124,11 +122,11 @@ class WearableDataReceiver : Service(), CoroutineScope {
         val sensorDataList = ArrayList<StressRawData>()
         var i = 0
         while (i < data.size) {
-            val singleData = ByteArray(BYTES_PER_SAMPLE)
-            System.arraycopy(data, i, singleData, 0, BYTES_PER_SAMPLE)
+            val singleData = ByteArray(bytesPerSample)
+            System.arraycopy(data, i, singleData, 0, bytesPerSample)
             val sensorData = parseSingleData(singleData)
             sensorDataList.add(sensorData)
-            i += BYTES_PER_SAMPLE
+            i += bytesPerSample
         }
         return sensorDataList
     }

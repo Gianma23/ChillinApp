@@ -64,7 +64,8 @@ fun MonitorScreen(
 
     val titleFormatMap = mapOf(
         "heartRateSensor" to "Heart Rate",
-        "skinTemperatureSensor" to "Skin Temperature"
+        "skinTemperatureSensor" to "Skin Temperature",
+        "edaSensor" to "Electrodermal Activity"
     )
 
     Surface(
@@ -106,7 +107,7 @@ private fun MonitorCard(
             )
 
             val points = entry.value.map { (timestamp, value) ->
-                Point(timestampToHourOfDay(timestamp), (value as Double).toFloat())
+                Point(timestampToHourOfDay(timestamp), value as Float)
             }
 
             CardContent(uiState, points)

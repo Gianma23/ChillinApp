@@ -6,8 +6,8 @@ import java.util.Random
 
 
 /**
- * Generates a list of StressRawData objects for a given time range with a given step.
- * Each StressRawData object represents a data point with a timestamp, heart rate sensor reading, and skin temperature sensor reading.
+ * Generates a list of [StressRawData] objects for a given time range with a given step.
+ * Each [StressRawData] object represents a data point with a timestamp, heart rate sensor reading, and skin temperature sensor reading.
  * The heart rate sensor reading and skin temperature sensor reading are generated using a Gaussian distribution.
  *
  * @param start The start time for the data generation in Calendar format.
@@ -39,8 +39,9 @@ fun generateStressRawDataList(
 
             val stressRawData = StressRawData(
                 timestamp = currentTime,
-                heartRateSensor = 80 + random.nextGaussian() * 10, // Mean 80, st.dev. 10
-                skinTemperatureSensor = 35 + random.nextGaussian() * 2.5 // Mean 35, st.dev. 2.5
+                heartRateSensor = (80 + random.nextGaussian() * 10).toFloat(), // Mean 80, st.dev. 10
+                skinTemperatureSensor = (35 + random.nextGaussian() * 2.5).toFloat(), // Mean 35, st.dev. 2.5
+                edaSensor = (0.5 + random.nextGaussian() * 0.1).toFloat() // Mean 0.5, st.dev. 0.1
             )
             list.add(stressRawData)
         }

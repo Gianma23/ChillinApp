@@ -38,7 +38,8 @@ class MonitorViewModel(
             stressData = emptyList(),
             fieldValuesMap = mapOf(
                 "heartRateSensor" to emptyList(),
-                "skinTemperatureSensor" to emptyList()
+                "skinTemperatureSensor" to emptyList(),
+                "edaSensor" to emptyList()
             ),
             error = null,
             isLoading = true
@@ -87,7 +88,8 @@ class MonitorViewModel(
                     FormattedStressRawData(
                         timestamp = rawData.timestamp,
                         heartRateSensor = rawData.heartRateSensor,
-                        skinTemperatureSensor = rawData.skinTemperatureSensor
+                        skinTemperatureSensor = rawData.skinTemperatureSensor,
+                        edaSensor = rawData.edaSensor
                     )
                 } ?: emptyList(),
                 error = startingData.error

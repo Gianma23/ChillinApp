@@ -90,12 +90,17 @@ interface AccountService {
     fun deleteAccount(email: String): ServiceResult<Boolean, AccountErrorType>
 
     /**
-     * Signs out the current user.
+     * Gets the current account.
      *
      * @return A ServiceResult instance containing the result of the operation.
      */
     suspend fun getCurrentAccount() : ServiceResult <Account?, AccountErrorType>
 
+    /**
+     * Signs out the current user.
+     *
+     * @return A ServiceResult instance containing the result of the operation.
+     */
     fun signOut(): ServiceResult<Unit, AccountErrorType>
 
 }

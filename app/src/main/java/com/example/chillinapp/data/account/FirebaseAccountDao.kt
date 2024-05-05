@@ -139,8 +139,8 @@ class FirebaseAccountDao {
 
             auth.signInWithEmailAndPassword(email, password).await()
 
-            val account = getcurrentAccount()?.data
-            val name = account?.name
+            val account = getCurrentAccount().data
+            account?.name
 
             val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
                 success = true,
@@ -271,6 +271,13 @@ class FirebaseAccountDao {
         }
     }
 
+    /**
+     * Creates a new account in the Firestore database and authenticates the user with Firebase's Authentication service.
+     *
+     * @param account The account to be created. It should contain the email, name, and password for the new account.
+     * @return A ServiceResult instance containing the result of the operation. The success flag indicates whether the operation was successful.
+     * The data field is null. The error field contains an AccountErrorType indicating the type of error that occurred, if any.
+     */
     suspend fun getCurrentAccount(): ServiceResult<Account?, AccountErrorType> {
         val currentUser = auth.currentUser
         val currentEmail = currentUser?.email
@@ -313,17 +320,17 @@ class FirebaseAccountDao {
         }
     }
 
-   /* suspend fun deleteAccount(email: String): ServiceResult<Unit,AccountErrorType>{
-        val documentref=accountCollection.document(email).get().await()
 
-        try {
-            val psw=documentref.get("passwo")
-            auth.signInWithCredential(email,)
-            documentref.delete()
-
-        }
-    }
-*/
+//    suspend fun deleteAccount(email: String): ServiceResult<Unit,AccountErrorType>{
+//        val docRef=accountCollection.document(email).get().await()
+//
+//        try {
+//            val psw=docRef.get("password")
+//            auth.signInWithCredential(email,)
+//            docRef.delete()
+//
+//        }
+//    }
 
 
 }
