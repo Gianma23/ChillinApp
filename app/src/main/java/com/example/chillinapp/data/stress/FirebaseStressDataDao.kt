@@ -230,13 +230,15 @@ class FirebaseStressDataDao {
                 }
             }
 
-            // Calcola la avg dei dati grezzi
+
             val avgHeartSensor = if (count > 0) totalHeartSensor / count else 0.0F
             val avgSkinTemperatureSensor = if (count > 0) totalSkinTemperatureSensor / count else 0.0F
             val avgEdaSensor = if (count > 0) totalEdaSensor / count else 0.0F
-
+            Log.d("Insert avg", "Completed")
             return  ServiceResult(true,StressRawData(sincewhen,avgHeartSensor, avgSkinTemperatureSensor, avgEdaSensor),null)
+
         } else {
+            Log.d("Insert avg", "not Completed")
             return ServiceResult(false,null, null)
         }
     }

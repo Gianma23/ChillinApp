@@ -8,4 +8,5 @@ interface StressDataService {
     suspend fun getfaster(): ServiceResult <List <StressRawData>,StressErrorType>
     suspend fun insertDerivedData(stressData:List<StressDerivedData>):ServiceResult<Unit,StressErrorType>
     suspend fun getDerivedData(n:Int):ServiceResult <List<StressDerivedData>,StressErrorType>
+    suspend fun getavgRawData(sincewhen:Long) : ServiceResult <StressRawData?,StressErrorType>
 }

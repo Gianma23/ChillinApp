@@ -152,9 +152,10 @@ class WearableDataReceiver : Service(), CoroutineScope {
         // GPS
         val gpsBytes = ByteArray(8)
         System.arraycopy(data, 12, gpsBytes, 0, 8)
-        val skinTemperature = bytesToDouble(gpsBytes)
+        val skinTemperature = bytesToFloat(gpsBytes)
+        val edaSensor=1F
 
-        return StressRawData(timestamp, hr, skinTemperature)
+        return StressRawData(timestamp, hr, skinTemperature, edaSensor)
     }
 
     /**

@@ -7,17 +7,17 @@ import java.util.Locale
 
 class FormattedStressRawData(
     timestamp: Long,
-    heartRateSensor: Double,
-    skinTemperatureSensor: Double
+    heartRateSensor: Float,
+    skinTemperatureSensor: Float
 ) {
     val timestamp: String
-    val heartRateSensor: Double
-    val skinTemperatureSensor: Double
+    val heartRateSensor: Float
+    val skinTemperatureSensor: Float
 
     init {
         this.timestamp = timestampToString(timestamp)
-        this.heartRateSensor = heartRateSensor
-        this.skinTemperatureSensor = skinTemperatureSensor
+        this.heartRateSensor = heartRateSensor.toFloat()
+        this.skinTemperatureSensor = skinTemperatureSensor.toFloat()
     }
 }
 

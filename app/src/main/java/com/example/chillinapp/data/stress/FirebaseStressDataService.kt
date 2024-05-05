@@ -19,6 +19,11 @@ class FirebaseStressDataService(private val stressDataDao: FirebaseStressDataDao
     override suspend fun getDerivedData(n: Int): ServiceResult<List<StressDerivedData>, StressErrorType> =
     stressDataDao.getDerivedData(n)
 
+    override suspend fun getavgRawData(sincewhen: Long): ServiceResult<StressRawData?, StressErrorType> =
+        stressDataDao.avgRawData(sincewhen)
+
+
+
 
 
 

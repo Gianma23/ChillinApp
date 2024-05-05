@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.stress.StressDataService
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
+import com.example.chillinapp.data.stress.generateDummyRawDataList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +16,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 class MonitorViewModel(
-//    private val dataService :  StressDataService
+   private val dataService : StressDataService
 ): ViewModel(){
 
     // Mutable state flow for the UI state of the overall screen
@@ -26,10 +28,12 @@ class MonitorViewModel(
     init {
 
         viewModelScope.launch{
+           // val example= generateDummyRawDataList()
+          //  dataService.insertRawData(example)
 
             /*TODO: Get the initial data from the data service and update the UI state with it.*/
-//            val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
-//                dataService.getRawData(n = DISPLAY_LENGTH)
+        //    val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
+           //    dataService.getRawData(n = 30)
 
             // Simulate the starting data
             val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
@@ -77,8 +81,8 @@ class MonitorViewModel(
                 val timestamp = startOfDay.timeInMillis + TimeUnit.HOURS.toMillis(hour.toLong()) + TimeUnit.MINUTES.toMillis(minute.toLong())
                 val stressRawData = StressRawData(
                     timestamp = timestamp,
-                    heartRateSensor = (60..100).random().toDouble(), // Random value between 60 and 100
-                    skinTemperatureSensor = (30..40).random().toDouble() // Random value between 30 and 40
+                    heartRateSensor = (60..100).random().toFloat(), // Random value between 60 and 100
+                    skinTemperatureSensor = (30..40).random().toFloat() // Random value between 30 and 40
                 )
                 list.add(stressRawData)
             }
