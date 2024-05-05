@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import com.example.chillinapp.synchronization.SensorDataHandler
 import com.example.chillinapp.synchronization.WearableDataProvider
 import com.google.android.gms.location.*
+import kotlinx.coroutines.*
 import java.io.*
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
@@ -33,6 +34,8 @@ class SensorService: Service(), SensorEventListener {
     private var hrSensor: Sensor? = null
     private var edaSensor: Sensor? = null
     private var tempSensor: Sensor? = null
+
+    private var job: Job? = null
     private var lastHRValue: Float = 0f
     private var lastEDAValue: Float = 0f
     private var lastTempValue: Float = 0f
@@ -126,31 +129,6 @@ class SensorService: Service(), SensorEventListener {
             edaSensor -> lastEDAValue = value
             tempSensor -> lastTempValue = value
         }
-        
-        var data = ByteArray(0)
-        var tmpByte = ByteBuffer.allocate(8).putLong(timestamp).array()
-        data = data.plus(tmpByte)
-        tmpByte = ByteBuffer.allocate(4).putFloat(lastEDAValue).array()
-        data = data.plus(tmpByte)
-        tmpByte = ByteBuffer.allocate(4).putFloat(lastTempValue).array()
-        data = data.plus(tmpByte)
-        tmpByte = ByteBuffer.allocate(4).putFloat(lastHRValue).array()
-        data = data.plus(tmpByte)
-        Log.d(TAG, "latitude: ${LocationProvider.latitude}, longitude: ${LocationProvider.longitude}")
-        tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.latitude).array()
-        data = data.plus(tmpByte)
-        tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.longitude).array()
-        data = data.plus(tmpByte)
-
-        val dataHandler = SensorDataHandler.getInstance()
-        val isFull = dataHandler.pushData(data)
-
-        if (isFull) {
-            val intent = Intent(this, WearableDataProvider::class.java)
-            intent.action = "SEND"
-            startService(intent)
-            Log.d(TAG, "Provider service called to send data")
-        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -171,15 +149,51 @@ class SensorService: Service(), SensorEventListener {
 
         LocationProvider.startLocationUpdates()
 
+        job?.cancel()
+        job = MainScope().launch(Dispatchers.IO) {
+            while(true) {
+                saveData()
+                delay(1000)
+            }
+        }
+
         Log.d(TAG, "Sensors started")
     }
 
     private fun stopSensors() {
         //TODO dump dati sensori
+        job?.cancel()
         LocationProvider.stopLocationUpdates()
         sensorManager?.unregisterListener(this, hrSensor)
         sensorManager?.unregisterListener(this, edaSensor)
         sensorManager?.unregisterListener(this, tempSensor)
         Log.d(TAG, "Sensors stopped")
+    }
+
+    private fun saveData() {
+        Log.d(TAG, "save data, time: ${System.currentTimeMillis()}")
+        var data = ByteArray(0)
+        var tmpByte = ByteBuffer.allocate(8).putLong(System.currentTimeMillis()).array()
+        data = data.plus(tmpByte)
+        tmpByte = ByteBuffer.allocate(4).putFloat(lastEDAValue).array()
+        data = data.plus(tmpByte)
+        tmpByte = ByteBuffer.allocate(4).putFloat(lastTempValue).array()
+        data = data.plus(tmpByte)
+        tmpByte = ByteBuffer.allocate(4).putFloat(lastHRValue).array()
+        data = data.plus(tmpByte)
+        tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.latitude).array()
+        data = data.plus(tmpByte)
+        tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.longitude).array()
+        data = data.plus(tmpByte)
+
+        val dataHandler = SensorDataHandler.getInstance()
+        val isFull = dataHandler.pushData(data)
+
+        if (isFull) {
+            val intent = Intent(this, WearableDataProvider::class.java)
+            intent.action = "SEND"
+            startService(intent)
+            Log.d(TAG, "Provider service called to send data")
+        }
     }
 }
