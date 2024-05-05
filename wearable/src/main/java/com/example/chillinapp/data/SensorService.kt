@@ -1,4 +1,4 @@
-package com.example.chillinapp
+package com.example.chillinapp.data
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -14,13 +14,11 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.chillinapp.synchronization.SensorDataHandler
 import com.example.chillinapp.synchronization.WearableDataProvider
 import com.google.android.gms.location.*
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 private const val TAG = "SensorService"
@@ -28,11 +26,6 @@ private const val TAG = "SensorService"
 private const val SAMPLING_PERIOD: Int = 10000000 // 1sec
 
 class SensorService: Service(), SensorEventListener {
-
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationCallback: LocationCallback
-    private var longitude = AtomicReference<Double>(0.0)
-    private var latitude = AtomicReference<Double>(0.0)
 
     private var sensorManager: SensorManager? = null
     private var hrSensor: Sensor? = null
@@ -67,17 +60,7 @@ class SensorService: Service(), SensorEventListener {
             NotificationsHelper.buildNotification(this),
         )
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(p0: LocationResult) {
-                val lastLoc = p0.lastLocation
-                if (lastLoc != null) {
-                    latitude.set(lastLoc.latitude)
-                    longitude.set(lastLoc.longitude)
-                    Log.d(TAG, "location updated")
-                }
-            }
-        }
+        LocationProvider.setupLocationProvider(this)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         tempSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE)
         hrSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_HEART_RATE)
@@ -132,10 +115,10 @@ class SensorService: Service(), SensorEventListener {
         data = data.plus(tmpByte)
         tmpByte = ByteBuffer.allocate(4).putFloat(lastHRValue).array()
         data = data.plus(tmpByte)
-        Log.d(TAG, "latitude: ${latitude.get()}, longitude: ${longitude.get()}")
-        tmpByte = ByteBuffer.allocate(8).putDouble(latitude.get()).array()
+        Log.d(TAG, "latitude: ${LocationProvider.latitude}, longitude: ${LocationProvider.longitude}")
+        tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.latitude).array()
         data = data.plus(tmpByte)
-        tmpByte = ByteBuffer.allocate(8).putDouble(longitude.get()).array()
+        tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.longitude).array()
         data = data.plus(tmpByte)
 
         val dataHandler = SensorDataHandler.getInstance()
@@ -165,17 +148,14 @@ class SensorService: Service(), SensorEventListener {
         if (tempSensor != null)
             sensorManager?.registerListener(this, tempSensor, SAMPLING_PERIOD)
 
-        val locationRequest = LocationRequest.Builder(TimeUnit.SECONDS.toMillis(3))
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .build()
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+        LocationProvider.startLocationUpdates()
 
         Log.d(TAG, "Sensors started")
     }
 
     private fun stopSensors() {
-        //dump dati sensori
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        //TODO dump dati sensori
+        LocationProvider.stopLocationUpdates()
         sensorManager?.unregisterListener(this, hrSensor)
         Log.d(TAG, "Sensors stopped")
     }

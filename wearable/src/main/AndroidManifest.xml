@@ -57,7 +57,7 @@
         </activity>
 
         <service
-                android:name=".SensorService"
+                android:name=".data.SensorService"
                 android:foregroundServiceType="health|location"
                 android:exported="false">
         </service>

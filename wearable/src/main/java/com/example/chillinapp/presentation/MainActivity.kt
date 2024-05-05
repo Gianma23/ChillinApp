@@ -29,7 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.wear.compose.material.*
 import com.example.chillinapp.R
-import com.example.chillinapp.SensorService
+import com.example.chillinapp.data.SensorService
 import com.example.chillinapp.presentation.theme.ChillinAppTheme
 
 private const val TAG = "MainActivity"

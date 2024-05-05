@@ -1,11 +1,11 @@
-package com.example.chillinapp
+package com.example.chillinapp.data
 
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.chillinapp.R
 import com.example.chillinapp.presentation.MainActivity
 
 internal object NotificationsHelper {
