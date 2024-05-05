@@ -112,10 +112,8 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
             error = AccountErrorType.NOT_YET_IMPLEMENTED
         )
 
-    override suspend fun getcurrentAccount(): ServiceResult<Account?, AccountErrorType> =
-        accountDao.getcurrentAccount()
-
-
+    override suspend fun getCurrentAccount(): ServiceResult<Account?, AccountErrorType> =
+        accountDao.getCurrentAccount()
 
     override fun signOut(): ServiceResult<Unit,AccountErrorType> =
         accountDao.signOut()
