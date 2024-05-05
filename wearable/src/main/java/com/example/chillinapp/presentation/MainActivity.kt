@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -33,6 +34,12 @@ import com.example.chillinapp.presentation.theme.ChillinAppTheme
 private const val TAG = "MainActivity"
 class MainActivity : ComponentActivity() {
 
+    private var permissions = arrayOf(
+        Manifest.permission.BODY_SENSORS,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -42,7 +49,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             WearApp(modifier = Modifier.fillMaxSize())
         }
-        checkPermission(Manifest.permission.BODY_SENSORS, 100)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions += Manifest.permission.POST_NOTIFICATIONS
+        }
+        //TODO: request permission for background locaiton
+
+        ActivityCompat.requestPermissions(this@MainActivity, permissions, 50)
     }
 
     override fun onDestroy() {
@@ -56,7 +69,7 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "onStop")
     }
 
-    fun checkPermission(permission: String, requestCode: Int) {
+    private fun checkPermission(permission: String, requestCode: Int) {
         if (ContextCompat.checkSelfPermission(this@MainActivity, permission)
             == PackageManager.PERMISSION_DENIED
         ) {
