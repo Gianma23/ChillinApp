@@ -86,7 +86,7 @@ private const val AccessDelay: Long = 1000L
  * @param navigateToSignInScreen Function to navigate to the sign in screen.
  * @param navigateToPswRecoveryScreen Function to navigate to the password recovery screen.
  * @param screenIfSuccess Function to navigate to the home screen.
- * @param logInViewModel ViewModel that contains the state and the logic for the login process.
+ * @param viewModel ViewModel that contains the state and the logic for the login process.
  */
 @Composable
 fun LogInScreen(
@@ -94,11 +94,11 @@ fun LogInScreen(
     navigateToSignInScreen: () -> Unit = {},
     navigateToPswRecoveryScreen: () -> Unit = {},
     screenIfSuccess: (String) -> Unit = {},
-    logInViewModel: LogInViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: LogInViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     // Collect the state of the login process
-    val logInUiState by logInViewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     // Create the UI for the login screen
     Surface (
@@ -131,8 +131,8 @@ fun LogInScreen(
             ) {
 
                 LogInCard(
-                    logInUiState = logInUiState,
-                    logInViewModel = logInViewModel,
+                    logInUiState = uiState,
+                    logInViewModel = viewModel,
                     navigateToPswRecoveryScreen = navigateToPswRecoveryScreen
                 )
 
@@ -163,7 +163,7 @@ fun LogInScreen(
                             }
                         },
                         onClick = {
-                            if(logInUiState.authenticationResult?.success != true && !logInUiState.isLoading)
+                            if(uiState.authenticationResult?.success != true && !uiState.isLoading)
                                 navigateToSignInScreen()
                         },
                     )
@@ -176,7 +176,7 @@ fun LogInScreen(
     }
 
     // Handle the result of the login process
-    when (logInUiState.authenticationResult?.success) {
+    when (uiState.authenticationResult?.success) {
         true -> {
             Column(
                 verticalArrangement = Arrangement.Bottom,
@@ -194,14 +194,14 @@ fun LogInScreen(
 
             LaunchedEffect(Unit) {
                 delay(AccessDelay)
-                screenIfSuccess(logInUiState.email)
+                screenIfSuccess(uiState.email)
             }
         }
         false -> {
             SimpleNotification(
-                action = { logInViewModel.idleResult() },
+                action = { viewModel.idleResult() },
                 buttonText = stringResource(R.string.hide_notify_action),
-                bodyText = accessResultText(logInUiState.authenticationResult)
+                bodyText = accessResultText(uiState.authenticationResult)
             )
         }
         else -> { }
