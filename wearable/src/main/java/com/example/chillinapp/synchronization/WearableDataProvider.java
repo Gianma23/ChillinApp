@@ -1,4 +1,4 @@
-package com.example.wearable.synchronization;
+package com.example.chillinapp.synchronization;
 
 import android.app.Service;
 import android.content.Intent;
@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class WearableDataProvider extends Service {
 
     private final String TAG = "WearableDataProvider";
-    private final String CHANNEL_MSG = "chillinapp";
+    private final String CHANNEL_MSG = "/chillinapp";
 
     public WearableDataProvider() {
     }
@@ -75,13 +75,15 @@ public class WearableDataProvider extends Service {
             Task<ChannelClient.Channel> channelTask = Wearable.getChannelClient(getApplicationContext()).openChannel(nodeId, CHANNEL_MSG);
             channelTask.addOnSuccessListener(channel -> {
                 Log.d(TAG, "onSuccess " + channel.getNodeId());
+                Log.d(TAG, "Channel: " + channel.getPath());
                 // Get the output stream
                 Task<OutputStream> outputStreamTask = Wearable.getChannelClient(getApplicationContext()).getOutputStream(channel);
+                // print details of the output stream task
+                Log.d(TAG, "output stream task: " + outputStreamTask);
                 outputStreamTask.addOnSuccessListener(outputStream -> {
                     Log.d(TAG, "output stream onSuccess");
                     try {
-                        // outputStream.write(data);
-                        outputStream.write("Hello".getBytes());
+                        outputStream.write(data);
                         outputStream.flush();
                         outputStream.close();
                     } catch (IOException e) {

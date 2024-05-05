@@ -24,7 +24,10 @@ import kotlin.coroutines.CoroutineContext
 
 class WearableDataReceiver : Service(), CoroutineScope {
     private val TAG = "WearableDataReceiver"
+    private val CHANNEL_MSG = "/chillinapp"
     private lateinit var job: Job
+    private val BYTES_PER_SAMPLE = 20
+
 
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
@@ -50,15 +53,20 @@ class WearableDataReceiver : Service(), CoroutineScope {
 
         // Check the action received
         when (intent?.action) {
-            "RECEIVE" -> {
-                Log.d(TAG, "Receiving data")
+            "START_SERVICE" -> {
+                Log.d(TAG, "Starting service")
                 receiveData()
+
+                // Get the node id of itself
+                Wearable.getNodeClient(applicationContext).localNode.addOnSuccessListener { node ->
+                    val nodeId = node.id
+                    Log.d(TAG, "Node id: $nodeId")
+                }
             }
             "STOP_SERVICE" -> {
                 Log.d(TAG, "Stopping service")
                 stopSelf()
             }
-            "START_SERVICE" -> Log.d(TAG, "Starting service")
             else -> Log.w(TAG, "No action found")
         }
 
@@ -67,28 +75,30 @@ class WearableDataReceiver : Service(), CoroutineScope {
     }
 
     private fun receiveData() {
+        Log.d(TAG, "Receiving data")
+        Log.d(TAG, "Channel client: ${Wearable.getChannelClient(applicationContext)}")
         // Register a channel callback to receive data from the wearable device
         Wearable.getChannelClient(applicationContext).registerChannelCallback(object : ChannelClient.ChannelCallback() {
 
             override fun onChannelOpened(channel: ChannelClient.Channel) {
                 super.onChannelOpened(channel);
+                if (channel.path != CHANNEL_MSG) {
+                    Log.e(TAG, "Channel not found")
+                    return
+                }
                 Log.d(TAG, "onChannelOpened");
+                Log.d(TAG, "Channel: ${channel.path}")
                 val inputStreamTask: Task<InputStream> = Wearable.getChannelClient(applicationContext).getInputStream(channel)
                 inputStreamTask.addOnSuccessListener{ inputStream ->
                     launch {
                         try {
-                            val text = StringBuilder()
                             val buffer = ByteArrayOutputStream()
                             var read: Int
                             val data = ByteArray(1024)
                             while (inputStream.read(data, 0, data.size).also { read = it } != -1) {
-                                Log.d(TAG, "Data length $read")
                                 buffer.write(data, 0, read)
                                 buffer.flush()
-                                val byteArray = buffer.toByteArray()
-                                text.append(String(byteArray, StandardCharsets.UTF_8))
                             }
-                            Log.d(TAG, "Reading: $text")
 
                             val stressRawDataList = parseBulkData(buffer.toByteArray())
                             val firebaseStressDataService = FirebaseStressDataService(FirebaseStressDataDao())
@@ -114,20 +124,16 @@ class WearableDataReceiver : Service(), CoroutineScope {
         val sensorDataList = ArrayList<StressRawData>()
         var i = 0
         while (i < data.size) {
-            val singleData = ByteArray(24)
-            System.arraycopy(data, i, singleData, 0, 24)
+            val singleData = ByteArray(BYTES_PER_SAMPLE)
+            System.arraycopy(data, i, singleData, 0, BYTES_PER_SAMPLE)
             val sensorData = parseSingleData(singleData)
             sensorDataList.add(sensorData)
-            i += 24
+            i += BYTES_PER_SAMPLE
         }
         return sensorDataList
     }
 
     private fun parseSingleData(data: ByteArray): StressRawData {
-        // Array of bytes composed by:
-        // 8 bytes for timestamp
-        // 8 bytes for EDA
-        // 8 bytes for skin temperature
 
         // Timestamp
         val timestampBytes = ByteArray(8)
@@ -135,16 +141,31 @@ class WearableDataReceiver : Service(), CoroutineScope {
         val timestamp = bytesToLong(timestampBytes)
 
         // EDA
-        val edaBytes = ByteArray(8)
-        System.arraycopy(data, 8, edaBytes, 0, 8)
-        val eda = bytesToDouble(edaBytes)
+        val edaBytes = ByteArray(4)
+        System.arraycopy(data, 8, edaBytes, 0, 4)
+        val eda = bytesToFloat(edaBytes)
 
-        // Skin temperature
-        val skinTemperatureBytes = ByteArray(8)
-        System.arraycopy(data, 16, skinTemperatureBytes, 0, 8)
-        val skinTemperature = bytesToDouble(skinTemperatureBytes)
+        // Temperature
+        val temperatureBytes = ByteArray(4)
+        System.arraycopy(data, 12, temperatureBytes, 0, 4)
+        val temperature = bytesToFloat(temperatureBytes)
 
-        return StressRawData(timestamp, eda, skinTemperature)
+        // heart rate
+        val heartRateBytes = ByteArray(4)
+        System.arraycopy(data, 16, heartRateBytes, 0, 4)
+        val hr = bytesToFloat(heartRateBytes)
+
+        // latitude
+        val latitudeBytes = ByteArray(8)
+        System.arraycopy(data, 20, latitudeBytes, 0, 8)
+        val latitude = bytesToDouble(latitudeBytes)
+
+        // longitude
+        val longitudeBytes = ByteArray(8)
+        System.arraycopy(data, 28, longitudeBytes, 0, 8)
+        val longitude = bytesToDouble(longitudeBytes)
+
+        return StressRawData(timestamp, eda, temperature, hr, latitude, longitude)
     }
 
     /**
@@ -169,5 +190,12 @@ class WearableDataReceiver : Service(), CoroutineScope {
         buffer.put(sensorBytes)
         buffer.flip()
         return buffer.double
+    }
+
+    private fun bytesToFloat(sensorBytes: ByteArray): Float {
+        val buffer = ByteBuffer.allocate(java.lang.Float.BYTES)
+        buffer.put(sensorBytes)
+        buffer.flip()
+        return buffer.float
     }
 }

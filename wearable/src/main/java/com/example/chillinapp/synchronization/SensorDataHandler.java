@@ -1,4 +1,4 @@
-package com.example.wearable.synchronization;
+package com.example.chillinapp.synchronization;
 
 /**
  * Singleton class that handles the data collected from the sensor. The data is stored in a byte array
@@ -7,7 +7,8 @@ public class SensorDataHandler {
 
     private static SensorDataHandler instance;
     private static final int MAX_SAMPLING = 30;
-    private static final int MAX_DATA_SIZE = MAX_SAMPLING * 24; // 24 bytes per sample
+    private static final int BYTES_PER_SAMPLE = 36;
+    private static final int MAX_DATA_SIZE = MAX_SAMPLING * BYTES_PER_SAMPLE;
     private byte[] bulkData;
     private int samplingCount = 0;
 
@@ -23,6 +24,12 @@ public class SensorDataHandler {
     }
 
     public boolean pushData(byte[] data) {
+
+        // if length of data is not equal to BYTES_PER_SAMPLE, return false
+        if (data.length != BYTES_PER_SAMPLE) {
+            return false;
+        }
+
         // If samples have reached the maximum, create a new bulk data and start over
         if (samplingCount == MAX_SAMPLING){
             bulkData = new byte[MAX_DATA_SIZE];
@@ -30,7 +37,7 @@ public class SensorDataHandler {
         }
 
         if (samplingCount < MAX_SAMPLING) {
-            System.arraycopy(data, 0, bulkData, samplingCount * 24, 24);
+            System.arraycopy(data, 0, bulkData, samplingCount * BYTES_PER_SAMPLE, BYTES_PER_SAMPLE);
             samplingCount++;
         }
 

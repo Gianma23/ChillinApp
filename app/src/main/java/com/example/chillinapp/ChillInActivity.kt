@@ -38,7 +38,7 @@ class ChillInActivity : ComponentActivity() {
             }
         }
 
-        // TODO: Delete simulation service
+        // Start simulation service
         // startService(Intent(this, SimulationService::class.java))
 
         // Start the WearableDataReceiver service
@@ -56,8 +56,8 @@ class ChillInActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         
-        // TODO: Delete simulation service
-        stopService(Intent(this, SimulationService::class.java))
+        // Delete simulation service
+        // stopService(Intent(this, SimulationService::class.java))
         
         // Stop the WearableDataReceiver service
         val intent = Intent(this, WearableDataReceiver::class.java)

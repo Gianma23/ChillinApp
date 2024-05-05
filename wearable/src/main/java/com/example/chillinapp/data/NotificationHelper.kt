@@ -1,10 +1,12 @@
-package com.example.wearable
+package com.example.chillinapp.data
 
 import android.app.*
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import com.example.wearable.presentation.MainActivity
+import androidx.core.content.ContextCompat
+import com.example.chillinapp.R
+import com.example.chillinapp.presentation.MainActivity
 
 internal object NotificationsHelper {
 
@@ -28,9 +30,10 @@ internal object NotificationsHelper {
         notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER)
 
         return NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("test")
-            .setContentText("test")
+            .setContentTitle("Sensors enabled")
+            .setContentText("Sampling data for stress detection")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setColor(ContextCompat.getColor(context, R.color.ic_launcher_background))
             .setOngoing(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setContentIntent(Intent(context, MainActivity::class.java).let {

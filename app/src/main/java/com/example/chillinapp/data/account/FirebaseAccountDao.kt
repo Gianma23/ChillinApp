@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
@@ -26,6 +27,7 @@ class FirebaseAccountDao {
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
     private val auth=Firebase.auth
+    private val dbreference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
 
     /**
      * Creates a new account in the Firestore database and authenticates the user with Firebase's Authentication service.
@@ -136,6 +138,9 @@ class FirebaseAccountDao {
 
 
             auth.signInWithEmailAndPassword(email, password).await()
+
+            val account = getcurrentAccount()?.data
+            val name = account?.name
 
             val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
                 success = true,
@@ -265,6 +270,7 @@ class FirebaseAccountDao {
             response
         }
     }
+
     suspend fun getCurrentAccount(): ServiceResult<Account?, AccountErrorType> {
         val currentUser = auth.currentUser
         val currentEmail = currentUser?.email
@@ -306,6 +312,18 @@ class FirebaseAccountDao {
             response
         }
     }
+
+   /* suspend fun deleteAccount(email: String): ServiceResult<Unit,AccountErrorType>{
+        val documentref=accountCollection.document(email).get().await()
+
+        try {
+            val psw=documentref.get("passwo")
+            auth.signInWithCredential(email,)
+            documentref.delete()
+
+        }
+    }
+*/
 
 
 }

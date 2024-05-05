@@ -96,7 +96,6 @@ interface AccountService {
      */
     suspend fun getCurrentAccount() : ServiceResult <Account?, AccountErrorType>
 
-
     fun signOut(): ServiceResult<Unit, AccountErrorType>
 
 }

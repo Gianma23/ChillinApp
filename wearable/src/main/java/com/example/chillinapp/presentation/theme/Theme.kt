@@ -1,7 +1,8 @@
-package com.example.wearable.presentation.theme
+package com.example.chillinapp.presentation.theme
 
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.MaterialTheme
+
 
 @Composable
 fun ChillinAppTheme(

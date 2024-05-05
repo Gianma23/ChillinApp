@@ -2,6 +2,8 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.account.AccountService
+import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
@@ -15,7 +17,7 @@ class FirebaseStressDataDao {
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
     private val auth= Firebase.auth
-    private val dbReference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
+    private val dbreference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
 
     /**
      * Insert raw data to the database. Protocol is defined to get 30 samples of data at a time.
@@ -23,7 +25,6 @@ class FirebaseStressDataDao {
      * @return [ServiceResult] with Unit as success type and [StressErrorType] as error type
      */
     suspend fun insertRawData(stressData: List<StressRawData>): ServiceResult<Unit,StressErrorType>{
-
         val user=auth.currentUser
         val email= user?.email
         val userDocument= email?.let { accountCollection.document(it) }
@@ -68,7 +69,7 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartRateSensor:Double = (document.get("heartRateSensor") as Double)
+                    val heartRateSensor:Float = (document.get("heartRateSensor") as Float)
                     val skinTemperatureSensor : Double= (document.get("skinTemperatureSensor" ) as Double)
 
                     // Generate the StressRawData object and add it to the list
@@ -95,6 +96,7 @@ class FirebaseStressDataDao {
         val email= auth.currentUser?.email
         val key= email?.substringBefore("@")
         val rawDataReference= key?.let { dbReference.child(it).child("RawData") }
+
         if (rawDataReference != null) {
             return try {
                 rawDataReference.removeValue().await()
@@ -124,18 +126,16 @@ class FirebaseStressDataDao {
             val stressDataList= mutableListOf<StressRawData>()
             snapshot?.children?.forEach{ childSnapshot->
                 val timestamp=childSnapshot.key?.toLongOrNull()
-                val heartRateSensor=childSnapshot.child("heartRateSensor").value as Double
+                val heartRateSensor=childSnapshot.child("heartRateSensor").value as Float
                 val skinTemperatureSensor=childSnapshot.child("skinTemperatureSensor").value as Double
                 if (timestamp != null) {
                     val stressData = StressRawData(timestamp, heartRateSensor, skinTemperatureSensor)
                     stressDataList.add(stressData)
                 }
             }
-
             ServiceResult(success = true, data = stressDataList, error = null)
 
-            }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e("readStressDataFromFirebase", "An exception occurred", e)
             ServiceResult(success = false, data = null, error = StressErrorType.COMMUNICATION_PROBLEM)
         }
