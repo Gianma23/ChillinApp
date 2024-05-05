@@ -1,17 +1,13 @@
-package com.example.wearable.presentation
+package com.example.chillinapp.presentation
 
 import android.Manifest
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,15 +21,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.wear.compose.material.*
-import com.example.wearable.R
-import com.example.wearable.SensorService
-import com.example.wearable.presentation.theme.ChillinAppTheme
+import com.example.chillinapp.R
+import com.example.chillinapp.SensorService
+import com.example.chillinapp.presentation.theme.ChillinAppTheme
 
 private const val TAG = "MainActivity"
 class MainActivity : ComponentActivity() {

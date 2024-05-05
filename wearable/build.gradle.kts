@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wearable"
+    namespace = "com.example.chillinapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.wearable"
+        applicationId = "com.example.chillinapp"
         minSdk = 30
         targetSdk = 34
         versionCode = 1

@@ -1,30 +1,33 @@
-package com.example.wearable
+package com.example.chillinapp
 
 import android.Manifest
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ServiceInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import com.example.wearable.NotificationsHelper
-import com.example.wearable.synchronization.SensorDataHandler
-import com.example.wearable.synchronization.WearableDataProvider
+import com.example.chillinapp.synchronization.SensorDataHandler
+import com.example.chillinapp.synchronization.WearableDataProvider
 import java.nio.ByteBuffer
 
-private val TAG = "SensorService"
+private const val TAG = "SensorService"
+
+private const val SAMPLING_PERIOD: Int = 10000000 // 1sec
 
 class SensorService: Service(), SensorEventListener {
 
     private var sensorManager: SensorManager? = null
     private var hrSensor: Sensor? = null
+    private var edaSensor: Sensor? = null
+    private var tempSensor: Sensor? = null
+    private var lastHRValue: Float = 0f
+    private var lastEDAValue: Float = 0f
+    private var lastTempValue: Float = 0f
 
     override fun onCreate() {
         super.onCreate()
@@ -42,8 +45,11 @@ class SensorService: Service(), SensorEventListener {
             1,
             NotificationsHelper.buildNotification(this),
         )
+
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        tempSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE)
         hrSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_HEART_RATE)
+        edaSensor = sensorManager?.getDefaultSensor(65554)
     }
 
     override fun onDestroy() {
@@ -69,27 +75,36 @@ class SensorService: Service(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        var value: Float? = 0f
-        var timestamp: Long? = 0
-        if(event?.sensor == hrSensor) {
-            value = event?.values?.get(0)
-            timestamp = event?.timestamp
-            Log.d(TAG, "Sensor value: $value")
+        if (event?.sensor != hrSensor && event?.sensor != edaSensor && event?.sensor != tempSensor) {
+            return
         }
-        val byteTimestamp = timestamp?.let { ByteBuffer.allocate(8).putLong(it).array() }
-        val byteValue = value?.let { ByteBuffer.allocate(4).putFloat(it).array() }
-        var data : ByteArray? = ByteArray(0)
-        if (byteValue != null) {
-            data = byteTimestamp?.plus(byteValue)
-            data = data?.plus(ByteArray(12))
+        val value = event?.values?.get(0)
+        val timestamp = event?.timestamp
+        Log.d(TAG, "Sensor ${event?.sensor?.name} new value: $value")
+        
+        if (value == null || timestamp == null || value == 0f) {
+            return
         }
-        Log.d(TAG, "data length ${data?.size}")
+        when (event.sensor) {
+            hrSensor -> lastHRValue = value
+            edaSensor -> lastEDAValue = value
+            tempSensor -> lastTempValue = value
+        }
+        
+        var data = ByteArray(0)
+        var tmpByte = ByteBuffer.allocate(8).putLong(timestamp).array()
+        data = data.plus(tmpByte)
+        tmpByte = ByteBuffer.allocate(4).putFloat(lastEDAValue).array()
+        data = data.plus(tmpByte)
+        tmpByte = ByteBuffer.allocate(4).putFloat(lastTempValue).array()
+        data = data.plus(tmpByte)
+        tmpByte = ByteBuffer.allocate(4).putFloat(lastHRValue).array()
+        data = data.plus(tmpByte)
 
         val dataHandler = SensorDataHandler.getInstance()
         val isFull = dataHandler.pushData(data)
-        Log.d(TAG, "Data pushed to handler")
 
-        if(isFull) {
+        if (isFull) {
             val intent = Intent(this, WearableDataProvider::class.java)
             intent.action = "SEND"
             startService(intent)
@@ -104,8 +119,9 @@ class SensorService: Service(), SensorEventListener {
     // ============================= PRIVATE METHODS =============================
 
     private fun startSensors() {
-        // TODO controllare che i sensori siano disponibili
-        sensorManager?.registerListener(this, hrSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        sensorManager?.registerListener(this, hrSensor, SAMPLING_PERIOD)
+        sensorManager?.registerListener(this, edaSensor, SAMPLING_PERIOD)
+        sensorManager?.registerListener(this, tempSensor, SAMPLING_PERIOD)
         Log.d(TAG, "Sensors started")
     }
 
