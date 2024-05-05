@@ -134,27 +134,38 @@ class WearableDataReceiver : Service(), CoroutineScope {
     }
 
     private fun parseSingleData(data: ByteArray): StressRawData {
-        // Array of bytes composed by:
-        // 8 bytes for timestamp
-        // 8 bytes for heart rate
-        // 8 bytes for gps
 
         // Timestamp
         val timestampBytes = ByteArray(8)
         System.arraycopy(data, 0, timestampBytes, 0, 8)
         val timestamp = bytesToLong(timestampBytes)
 
+        // EDA
+        val edaBytes = ByteArray(4)
+        System.arraycopy(data, 8, edaBytes, 0, 4)
+        val eda = bytesToFloat(edaBytes)
+
+        // Temperature
+        val temperatureBytes = ByteArray(4)
+        System.arraycopy(data, 12, temperatureBytes, 0, 4)
+        val temperature = bytesToFloat(temperatureBytes)
+
         // heart rate
         val heartRateBytes = ByteArray(4)
-        System.arraycopy(data, 8, heartRateBytes, 0, 4)
+        System.arraycopy(data, 16, heartRateBytes, 0, 4)
         val hr = bytesToFloat(heartRateBytes)
 
-        // GPS
-        val gpsBytes = ByteArray(8)
-        System.arraycopy(data, 12, gpsBytes, 0, 8)
-        val skinTemperature = bytesToDouble(gpsBytes)
+        // latitude
+        val latitudeBytes = ByteArray(8)
+        System.arraycopy(data, 20, latitudeBytes, 0, 8)
+        val latitude = bytesToDouble(latitudeBytes)
 
-        return StressRawData(timestamp, hr, skinTemperature)
+        // longitude
+        val longitudeBytes = ByteArray(8)
+        System.arraycopy(data, 28, longitudeBytes, 0, 8)
+        val longitude = bytesToDouble(longitudeBytes)
+
+        return StressRawData(timestamp, eda, temperature, hr, latitude, longitude)
     }
 
     /**
