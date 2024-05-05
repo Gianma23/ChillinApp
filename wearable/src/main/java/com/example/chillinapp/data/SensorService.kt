@@ -3,6 +3,7 @@ package com.example.chillinapp.data
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
@@ -17,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import com.example.chillinapp.synchronization.SensorDataHandler
 import com.example.chillinapp.synchronization.WearableDataProvider
 import com.google.android.gms.location.*
+import java.io.*
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -90,14 +92,33 @@ class SensorService: Service(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (event?.sensor != hrSensor && event?.sensor != edaSensor && event?.sensor != tempSensor) {
+        if (event == null)
+            return
+        if (event.sensor != hrSensor && event.sensor != edaSensor && event.sensor != tempSensor) {
             return
         }
-        val value = event?.values?.get(0)
-        val timestamp = event?.timestamp
-        Log.d(TAG, "Sensor ${event?.sensor?.name} new value: $value")
-        
-        if (value == null || timestamp == null || value == 0f) {
+        val value = event.values[0]
+        val timestamp = event.timestamp
+        Log.d(TAG, "Sensor ${event.sensor?.name} new value: ${event.values[0]}}")
+
+        if(event.sensor == edaSensor) {
+            try {
+                val fos = openFileOutput("test.csv", Context.MODE_APPEND)
+                val writer = OutputStreamWriter(fos)
+
+                val datatest = listOf(value, timestamp)
+                val csvRow = datatest.joinToString(separator = ",")
+                writer.write(csvRow)
+                writer.write("\n") // new line
+
+                writer.close()
+                fos.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+        if (value == 0f) {
             return
         }
         when (event.sensor) {
@@ -157,6 +178,8 @@ class SensorService: Service(), SensorEventListener {
         //TODO dump dati sensori
         LocationProvider.stopLocationUpdates()
         sensorManager?.unregisterListener(this, hrSensor)
+        sensorManager?.unregisterListener(this, edaSensor)
+        sensorManager?.unregisterListener(this, tempSensor)
         Log.d(TAG, "Sensors stopped")
     }
 }
