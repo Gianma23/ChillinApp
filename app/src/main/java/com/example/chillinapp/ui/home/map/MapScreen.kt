@@ -1,20 +1,20 @@
 package com.example.chillinapp.ui.home.map
 
-import android.Manifest
-import android.app.Activity
-import android.content.pm.PackageManager
-import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
@@ -37,33 +37,30 @@ fun MapScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    val permissionGranted = remember { mutableStateOf(false) }
-
     LaunchedEffect(Unit) {
-
-        permissionGranted.value = ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        Log.d("MapScreen", "Permission granted: ${permissionGranted.value}")
-
-        if (!permissionGranted.value) {
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                0
-            )
-        }
-        Log.d("MapScreen", "Requesting permission")
-
-        viewModel.getLastLocation(context)
+        viewModel.checkPermissions(context)
     }
 
-
-    GoogleMap(
-        modifier = modifier.fillMaxSize(),
-        cameraPositionState = uiState.cameraPositionState
-    )
+    when (uiState.checkingPermissions) {
+        true -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .background(color = MaterialTheme.colorScheme.background),
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(100.dp)
+                )
+            }
+        }
+        false -> {
+            GoogleMap(
+                modifier = modifier.fillMaxSize(),
+                cameraPositionState = uiState.cameraPositionState
+            )
+        }
+    }
 
 }
 

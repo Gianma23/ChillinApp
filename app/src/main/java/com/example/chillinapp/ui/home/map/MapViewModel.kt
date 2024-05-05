@@ -1,6 +1,7 @@
 package com.example.chillinapp.ui.home.map
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
@@ -30,10 +31,28 @@ class MapViewModel(
         private val DEFAULT_LOCATION = LatLng(43.72180384669495, 10.389285990216196)
     }
 
-    fun getLastLocation(context: Context) {
+    fun checkPermissions(context: Context) {
 
-        val fusedLocationClient: FusedLocationProviderClient =
-            LocationServices.getFusedLocationProviderClient(context)
+        val permissionGranted = ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        Log.d("MapViewModel", "Permission granted: $permissionGranted")
+
+        if (!permissionGranted) {
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                0
+            )
+        }
+        Log.d("MapViewModel", "Requesting permission")
+
+        getLastLocation(context)
+
+    }
+
+    private fun getLastLocation(context: Context) {
 
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -50,12 +69,18 @@ class MapViewModel(
                         DEFAULT_LOCATION,
                         15f
                     )
-                )
+                ),
+                checkingPermissions = false
             )
             Log.d("MapViewModel", "Location: $DEFAULT_LOCATION")
             return
         }
+
         Log.d("MapViewModel", "Permission granted")
+
+        val fusedLocationClient: FusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(context)
+
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 _uiState.value = MapUiState(
@@ -64,7 +89,8 @@ class MapViewModel(
                             LatLng(location.latitude, location.longitude),
                             15f
                         )
-                    )
+                    ),
+                    checkingPermissions = false
                 )
             } else {
                 _uiState.value = MapUiState(
@@ -73,7 +99,8 @@ class MapViewModel(
                             DEFAULT_LOCATION,
                             15f
                         )
-                    )
+                    ),
+                    checkingPermissions = false
                 )
             }
             Log.d("MapViewModel", "Location: $location")

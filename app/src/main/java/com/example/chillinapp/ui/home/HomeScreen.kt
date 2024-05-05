@@ -86,7 +86,9 @@ private fun HomeTopBar(navController: NavHostController) {
             }
         },
         actions = {
-            IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
+            IconButton(onClick = { if(navController.currentDestination?.route != Screen.Settings.route) {
+                navController.navigate(Screen.Settings.route)
+            } }) {
                 Icon(Screen.Settings.icon, contentDescription = Screen.Settings.label)
             }
         },
@@ -112,9 +114,11 @@ private fun HomeBottomBar(
                 label = { Text(screen.label) },
                 selected = currentRoute == screen.route,
                 onClick = {
-                    navController.navigate(screen.route) {
-                        launchSingleTop = true
-                        restoreState = true
+                    if(currentRoute != screen.route) {
+                        navController.navigate(screen.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 }
             )
