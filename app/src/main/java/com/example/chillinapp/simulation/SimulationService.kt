@@ -50,7 +50,8 @@ class SimulationService : Service() {
                 val data = generateStressRawDataList(
                     start = Calendar.getInstance().apply { add(Calendar.SECOND, -30) },
                     end = Calendar.getInstance(),
-                    step = 1000
+                    step = 1000,
+                    invalidDataProbability = 0.1
                 )
                 Log.d("Simulation", "Generated data: $data")
 

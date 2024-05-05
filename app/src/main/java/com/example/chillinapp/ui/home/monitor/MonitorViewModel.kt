@@ -8,7 +8,6 @@ import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
 import com.example.chillinapp.simulation.generateStressRawDataList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -116,21 +115,22 @@ class MonitorViewModel(
                     set(Calendar.MILLISECOND, 0)
                 },
                 end = Calendar.getInstance(),
-                step = STEP_SIZE
+                step = STEP_SIZE,
+                invalidDataProbability = 0.2
             ),
             error = null
         )
     }
 
-    private suspend fun networkErrorSimulation(): ServiceResult<List<StressRawData>, StressErrorType> {
-        delay(4000)
-        val startingData: ServiceResult<List<StressRawData>, StressErrorType> = ServiceResult(
-            success = false,
-            data = null,
-            error = StressErrorType.NETWORK_ERROR
-        )
-        return startingData
-    }
+//    private suspend fun networkErrorSimulation(): ServiceResult<List<StressRawData>, StressErrorType> {
+//        delay(4000)
+//        val startingData: ServiceResult<List<StressRawData>, StressErrorType> = ServiceResult(
+//            success = false,
+//            data = null,
+//            error = StressErrorType.NETWORK_ERROR
+//        )
+//        return startingData
+//    }
 
     private fun temporalMapping() {
         _uiState.value.stressData.forEach { data ->

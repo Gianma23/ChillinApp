@@ -48,7 +48,9 @@ object AppViewModelProvider {
         }
         initializer {
             // MapViewModel
-            MapViewModel(dataService = chillInApplication().container.stressDataService)
+            MapViewModel(
+//                dataService = chillInApplication().container.stressDataService
+            )
         }
         initializer {
             SettingsViewModel()
