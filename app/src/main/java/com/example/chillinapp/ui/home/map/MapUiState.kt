@@ -1,6 +1,5 @@
 package com.example.chillinapp.ui.home.map
 
-import com.google.android.gms.maps.GoogleMap
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
