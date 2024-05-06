@@ -137,8 +137,6 @@ class SensorService: Service(), SensorEventListener {
 
     // ============================= PRIVATE METHODS =============================
 
-
-    @SuppressLint("MissingPermission")
     private fun startSensors() {
         if (hrSensor != null)
             sensorManager?.registerListener(this, hrSensor, SAMPLING_PERIOD)

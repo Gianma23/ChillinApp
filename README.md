@@ -6,6 +6,8 @@ and view it in real-time.
 <hr>
 
 ## 1. Data sampling
+
+### 1.1. Sensors
 The wearable app uses 3 sensors:
 - GSR(galvanic skin response)
 - skin temperature
@@ -17,6 +19,11 @@ so the sampling rate of each sensor can be different. If sensors values were to 
 data that would be sent to the handheld device, incrementing battery consumption. 
 
 In order to have a constant sampling rate, a coroutine run each second to save sensors data. 
+
+### 1.2 GPS Location
+The user location is find using FusedLocationProviderClient. A callback is called each 30 seconds, updating two variables 
+containing the longitude and latitude. Those variables are then read by the coroutine that saves the data, before sending 
+to the handheld device.
 
 ## 2. Data Exchange Format
 In order to reduce the complexity of the data exchange process, the data exchange format is defined. The data exchange 
