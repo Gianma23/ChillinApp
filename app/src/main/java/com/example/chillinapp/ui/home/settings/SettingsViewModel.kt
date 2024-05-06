@@ -14,6 +14,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for the Settings screen.
+ *
+ * @property accountService Service to handle account related operations.
+ */
 class SettingsViewModel(
     private val accountService: AccountService
 ): ViewModel() {
@@ -24,6 +29,10 @@ class SettingsViewModel(
     // State flow for the UI state of the settings screen
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
+    /**
+     * Handles the logout operation.
+     * Updates the UI state before and after the logout operation.
+     */
     fun onLogOut() {
 
         _uiState.update { settingsUiState ->
@@ -44,6 +53,10 @@ class SettingsViewModel(
 
     }
 
+    /**
+     * Toggles the visibility of the delete account dialog.
+     * Updates the UI state accordingly.
+     */
     fun toggleDeleteAccountDialog() {
         _uiState.update { settingsUiState ->
             settingsUiState.copy(
@@ -53,6 +66,10 @@ class SettingsViewModel(
         }
     }
 
+    /**
+     * Handles the account deletion operation.
+     * Updates the UI state before and after the deletion operation.
+     */
     fun onConfirmDeleteAccount() {
 
         _uiState.update { settingsUiState ->
@@ -82,6 +99,9 @@ class SettingsViewModel(
 
     }
 
+    /**
+     * Resets the UI state for the settings screen.
+     */
     fun toggleNotification() {
         _uiState.value = SettingsUiState()
     }

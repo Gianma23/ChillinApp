@@ -12,9 +12,12 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class MapViewModel(
 //    private val dataService : StressDataService
@@ -104,6 +107,18 @@ class MapViewModel(
                 )
             }
             Log.d("MapViewModel", "Location: $location")
+        }
+    }
+
+    fun updateMapUiProperties(copy: MapProperties) {
+        _uiState.update { mapUiState ->
+            mapUiState.copy(mapProperties = copy)
+        }
+    }
+
+    fun updateMapUiSettings(copy: MapUiSettings) {
+        _uiState.update { mapUiState ->
+            mapUiState.copy(mapUiSettings = copy)
         }
     }
 }

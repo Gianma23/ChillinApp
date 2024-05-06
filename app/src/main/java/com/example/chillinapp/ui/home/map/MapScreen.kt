@@ -2,6 +2,7 @@ package com.example.chillinapp.ui.home.map
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,7 @@ import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.widgets.DisappearingScaleBar
 
 object MapDestination : NavigationDestination {
     override val route: String = "map"
@@ -55,10 +57,25 @@ fun MapScreen(
             }
         }
         false -> {
-            GoogleMap(
-                modifier = modifier.fillMaxSize(),
-                cameraPositionState = uiState.cameraPositionState
-            )
+            Box(modifier = modifier.fillMaxSize()) {
+                GoogleMap(
+                    modifier = modifier.fillMaxSize(),
+                    uiSettings = uiState.mapUiSettings,
+                    properties = uiState.mapProperties,
+                    cameraPositionState = uiState.cameraPositionState
+                )
+
+                DisappearingScaleBar(
+                    modifier = Modifier
+                        .padding(top = 5.dp, end = 15.dp)
+                        .align(Alignment.TopEnd),
+                    cameraPositionState = uiState.cameraPositionState
+                )
+
+                Column {
+
+                }
+            }
         }
     }
 
