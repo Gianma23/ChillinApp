@@ -86,7 +86,7 @@ fun ChillInAppNavHost(
 
         // Home screen route
         composable(route = HomeDestination.route) {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
 
     }

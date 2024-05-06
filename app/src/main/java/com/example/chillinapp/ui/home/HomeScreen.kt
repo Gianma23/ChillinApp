@@ -38,6 +38,7 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
 
     val homeNavController = rememberNavController()
@@ -59,7 +60,8 @@ fun HomeScreen(
         containerColor = MaterialTheme.colorScheme.surfaceVariant
     ) { innerPadding ->
         HomeNavGraph(
-            navController = homeNavController,
+            homeNavController = homeNavController,
+            mainNavController = navController,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -81,7 +83,7 @@ private fun HomeTopBar(navController: NavHostController) {
                 Spacer(Modifier.size(16.dp))
                 Text(
                     text = stringResource(id = HomeDestination.titleRes),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         },

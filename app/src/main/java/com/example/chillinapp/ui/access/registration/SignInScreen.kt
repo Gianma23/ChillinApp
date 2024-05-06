@@ -54,15 +54,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.access.AccessHeader
-import com.example.chillinapp.ui.access.utility.ConfirmPasswordSupportingText
+import com.example.chillinapp.ui.ConfirmPasswordSupportingText
 import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
-import com.example.chillinapp.ui.access.utility.EmailSupportingText
+import com.example.chillinapp.ui.EmailSupportingText
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
-import com.example.chillinapp.ui.access.utility.NameSupportingText
+import com.example.chillinapp.ui.NameSupportingText
 import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
-import com.example.chillinapp.ui.access.utility.SimpleNotification
-import com.example.chillinapp.ui.access.utility.PasswordSupportingText
-import com.example.chillinapp.ui.access.utility.accessResultText
+import com.example.chillinapp.ui.SimpleNotification
+import com.example.chillinapp.ui.PasswordSupportingText
+import com.example.chillinapp.ui.accessResultText
 import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
@@ -350,7 +350,7 @@ fun SignInCard(
                 singleLine = true,
                 isError = signInUiState.confirmPasswordStatus != ConfirmPasswordValidationResult.VALID &&
                         signInUiState.confirmPasswordStatus != ConfirmPasswordValidationResult.IDLE,
-                supportingText = { ConfirmPasswordSupportingText(signInUiState.confirmPasswordStatus)},
+                supportingText = { ConfirmPasswordSupportingText(signInUiState.confirmPasswordStatus) },
                 modifier = outlineTextFieldModifier
             )
 

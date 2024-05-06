@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.access.utility
+package com.example.chillinapp.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

@@ -1,8 +1,14 @@
 package com.example.chillinapp.ui.home.settings
 
+import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.account.AccountErrorType
+
 data class SettingsUiState (
 
-    /*TODO: Add properties to represent the UI state of the Settings screen.*/
+    val logOutResponse: ServiceResult<Unit, AccountErrorType>? = null,
+    val deleteAccountResponse: ServiceResult<Unit, AccountErrorType>? = null,
 
-    val generic: String = ""
+    val loadingOperation: Boolean = false,
+    val isDeleteAccountDialogOpened: Boolean = false
+
 )

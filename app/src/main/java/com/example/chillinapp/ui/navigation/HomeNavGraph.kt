@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.chillinapp.ui.access.login.LogInDestination
 import com.example.chillinapp.ui.home.map.MapDestination
 import com.example.chillinapp.ui.home.map.MapScreen
 import com.example.chillinapp.ui.home.monitor.MonitorDestination
@@ -18,16 +19,17 @@ import com.example.chillinapp.ui.home.settings.SettingsScreen
 /**
  * Navigation graph for the home screen.
  *
- * @param navController the navigation controller
+ * @param homeNavController the navigation controller
  * @param modifier the modifier for the navigation graph
  */
 @Composable
 fun HomeNavGraph(
-    navController: NavHostController,
+    homeNavController: NavHostController,
+    mainNavController: NavHostController,
     modifier: Modifier
 ) {
     NavHost(
-        navController = navController,
+        navController = homeNavController,
         startDestination = MonitorDestination.route,
         modifier = modifier
     ) {
@@ -71,7 +73,18 @@ fun HomeNavGraph(
 
         // Settings screen route
         composable(route = SettingsDestination.route) {
-            SettingsScreen()
+            SettingsScreen(
+                onLogOut = {
+                    mainNavController.navigate(LogInDestination.route) {
+                        popUpTo(LogInDestination.route) { inclusive = true }
+                    }
+                },
+                onDeletingAccount = {
+                    mainNavController.navigate(LogInDestination.route) {
+                        popUpTo(LogInDestination.route) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

@@ -105,7 +105,7 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
      * @param email The email of the account to be deleted.
      * @return A ServiceResult instance containing the result of the operation.
      */
-    override fun deleteAccount(email: String): ServiceResult<Boolean, AccountErrorType> =
+    override fun deleteAccount(email: String): ServiceResult<Unit, AccountErrorType> =
         ServiceResult(
             success = false,
             data = null,

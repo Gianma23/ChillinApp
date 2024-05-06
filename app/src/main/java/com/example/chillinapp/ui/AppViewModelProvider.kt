@@ -53,7 +53,9 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            SettingsViewModel()
+            SettingsViewModel(
+                accountService = chillInApplication().container.accountService
+            )
         }
     }
 }

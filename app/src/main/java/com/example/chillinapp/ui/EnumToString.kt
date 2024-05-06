@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.access.utility
+package com.example.chillinapp.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -107,5 +107,6 @@ fun accessResultText(result: ServiceResult<Unit, AccountErrorType>?): String = w
     AccountErrorType.INVALID_EMAIL -> stringResource(R.string.invalid_email)
     AccountErrorType.INVALID_PASSWORD -> stringResource(R.string.invalid_password)
     AccountErrorType.DATABASE_ERROR -> stringResource(R.string.database_error)
+    AccountErrorType.AUTHENTICATION_ERROR -> stringResource(R.string.authentication_error)
     else -> stringResource(R.string.general_error)
 }

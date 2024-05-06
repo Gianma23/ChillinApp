@@ -42,8 +42,10 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
+import java.util.Locale
 
 object MonitorDestination: NavigationDestination {
     override val route: String = "monitor"
@@ -53,9 +55,7 @@ object MonitorDestination: NavigationDestination {
 @Composable
 fun MonitorScreen(
     modifier: Modifier = Modifier,
-    viewModel: MonitorViewModel = viewModel(
-//        factory = AppViewModelProvider.Factory
-    )
+    viewModel: MonitorViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     // Collect the UI state from the view model
@@ -177,8 +177,15 @@ private fun CardContent(
                 ySteps = 3,
                 xLabelFun = { if (it < 10) "          0$it:00" else "          $it:00" },
                 yLabelFun = { step ->
-                    val yScale = points.maxOf { it.y } / (3)
-                    "${(step * yScale).toInt()}     " }
+                    val yScale = (points.maxOf { it.y } - points.minOf { it.y }) / (3)
+                    val value = step * yScale + points.minOf { it.y }
+                    when {
+                        value >= 100 -> "${value.toInt()}   "
+                        value >= 10 -> "${"%.1f".format(Locale.US, value)}   "
+                        value >= 1 -> "${"%.2f".format(Locale.US, value)}   "
+                        else -> "${"%.3f".format(Locale.US, value)}   "
+                    }
+                }
             )
         }
     }
