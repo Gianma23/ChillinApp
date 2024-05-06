@@ -8,16 +8,19 @@ import java.util.Locale
 class FormattedStressRawData(
     timestamp: Long,
     heartRateSensor: Float,
-    skinTemperatureSensor: Float
+    skinTemperatureSensor: Float,
+    edaSensor:Float
 ) {
     val timestamp: String
     val heartRateSensor: Float
     val skinTemperatureSensor: Float
+    val edaSensor:Float
 
     init {
         this.timestamp = timestampToString(timestamp)
         this.heartRateSensor = heartRateSensor.toFloat()
         this.skinTemperatureSensor = skinTemperatureSensor.toFloat()
+        this.edaSensor=edaSensor.toFloat()
     }
 }
 
