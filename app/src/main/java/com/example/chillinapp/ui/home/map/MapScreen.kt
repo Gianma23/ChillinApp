@@ -1,13 +1,25 @@
 package com.example.chillinapp.ui.home.map
 
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.navigation.NavigationDestination
+import com.google.maps.android.compose.GoogleMap
 
 object MapDestination : NavigationDestination {
     override val route: String = "map"
@@ -17,10 +29,43 @@ object MapDestination : NavigationDestination {
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
-    viewModel: MapViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: MapViewModel = viewModel(
+        factory = AppViewModelProvider.Factory
+    )
 ) {
 
-    /*TODO: Implement Map screen*/
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
-    Text(text = stringResource(id = MapDestination.titleRes))
+    LaunchedEffect(Unit) {
+        viewModel.checkPermissions(context)
+    }
+
+    when (uiState.checkingPermissions) {
+        true -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .background(color = MaterialTheme.colorScheme.background),
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(100.dp)
+                )
+            }
+        }
+        false -> {
+            GoogleMap(
+                modifier = modifier.fillMaxSize(),
+                cameraPositionState = uiState.cameraPositionState
+            )
+        }
+    }
+
+}
+
+@Preview
+@Composable
+fun MapScreenPreview() {
+    MapScreen()
 }

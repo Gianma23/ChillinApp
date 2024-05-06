@@ -25,6 +25,11 @@ import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import kotlinx.coroutines.delay
 
+/**
+ * Object representing the landing destination in the navigation graph.
+ *
+ * This object provides the route and title for the landing screen.
+ */
 object LandingDestination: NavigationDestination {
     override val route: String = "splash"
     override val titleRes: Int = R.string.loading_text
@@ -32,6 +37,19 @@ object LandingDestination: NavigationDestination {
 
 private const val SplashWaitingTime: Long = 200L
 
+/**
+ * Composable function representing the landing screen.
+ *
+ * This function displays a splash screen with a logo and a welcome message if the user is logged in.
+ * It uses a LandingViewModel to check if the user is logged in and to get the user's name.
+ * If the user is not logged in, it calls the ifNotLogged function after a delay.
+ * If the user is logged in, it calls the ifLogged function after a delay.
+ *
+ * @param modifier The Modifier to be applied to the Box.
+ * @param ifLogged The function to be called if the user is logged in.
+ * @param ifNotLogged The function to be called if the user is not logged in.
+ * @param viewModel The LandingViewModel to be used. Defaults to a new instance created with the AppViewModelProvider.Factory.
+ */
 @Composable
 fun LandingScreen(
     modifier: Modifier = Modifier,
@@ -53,12 +71,11 @@ fun LandingScreen(
             // Check if the user is logged in
             viewModel.isLogged()
 
+            // If the user is not logged in, call the ifNotLogged function after a delay
             if(uiState.value.login?.success != true){
                 delay(SplashWaitingTime)
                 ifNotLogged()
             }
-
-            // Wait for the splash screen to be displayed
         }
 
         Column(
@@ -82,6 +99,8 @@ fun LandingScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+
+                // If the user is logged in, call the ifLogged function after a delay
                 LaunchedEffect(Unit) {
                     delay(SplashWaitingTime)
                     ifLogged()

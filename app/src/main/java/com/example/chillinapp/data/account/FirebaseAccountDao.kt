@@ -139,9 +139,8 @@ class FirebaseAccountDao {
 
             auth.signInWithEmailAndPassword(email, password).await()
 
-            val account = getCurrentAccount()?.data
-            val name = account?.name
-
+            val account = getCurrentAccount().data
+            account?.name
 
             val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
                 success = true,
@@ -271,6 +270,14 @@ class FirebaseAccountDao {
             response
         }
     }
+
+    /**
+     * Creates a new account in the Firestore database and authenticates the user with Firebase's Authentication service.
+     *
+     * @param account The account to be created. It should contain the email, name, and password for the new account.
+     * @return A ServiceResult instance containing the result of the operation. The success flag indicates whether the operation was successful.
+     * The data field is null. The error field contains an AccountErrorType indicating the type of error that occurred, if any.
+     */
     suspend fun getCurrentAccount(): ServiceResult<Account?, AccountErrorType> {
         val currentUser = auth.currentUser
         val currentEmail = currentUser?.email
@@ -312,21 +319,18 @@ class FirebaseAccountDao {
             response
         }
     }
-    //the user that want to delete his account must be logged
-    suspend fun deletecurrentAccount(email: String): ServiceResult<Unit,AccountErrorType>{
-        val documentref=accountCollection.document(email)
 
 
-        try {
-          documentref.delete().await()
-            auth.currentUser?.delete()
-            return ServiceResult(true,null,null)
-
-        } catch(e:Exception){
-            return ServiceResult(false,null,AccountErrorType.DATABASE_ERROR)
-        }
-    }
-
+//    suspend fun deleteAccount(email: String): ServiceResult<Unit,AccountErrorType>{
+//        val docRef=accountCollection.document(email).get().await()
+//
+//        try {
+//            val psw=docRef.get("password")
+//            auth.signInWithCredential(email,)
+//            docRef.delete()
+//
+//        }
+//    }
 
 
 }

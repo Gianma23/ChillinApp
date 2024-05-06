@@ -170,7 +170,7 @@ class FirebaseStressDataDao {
                 ServiceResult(success = false, data = null, error = StressErrorType.COMMUNICATION_PROBLEM)
             }
         } else
-            ServiceResult(success = false, data = null, error = StressErrorType.NOACCOUNT)
+            ServiceResult(success = false, data = null, error = StressErrorType.NO_ACCOUNT)
     }
 
     suspend fun fastget(): ServiceResult<List<StressRawData>, StressErrorType> {

@@ -1,9 +1,10 @@
 package com.example.chillinapp.ui.home.map
 
+import com.google.maps.android.compose.CameraPositionState
+
 data class MapUiState (
 
-    /*TODO: Add needed fields*/
-
-    val generic: String = ""
+    val cameraPositionState: CameraPositionState = CameraPositionState(),
+    val checkingPermissions: Boolean = true
 
 )
