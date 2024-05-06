@@ -53,6 +53,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.compose.ui:ui")
+    implementation("uk.me.berndporr:iirj:1.7")
 
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
