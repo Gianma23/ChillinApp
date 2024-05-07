@@ -43,8 +43,6 @@ class FirebaseStressDataDao {
                 )
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(rawData)?.await()
-
-
             }
 
             val fastreturn = fastInsert(stressData)
@@ -74,12 +72,8 @@ class FirebaseStressDataDao {
                 )
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(derivedData)?.await()
-
-
             }
             ServiceResult(true, null, null)
-
-
         } catch (e: Exception) {
             ServiceResult(false, null, StressErrorType.COMMUNICATION_PROBLEM)
         }
@@ -173,7 +167,7 @@ class FirebaseStressDataDao {
             ServiceResult(success = false, data = null, error = StressErrorType.NO_ACCOUNT)
     }
 
-    suspend fun fastget(): ServiceResult<List<StressRawData>, StressErrorType> {
+    suspend fun fastGet(): ServiceResult<List<StressRawData>, StressErrorType> {
         val user = auth.currentUser
         val email = user?.email
         val keyname = email?.substringBefore("@")
