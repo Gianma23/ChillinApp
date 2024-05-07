@@ -9,18 +9,18 @@ class FormattedStressRawData(
     timestamp: Long,
     heartRateSensor: Float,
     skinTemperatureSensor: Float,
-    edaSensor: Float
+    edaSensor:Float
 ) {
     val timestamp: String
     val heartRateSensor: Float
     val skinTemperatureSensor: Float
-    val edaSensor: Float
+    val edaSensor:Float
 
     init {
         this.timestamp = timestampToString(timestamp)
-        this.heartRateSensor = heartRateSensor
-        this.skinTemperatureSensor = skinTemperatureSensor
-        this.edaSensor = edaSensor
+        this.heartRateSensor = heartRateSensor.toFloat()
+        this.skinTemperatureSensor = skinTemperatureSensor.toFloat()
+        this.edaSensor=edaSensor.toFloat()
     }
 }
 
