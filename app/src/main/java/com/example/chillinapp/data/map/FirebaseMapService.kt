@@ -8,8 +8,7 @@ class FirebaseMapService(private val mapDao: FirebaseMapDao): MapService {
         return mapDao.get()
     }
 
-    override suspend fun get(minLat: Double, maxLat: Double, minLng: Double, maxLng: Double): ServiceResult<List<Map>, MapErrorType> {
-        return mapDao.get(minLat, maxLat, minLng, maxLng)
+    override suspend fun get(centerLat: Double, centerLong: Double, distance: Double): ServiceResult<List<Map>, MapErrorType> {
+        return mapDao.get(centerLat, centerLong, distance)
     }
-
 }

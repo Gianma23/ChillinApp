@@ -43,6 +43,14 @@ class FirebaseMapDao {
             ServiceResult(false, null, MapErrorType.NETWORK_ERROR)
         }
     }
+
+    /**
+     * Get all the documents within the specified distance from the center
+     * @param centerLat the latitude of the center
+     * @param centerLng the longitude of the center
+     * @param distance the distance from the center
+     * @return a ServiceResult object containing the list of Map objects if the operation was successful, an error type otherwise
+     */
     suspend fun get(centerLat: Double, centerLng: Double, distance: Double): ServiceResult<List<Map>, MapErrorType> {
         // Calculate the boundaries of the query
         val maxLat = centerLat + distance

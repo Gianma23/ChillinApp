@@ -12,12 +12,11 @@ interface MapService {
     suspend fun get() : ServiceResult <List <Map>,MapErrorType>
 
     /**
-     * Get all the coordinates and stress scores from the database within the specified boundaries
-     * @param minLat the minimum latitude
-     * @param maxLat the maximum latitude
-     * @param minLng the minimum longitude
-     * @param maxLng the maximum longitude
+     * Get all the coordinates and stress scores from the database within a certain distance from a center point
+     * @param centerLat the latitude of the center point
+     * @param centerLong the longitude of the center point
+     * @param distance the distance from the center point
      * @return a list of maps
      */
-    suspend fun get(minLat: Double, maxLat: Double, minLng: Double, maxLng: Double) : ServiceResult <List <Map>,MapErrorType>
+    suspend fun get(centerLat: Double, centerLong: Double, distance: Double) : ServiceResult <List <Map>,MapErrorType>
 }
