@@ -101,16 +101,38 @@ class SensorService: Service(), SensorEventListener {
             return
         }
         val value = event.values[0]
-        val timestamp = event.timestamp
         Log.d(TAG, "Sensor ${event.sensor?.name} new value: ${event.values[0]}}")
 
-        if(event.sensor == edaSensor) {
+        // DEBUG: save sensor data to files
+        /*if (event.sensor == sensorManager?.getDefaultSensor(65554) || //eda
+            event.sensor == sensorManager?.getDefaultSensor(65572) || //ppg
+            event.sensor == sensorManager?.getDefaultSensor(65550)    //ecg
+        ) {
             try {
-                val fos = openFileOutput("test.csv", Context.MODE_APPEND)
+                val timestamp = System.currentTimeMillis()
+                val fileTitle =
+                when(event.sensor) {
+                    sensorManager?.getDefaultSensor(65554) -> "eda.csv"
+                    sensorManager?.getDefaultSensor(65572) -> "ppg.csv"
+                    sensorManager?.getDefaultSensor(65550) -> "ecg.csv"
+                    else -> "test.csv"
+                }
+                val fos = openFileOutput(fileTitle, Context.MODE_APPEND)
                 val writer = OutputStreamWriter(fos)
 
-                val datatest = listOf(value, timestamp)
-                val csvRow = datatest.joinToString(separator = ",")
+                var header = "timestamp"
+                if (fos.channel.size() == 0L) {
+                    for(i in 0..event.values.size) {
+                        header += ",value$i"
+                    }
+                    writer.write(header+"\n")
+                }
+                val dataTest = listOf(timestamp)
+                for(i in 0..event.values.size) {
+                    dataTest.plus(event.values[i])
+                }
+
+                val csvRow = dataTest.joinToString(separator = ",")
                 writer.write(csvRow)
                 writer.write("\n") // new line
 
@@ -119,7 +141,7 @@ class SensorService: Service(), SensorEventListener {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-        }
+        }*/
 
         if (value == 0f) {
             return
@@ -169,7 +191,7 @@ class SensorService: Service(), SensorEventListener {
     }
 
     private fun saveData() {
-        Log.d(TAG, "save data, time: ${System.currentTimeMillis()}")
+        Log.d(TAG, "save data, time: ${System.currentTimeMillis()}, location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")
         var data = ByteArray(0)
         var tmpByte = ByteBuffer.allocate(8).putLong(System.currentTimeMillis()).array()
         data = data.plus(tmpByte)
