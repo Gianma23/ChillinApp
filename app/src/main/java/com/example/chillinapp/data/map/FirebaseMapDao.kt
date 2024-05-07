@@ -5,6 +5,7 @@ import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
@@ -42,6 +43,15 @@ class FirebaseMapDao {
             ServiceResult(false, null, MapErrorType.NETWORK_ERROR)
         }
     }
+    suspend fun get(centerLat: Double, centerLng: Double, distance: Double): ServiceResult<List<Map>, MapErrorType> {
+        // Calculate the boundaries of the query
+        val maxLat = centerLat + distance
+        val minLat = centerLat - distance
+        val maxLng = centerLng + distance
+        val minLng = centerLng - distance
+
+        return get(minLat, maxLat, minLng, maxLng)
+    }
 
     /**
      * Get all the documents within the specified boundaries
@@ -51,7 +61,7 @@ class FirebaseMapDao {
      * @param maxLng the maximum longitude
      * @return a ServiceResult object containing the list of Map objects if the operation was successful, an error type otherwise
      */
-    suspend fun get(minLat: Double, maxLat: Double, minLng: Double, maxLng: Double): ServiceResult<List<Map>, MapErrorType> {
+    private suspend fun get(minLat: Double, maxLat: Double, minLng: Double, maxLng: Double): ServiceResult<List<Map>, MapErrorType> {
         return try {
             val mapList = mutableListOf<Map>()
 
