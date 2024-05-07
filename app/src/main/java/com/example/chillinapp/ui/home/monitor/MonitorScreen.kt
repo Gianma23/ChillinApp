@@ -181,9 +181,9 @@ private fun CardContent(
                     val value = step * yScale + points.minOf { it.y }
                     when {
                         value >= 100 -> "${value.toInt()}   "
-                        value >= 10 -> "${"%.1f".format(Locale.US, value)}   "
-                        value >= 1 -> "${"%.2f".format(Locale.US, value)}   "
-                        else -> "${"%.3f".format(Locale.US, value)}   "
+                        value >= 10 -> "${"%.1f".format(Locale.getDefault(), value)}   "
+                        value >= 1 -> "${"%.2f".format(Locale.getDefault(), value)}   "
+                        else -> "${"%.3f".format(Locale.getDefault(), value)}   "
                     }
                 }
             )

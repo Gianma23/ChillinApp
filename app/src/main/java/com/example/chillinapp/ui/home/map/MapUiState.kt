@@ -4,6 +4,7 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
+import java.util.Date
 
 data class MapUiState (
 
@@ -13,6 +14,8 @@ data class MapUiState (
     val mapUiSettings: MapUiSettings = MapUiSettings(),
     val mapProperties: MapProperties = MapProperties(
         mapType = MapType.HYBRID,
-    )
+    ),
+
+    val currentDate: Date = Date()
 
 )

@@ -15,6 +15,10 @@ import com.google.maps.android.compose.CameraPositionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class MapViewModel(
 //    private val dataService : StressDataService
@@ -73,6 +77,8 @@ class MapViewModel(
                 checkingPermissions = false
             )
             Log.d("MapViewModel", "Location: $DEFAULT_LOCATION")
+
+            reloadHeatmap(DEFAULT_LOCATION)
             return
         }
 
@@ -104,7 +110,56 @@ class MapViewModel(
                 )
             }
             Log.d("MapViewModel", "Location: $location")
+
+            reloadHeatmap(uiState.value.cameraPositionState.position.target)
         }
+    }
+
+    fun reloadHeatmap(target: LatLng) {
+        Log.d("MapViewModel", "Reloading heatmap, target: $target")
+        // TODO: Reload heatmap
+        Log.d("MapViewModel", "Map Reloaded")
+    }
+
+    fun previousDay() {
+        val calendar = Calendar.getInstance()
+        calendar.time = uiState.value.currentDate
+        calendar.add(Calendar.DAY_OF_MONTH, -1)
+
+        _uiState.value = _uiState.value.copy(currentDate = calendar.time)
+        Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
+
+        reloadHeatmap(uiState.value.cameraPositionState.position.target)
+    }
+
+    fun nextDay() {
+        val calendar = Calendar.getInstance()
+        calendar.time = uiState.value.currentDate
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+
+        _uiState.value = _uiState.value.copy(currentDate = calendar.time)
+        Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
+
+        reloadHeatmap(uiState.value.cameraPositionState.position.target)
+    }
+
+    fun formatDate(): String {
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
+            uiState.value.currentDate
+        ).toString()
+    }
+
+    fun isToday(): Boolean {
+        return isSameDay(Date(), uiState.value.currentDate)
+    }
+
+    private fun isSameDay(date1: Date, date2: Date): Boolean {
+        val calendar1 = Calendar.getInstance()
+        calendar1.time = date1
+        val calendar2 = Calendar.getInstance()
+        calendar2.time = date2
+        return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
+                calendar1.get(Calendar.DAY_OF_YEAR) == calendar2.get(Calendar.DAY_OF_YEAR)
     }
 
 }
