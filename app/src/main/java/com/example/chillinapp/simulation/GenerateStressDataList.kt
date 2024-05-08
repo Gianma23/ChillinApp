@@ -10,7 +10,7 @@ import java.util.Random
 
 
 fun simulateStressDataService(center: LatLng, radius: Double, date: Date): ServiceResult<List<WeightedLatLng>, StressErrorType> {
-    Log.d("StressDataService", "Generating stress data for $date")
+    Log.d("StressDataService (simulation)", "Generating stress data for $date")
     val response: ServiceResult<List<WeightedLatLng>, StressErrorType> =
         ServiceResult(
             success = true,

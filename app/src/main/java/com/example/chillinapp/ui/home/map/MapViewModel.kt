@@ -86,7 +86,6 @@ class MapViewModel(
             )
             Log.d("MapViewModel", "Location: $DEFAULT_LOCATION")
 
-            reloadHeatmap(DEFAULT_LOCATION)
             return
         }
 
@@ -119,13 +118,12 @@ class MapViewModel(
             }
             Log.d("MapViewModel", "Location: $location")
 
-            reloadHeatmap(uiState.value.cameraPositionState.position.target)
         }
     }
 
-    fun reloadHeatmap(target: LatLng) {
+    fun loadHeatPoints(target: LatLng) {
 
-        Log.d("MapViewModel", "Reloading heatmap, target: $target")
+        Log.d("MapViewModel", "Reloading heatPoints, target: $target")
         _uiState.update { it.copy(
             stressDataResponse = null
         ) }
@@ -168,7 +166,7 @@ class MapViewModel(
         _uiState.value = _uiState.value.copy(currentDate = calendar.time)
         Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
 
-        reloadHeatmap(uiState.value.cameraPositionState.position.target)
+        loadHeatPoints(uiState.value.cameraPositionState.position.target)
     }
 
     fun nextDay() {
@@ -179,7 +177,7 @@ class MapViewModel(
         _uiState.value = _uiState.value.copy(currentDate = calendar.time)
         Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
 
-        reloadHeatmap(uiState.value.cameraPositionState.position.target)
+        loadHeatPoints(uiState.value.cameraPositionState.position.target)
     }
 
     fun formatDate(): String {
@@ -203,6 +201,17 @@ class MapViewModel(
 
     fun hideNotifyAction() {
         _uiState.value = _uiState.value.copy(isNotificationVisible = false)
+    }
+
+    fun updateCameraPosition(target: LatLng) {
+        _uiState.value = _uiState.value.copy(
+            cameraPositionState = CameraPositionState(
+                CameraPosition.fromLatLngZoom(
+                    target,
+                    uiState.value.cameraPositionState.position.zoom
+                )
+            )
+        )
     }
 
 }

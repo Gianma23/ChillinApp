@@ -1,6 +1,5 @@
 package com.example.chillinapp.ui.home.map
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,11 +35,6 @@ import com.example.chillinapp.ui.SimpleNotification
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.stressErrorText
 import com.example.chillinapp.ui.theme.ChillInAppTheme
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.widgets.DisappearingScaleBar
-import com.google.maps.android.projection.SphericalMercatorProjection
 
 object MapDestination : NavigationDestination {
     override val route: String = "map"
@@ -67,27 +61,12 @@ fun MapScreen(
     ) {
 
         if (!uiState.checkingPermissions) {
-            GoogleMap(
-                modifier = modifier.fillMaxSize(),
-                uiSettings = uiState.mapUiSettings,
-                properties = uiState.mapProperties,
-                cameraPositionState = uiState.cameraPositionState
-            ){
-
-                uiState.stressDataResponse?.data?.forEach { weightedLatLng ->
-                    val point = weightedLatLng.point
-                    val projection = SphericalMercatorProjection(1.0)
-                    val latLng = projection.toLatLng(point)
-                    Log.d("MapScreen", "Adding marker at $latLng")
-                    Marker(
-                        state = MarkerState(
-                            position = latLng
-                        ),
-                        title = "Stress Level: ${"%.2f".format(weightedLatLng.intensity)}",
-                        contentDescription = "Stress Level",
-                    )
-                }
-            }
+            HeatMap(
+                cameraPositionState = uiState.cameraPositionState,
+                points = uiState.stressDataResponse?.data ?: emptyList(),
+                setOnCameraMoveListener = { viewModel.updateCameraPosition(it.position.target) },
+                setOnMapLoadedCallback = { viewModel.loadHeatPoints(uiState.cameraPositionState.position.target) }
+            )
         }
 
         if (uiState.stressDataResponse == null || uiState.checkingPermissions) {
@@ -115,19 +94,12 @@ fun MapScreen(
             )
         }
 
-        DisappearingScaleBar(
-            modifier = Modifier
-                .padding(top = 8.dp, end = 16.dp)
-                .align(Alignment.TopEnd),
-            cameraPositionState = uiState.cameraPositionState
-        )
-
         Column(
             modifier = Modifier.align(Alignment.TopCenter)
 
         ) {
             Button(
-                onClick = { viewModel.reloadHeatmap(uiState.cameraPositionState.position.target) },
+                onClick = { viewModel.loadHeatPoints(uiState.cameraPositionState.position.target) },
                 enabled = uiState.stressDataResponse != null,
                 modifier = Modifier
                     .padding(8.dp)
@@ -182,6 +154,7 @@ fun MapScreen(
         }
     }
 }
+
 
 @Preview
 @Composable
