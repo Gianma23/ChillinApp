@@ -27,3 +27,4 @@ enum class AccountErrorType{
     DATABASE_ERROR,
     AUTHENTICATION_ERROR
 }
+

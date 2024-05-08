@@ -7,14 +7,19 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.chillinapp.simulation.simulateStressDataService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -33,6 +38,9 @@ class MapViewModel(
     companion object {
         // Default location (Polo A - Engineering University of Pisa)
         private val DEFAULT_LOCATION = LatLng(43.72180384669495, 10.389285990216196)
+
+        // Default radius for generating stress data
+        private const val DEFAULT_RADIUS = 0.01
     }
 
     fun checkPermissions(context: Context) {
@@ -116,9 +124,40 @@ class MapViewModel(
     }
 
     fun reloadHeatmap(target: LatLng) {
+
         Log.d("MapViewModel", "Reloading heatmap, target: $target")
-        // TODO: Reload heatmap
-        Log.d("MapViewModel", "Map Reloaded")
+        _uiState.update { it.copy(
+            stressDataResponse = null
+        ) }
+
+        viewModelScope.launch {
+
+            // Simulate stressData
+            delay(2000)
+            val response = simulateStressDataService(
+                center = target,
+                radius = DEFAULT_RADIUS,
+                date = uiState.value.currentDate
+            )
+            Log.d("MapViewModel", "Response: $response")
+
+            // Update UI state
+            _uiState.value = _uiState.value.copy(
+                stressDataResponse = response
+            )
+
+            // Show notification if error or no data
+            if (response.error != null || response.data.isNullOrEmpty()) {
+                _uiState.value = _uiState.value.copy(
+                    isNotificationVisible = true
+                )
+            }
+
+
+
+            Log.d("MapViewModel", "Map Reloaded")
+        }
+
     }
 
     fun previousDay() {
@@ -160,6 +199,10 @@ class MapViewModel(
         calendar2.time = date2
         return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
                 calendar1.get(Calendar.DAY_OF_YEAR) == calendar2.get(Calendar.DAY_OF_YEAR)
+    }
+
+    fun hideNotifyAction() {
+        _uiState.value = _uiState.value.copy(isNotificationVisible = false)
     }
 
 }

@@ -44,6 +44,7 @@ import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.navigation.NavigationDestination
+import com.example.chillinapp.ui.stressErrorText
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 import java.util.Locale
 
@@ -159,7 +160,7 @@ private fun CardContent(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "Error loading data: ${uiState.error}",
+                            text = "Error: ${stressErrorText(uiState.error)}",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center

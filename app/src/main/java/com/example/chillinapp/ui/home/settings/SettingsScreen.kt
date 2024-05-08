@@ -38,7 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.SimpleNotification
-import com.example.chillinapp.ui.accessResultText
+import com.example.chillinapp.ui.accessErrorText
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -126,7 +126,7 @@ fun SettingsScreen(
             action = { viewModel.toggleNotification() },
             buttonText = stringResource(id = R.string.hide_notify_action),
             bodyText = stringResource(R.string.operation_failed) +
-                    accessResultText(result = uiState.logOutResponse)
+                    accessErrorText(error = uiState.logOutResponse?.error)
         )
     }
 
@@ -137,7 +137,7 @@ fun SettingsScreen(
             action = { viewModel.toggleNotification() },
             buttonText = stringResource(id = R.string.hide_notify_action),
             bodyText = stringResource(R.string.operation_failed) +
-                    accessResultText(result = uiState.deleteAccountResponse)
+                    accessErrorText(error = uiState.deleteAccountResponse?.error)
         )
     }
 

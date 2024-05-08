@@ -29,7 +29,6 @@
     <string name="login_link">Log in</string>
     <string name="registration_notify_success_text">Registration successful!</string>
     <string name="default_notify_success_text">Success!</string>
-
     <string name="default_notify_failure_text">Failure!</string>
     <string name="name_label">Name</string>
     <string name="confirm_password_label">Confirm password</string>
@@ -72,4 +71,7 @@
     <string name="confirm_button_label">Confirm</string>
     <string name="operation_failed">"Operation failed: "</string>
     <string name="authentication_error">Authentication error</string>
+    <string name="network_error">Network error</string>
+    <string name="communication_problem">Communication problem</string>
+    <string name="no_data_available_for_this_area">No data available for this area.</string>
 </resources>

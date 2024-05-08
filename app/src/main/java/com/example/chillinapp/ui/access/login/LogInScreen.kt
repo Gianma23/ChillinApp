@@ -54,13 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
-import com.example.chillinapp.ui.access.AccessHeader
 import com.example.chillinapp.ui.EmailSupportingText
 import com.example.chillinapp.ui.PasswordSupportingText
 import com.example.chillinapp.ui.SimpleNotification
-import com.example.chillinapp.ui.accessResultText
+import com.example.chillinapp.ui.access.AccessHeader
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.PasswordValidationResult
+import com.example.chillinapp.ui.accessErrorText
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 import kotlinx.coroutines.delay
@@ -201,7 +201,7 @@ fun LogInScreen(
             SimpleNotification(
                 action = { viewModel.idleResult() },
                 buttonText = stringResource(R.string.hide_notify_action),
-                bodyText = accessResultText(uiState.authenticationResult)
+                bodyText = accessErrorText(uiState.authenticationResult?.error)
             )
         }
         else -> { }

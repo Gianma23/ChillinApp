@@ -5,8 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.chillinapp.R
-import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.account.AccountErrorType
+import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.NameValidationResult
@@ -95,11 +95,11 @@ fun SupportingErrorText(text: String){
 /**
  * Composable function that returns a string based on the result of the account access.
  *
- * @param result The result of the account access.
+ * @param error The result of the account access.
  * @return A string representing the result of the account access.
  */
 @Composable
-fun accessResultText(result: ServiceResult<Unit, AccountErrorType>?): String = when(result?.error){
+fun accessErrorText(error: AccountErrorType?): String = when(error){
     AccountErrorType.EMAIL_IN_USE -> stringResource(R.string.email_already_exists)
     AccountErrorType.AUTHENTICATION_FAILED -> stringResource(R.string.authentication_failed)
     AccountErrorType.ACCOUNT_NOT_FOUND -> stringResource(R.string.account_not_found)
@@ -108,5 +108,15 @@ fun accessResultText(result: ServiceResult<Unit, AccountErrorType>?): String = w
     AccountErrorType.INVALID_PASSWORD -> stringResource(R.string.invalid_password)
     AccountErrorType.DATABASE_ERROR -> stringResource(R.string.database_error)
     AccountErrorType.AUTHENTICATION_ERROR -> stringResource(R.string.authentication_error)
+    else -> stringResource(R.string.general_error)
+}
+
+@Composable
+fun stressErrorText(error: StressErrorType?): String = when(error){
+    StressErrorType.NOT_YET_IMPLEMENTED -> stringResource(R.string.not_yet_implemented)
+    StressErrorType.NETWORK_ERROR -> stringResource(R.string.network_error)
+    StressErrorType.COMMUNICATION_PROBLEM -> stringResource(R.string.communication_problem)
+    StressErrorType.NO_ACCOUNT -> stringResource(R.string.account_not_found)
+    StressErrorType.NO_DATA -> stringResource(R.string.no_data_available_for_this_area)
     else -> stringResource(R.string.general_error)
 }

@@ -1,9 +1,12 @@
 package com.example.chillinapp.ui.home.map
 
+import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.stress.StressErrorType
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.heatmaps.WeightedLatLng
 import java.util.Date
 
 data class MapUiState (
@@ -16,6 +19,9 @@ data class MapUiState (
         mapType = MapType.HYBRID,
     ),
 
-    val currentDate: Date = Date()
+    val currentDate: Date = Date(),
+    val stressDataResponse: ServiceResult<List<WeightedLatLng>, StressErrorType>? = null,
+
+    val isNotificationVisible: Boolean = false
 
 )
