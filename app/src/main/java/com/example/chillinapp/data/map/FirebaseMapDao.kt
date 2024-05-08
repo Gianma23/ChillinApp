@@ -1,22 +1,14 @@
 package com.example.chillinapp.data.map
 
 import com.example.chillinapp.data.ServiceResult
-import com.example.chillinapp.data.stress.StressErrorType
-import com.example.chillinapp.data.stress.StressRawData
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.maps.android.heatmaps.WeightedLatLng
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Date
-import kotlin.collections.Map
 
 class FirebaseMapDao {
 
@@ -74,9 +66,9 @@ class FirebaseMapDao {
         val minLng = centerLng - distance
 
         // Format the date
-        val date: String = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val formattedDate: String = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-        return get(minLat, maxLat, minLng, maxLng, date, hour)
+        return get(minLat, maxLat, minLng, maxLng, formattedDate, hour)
     }
 
     /**

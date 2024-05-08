@@ -43,7 +43,7 @@ object AppViewModelProvider {
         initializer {
             // MonitorViewModel
             MonitorViewModel(
-               dataService = chillInApplication().container.stressDataService
+//               dataService = chillInApplication().container.stressDataService
             )
         }
         initializer {

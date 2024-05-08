@@ -2,15 +2,12 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
-import com.example.chillinapp.data.account.AccountService
-import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
-
 
 
 class FirebaseStressDataDao {
@@ -100,7 +97,12 @@ class FirebaseStressDataDao {
                     val edaSensor: Float = (document.get("edaSensor") as Float)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
-                    val stressRawData = StressRawData(timestamp, heartrateSensor, skinTemperatureSensor)
+                    val stressRawData = StressRawData(
+                        timestamp = timestamp,
+                        heartRateSensor = heartrateSensor,
+                        skinTemperatureSensor = skinTemperatureSensor,
+                        edaSensor = edaSensor
+                    )
                     rawDataList.add(stressRawData)
                 }
 
@@ -130,8 +132,8 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val binterval: Array<Float> = (document.get("binterval") as Array<Float>)
-                    val prediction: Double = (document.get("preditiction") as Double)
+                    val binterval: Array<Float> = document.get("binterval") as Array<Float>
+                    val prediction: Double = (document.get("prediction") as Double)
                     val stress_level: Float = (document.get("stress_level") as Float)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
