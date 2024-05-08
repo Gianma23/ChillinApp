@@ -88,17 +88,17 @@ class FirebaseMapDao {
 
             // Query to get all documents within the specified boundaries
             val querySnapshot = mapCollection
-                .whereGreaterThanOrEqualTo("latitude", minLat)
-                .whereLessThanOrEqualTo("latitude", maxLat)
-                .whereGreaterThanOrEqualTo("longitude", minLng)
-                .whereLessThanOrEqualTo("longitude", maxLng)
+                .whereGreaterThanOrEqualTo("lat", minLat)
+                .whereLessThanOrEqualTo("lat", maxLat)
+                .whereGreaterThanOrEqualTo("long", minLng)
+                .whereLessThanOrEqualTo("long", maxLng)
                 .get()
                 .await()
 
             // Iterate over the returned documents and convert the data into Coordinate objects
             querySnapshot.forEach { document ->
-                val latitude = document.get("latitude") as Double
-                val longitude = document.get("longitude") as Double
+                val latitude = document.get("lat") as Double
+                val longitude = document.get("long") as Double
                 val days = document.get("days") as Map<String, Map<String, List<Map<String, Any>>>>
 
                 // Filter the days based on the date
