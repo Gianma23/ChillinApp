@@ -1,5 +1,6 @@
 package com.example.chillinapp.data.map
 
+import android.util.Log
 import com.example.chillinapp.data.ServiceResult
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
@@ -118,8 +119,12 @@ class FirebaseMapDao {
                 coordinateList.add(weightedLatLng)
             }
 
+            Log.d("FirebaseMapDao", "Coordinate list: $coordinateList")
             ServiceResult(true, coordinateList, null)
+
         } catch (e: Exception) {
+
+            Log.d("FirebaseMapDao", e.toString())
             ServiceResult(false, null, MapErrorType.NETWORK_ERROR)
         }
     }

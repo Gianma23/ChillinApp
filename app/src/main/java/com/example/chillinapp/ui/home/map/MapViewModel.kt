@@ -8,25 +8,28 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.chillinapp.simulation.simulateStressDataService
+import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.map.MapErrorType
+import com.example.chillinapp.data.map.MapService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
-import kotlinx.coroutines.delay
+import com.google.maps.android.heatmaps.WeightedLatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class MapViewModel(
-//    private val dataService : StressDataService
+    private val mapService: MapService
 ) : ViewModel() {
 
     // Mutable state flow for the UI state of the map screen
@@ -39,7 +42,7 @@ class MapViewModel(
         // Default location (Polo A - Engineering University of Pisa)
         private val DEFAULT_LOCATION = LatLng(43.72180384669495, 10.389285990216196)
 
-        // Default radius for generating stress data
+        // Default radius for which provide stress data
         private const val DEFAULT_RADIUS = 0.01
     }
 
@@ -130,14 +133,22 @@ class MapViewModel(
 
         viewModelScope.launch {
 
-            // Simulate stressData
-            delay(2000)
-            val response = simulateStressDataService(
-                center = target,
-                radius = DEFAULT_RADIUS,
-                date = uiState.value.currentDate
+            val response: ServiceResult<List<WeightedLatLng>, MapErrorType> = mapService.get(
+                centerLat = target.latitude,
+                centerLong = target.longitude,
+                distance = DEFAULT_RADIUS,
+                date = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                hour = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().hour
             )
-            Log.d("MapViewModel", "Response: $response")
+
+            // Simulate stressData
+//            delay(2000)
+//            val response = simulateStressDataService(
+//                center = target,
+//                radius = DEFAULT_RADIUS,
+//                date = uiState.value.currentDate
+//            )
+//            Log.d("MapViewModel", "Response: $response")
 
             // Update UI state
             _uiState.value = _uiState.value.copy(
@@ -153,8 +164,8 @@ class MapViewModel(
 
             // Update min and max stress values
             if (response.data != null) {
-                val max = (response.data.maxByOrNull { it.intensity }?.intensity)?.toInt()
-                val min = (response.data.minByOrNull { it.intensity }?.intensity)?.toInt()
+                val max = response.data.maxByOrNull { it.intensity }?.intensity?.toInt()
+                val min = response.data.minByOrNull { it.intensity }?.intensity?.toInt()
                 _uiState.value = _uiState.value.copy(
                     maxStressValue = max,
                     minStressValue = min
