@@ -16,4 +16,4 @@
 .cxx
 local.properties
 scripts/__pycache__
-scripts/credentials.json
+scripts/utils/credentials.json

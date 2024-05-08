@@ -5,7 +5,7 @@ from firebase_admin import credentials
 from firebase_admin import db
 from firebase_admin import firestore
 
-cred = credentials.Certificate("credentials.json")
+cred = credentials.Certificate("../utils/credentials.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/'
     })
