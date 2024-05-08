@@ -43,7 +43,7 @@ class MapViewModel(
         private val DEFAULT_LOCATION = LatLng(43.72180384669495, 10.389285990216196)
 
         // Default radius for which provide stress data
-        private const val DEFAULT_RADIUS = 0.01
+        private const val DEFAULT_RADIUS = 0.1
     }
 
     fun checkPermissions(context: Context) {
