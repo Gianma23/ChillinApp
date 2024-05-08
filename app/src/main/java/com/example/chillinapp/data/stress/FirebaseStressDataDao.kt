@@ -2,6 +2,8 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.account.AccountService
+import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
@@ -14,45 +16,70 @@ import kotlinx.coroutines.tasks.await
 class FirebaseStressDataDao {
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
-    private val auth= Firebase.auth
-    private val dbReference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
+    private val auth = Firebase.auth
+    private val dbreference =
+        FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
 
     /**
      * Insert raw data to the database. Protocol is defined to get 30 samples of data at a time.
      * @param stressData List of [StressRawData] to be inserted
      * @return [ServiceResult] with Unit as success type and [StressErrorType] as error type
      */
-    suspend fun insertRawData(stressData: List<StressRawData>): ServiceResult<Unit,StressErrorType>{
-        val user=auth.currentUser
-        val email= user?.email
-        val userDocument= email?.let { accountCollection.document(it) }
+    suspend fun insertRawData(stressData: List<StressRawData>): ServiceResult<Unit, StressErrorType> {
+        val user = auth.currentUser
+        val email = user?.email
+        val userDocument = email?.let { accountCollection.document(it) }
+
 
         return try {
             // Insert raw data for each sample
-            for ((i, data) in stressData.withIndex()){
-                val rawDocument= userDocument?.collection("RawData")?.document(stressData[i].timestamp.toString())
-                val rawData= hashMapOf(
+            for ((i, data) in stressData.withIndex()) {
+                val rawDocument = userDocument?.collection("RawData")?.document(stressData[i].timestamp.toString())
+                val rawData = hashMapOf(
                     "timestamp" to data.timestamp,
-                    "heartRateSensor" to data.heartRateSensor,
+                    "heartrateSensor" to data.heartRateSensor,
                     "skinTemperatureSensor" to data.skinTemperatureSensor,
+                    "edaSensor" to data.edaSensor
                 )
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(rawData)?.await()
             }
 
-            val fastReturn = fastInsert(stressData)
-            if (fastReturn.success)
-                ServiceResult(true,null,null)
+            val fastreturn = fastInsert(stressData)
+            if (fastreturn.success)
+                ServiceResult(true, null, null)
             else
-                fastReturn
+                fastreturn
+        } catch (e: Exception) {
+            ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
 
-        } catch (e:Exception){
-            Log.e("Insert", "An exception occurred", e)
-            ServiceResult(false,null,StressErrorType.NETWORK_ERROR)
         }
     }
 
-    suspend fun getRawData(n: Int): ServiceResult <List <StressRawData>,StressErrorType> {
+    suspend fun insertDerivedData(stressData: List<StressDerivedData>): ServiceResult<Unit, StressErrorType> {
+        val user = auth.currentUser
+        val email = user?.email
+        val userDocument = email?.let { accountCollection.document(it) }
+        return try {
+            // Insert raw data for each sample
+            for ((i, data) in stressData.withIndex()) {
+                val rawDocument = userDocument?.collection("DerivedData")?.document(stressData[i].timestamp.toString())
+                val derivedData = hashMapOf(
+                    "timestamp" to data.timestamp,
+                    "binterval" to data.bInterval,
+                    "prediction" to data.prediction,
+                    "stress_level" to data.stressLevel
+                )
+                Log.d("Insert", "Insert completed")
+                rawDocument?.set(derivedData)?.await()
+            }
+            ServiceResult(true, null, null)
+        } catch (e: Exception) {
+            ServiceResult(false, null, StressErrorType.COMMUNICATION_PROBLEM)
+        }
+    }
+
+    suspend fun getRawData(n: Int): ServiceResult<List<StressRawData>, StressErrorType> {
         val user = auth.currentUser
         val email = user?.email
         val userDocument = email?.let { accountCollection.document(it) }
@@ -60,87 +87,159 @@ class FirebaseStressDataDao {
         return try {
             val rawDataList = mutableListOf<StressRawData>()
 
-            // Get the last n samples of raw data
+            // Effettua una query per ottenere un numero specifico di documenti raw data
             val querySnapshot = rawDataCollection?.limit(n.toLong())?.get()?.await()
 
-            // Iterate over the query results and create a StressRawData object for each document
+            // Itera sui documenti restituiti e converte i dati in oggetti StressRawData
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartRateSensor:Float = (document.get("heartRateSensor") as Float)
-                    val skinTemperatureSensor : Float= (document.get("skinTemperatureSensor" ) as Float)
+                    val heartrateSensor: Float = (document.get("heartrateSensor") as Float)
+                    val skinTemperatureSensor: Float = (document.get("skinTemperatureSensor") as Float)
+                    val edaSensor: Float = (document.get("edaSensor") as Float)
 
-                    // Generate the StressRawData object and add it to the list
-                    val stressRawData = StressRawData(
-                        timestamp = timestamp,
-                        heartRateSensor = heartRateSensor,
-                        skinTemperatureSensor = skinTemperatureSensor
-                    )
+                    // Costruisci l'oggetto StressRawData e aggiungilo alla lista
+                    val stressRawData = StressRawData(timestamp, heartrateSensor, skinTemperatureSensor)
                     rawDataList.add(stressRawData)
                 }
+
             }
 
-            val response: ServiceResult<List<StressRawData>, StressErrorType> =
-                ServiceResult(
-                    success = true,
-                    data = rawDataList,
-                    error = null
-                )
-            Log.d("getRawData", "Data retrieved successfully")
-            response
+            ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
-            Log.e("getRawData", "An exception occurred", e)
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
+
+
         }
     }
 
-    suspend fun fastInsert(stressData: List<StressRawData>) :ServiceResult<Unit,StressErrorType>{
-        val email= auth.currentUser?.email
-        val key= email?.substringBefore("@")
-        val rawDataReference= key?.let { dbReference.child(it).child("RawData") }
+    suspend fun getDerivedData(n: Int): ServiceResult<List<StressDerivedData>, StressErrorType> {
+        val user = auth.currentUser
+        val email = user?.email
+        val userDocument = email?.let { accountCollection.document(it) }
+        val derivedDataCollection = userDocument?.collection("RawData")
+        return try {
+            val derivedDataList = mutableListOf<StressDerivedData>()
 
-        if (rawDataReference != null) {
-            return try {
-                rawDataReference.removeValue().await()
-                stressData.forEach{data->
-                rawDataReference.child(data.timestamp.toString()).setValue(data).await()
+            // Effettua una query per ottenere un numero specifico di documenti raw data
+            val querySnapshot = derivedDataCollection?.limit(n.toLong())?.get()?.await()
+
+            // Itera sui documenti restituiti e converte i dati in oggetti StressRawData
+            querySnapshot?.forEach { document ->
+                val timestamp = document.id.toLongOrNull()
+                if (timestamp != null) {
+                    val binterval: Array<Float> = (document.get("binterval") as Array<Float>)
+                    val prediction: Double = (document.get("preditiction") as Double)
+                    val stress_level: Float = (document.get("stress_level") as Float)
+
+                    // Costruisci l'oggetto StressRawData e aggiungilo alla lista
+                    val stressDerivedData = StressDerivedData(timestamp, binterval, prediction, stress_level)
+                    derivedDataList.add(stressDerivedData)
+                }
+
+            }
+
+            ServiceResult(true, derivedDataList, null)
+        } catch (e: Exception) {
+            ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
+
+
+        }
+    }
+
+    private suspend fun fastInsert(stressData: List<StressRawData>): ServiceResult<Unit, StressErrorType> {
+        val email = auth.currentUser?.email
+        val key = email?.substringBefore("@")
+        val rawdatareference = key?.let { dbreference.child(it).child("RawData") }
+        return if (rawdatareference != null) {
+            try {
+                rawdatareference.removeValue().await()
+                stressData.forEach { data ->
+                    rawdatareference.child(data.timestamp.toString()).setValue(data).await()
                 }
                 Log.d("fastInsert", "Insert completed")
                 ServiceResult(success = true, data = null, error = null)
-            }  catch (e: Exception) {
+            } catch (e: Exception) {
                 Log.e("fastInsert", "An exception occurred", e)
                 ServiceResult(success = false, data = null, error = StressErrorType.COMMUNICATION_PROBLEM)
             }
-        }
-       else {
-            Log.e("fastInsert", "No account found")
-            return ServiceResult(success = false, data = null, error = StressErrorType.NO_ACCOUNT)
-        }
+        } else
+            ServiceResult(success = false, data = null, error = StressErrorType.NO_ACCOUNT)
     }
 
-    suspend fun fastGet():ServiceResult<List<StressRawData>,StressErrorType>{
+    suspend fun fastGet(): ServiceResult<List<StressRawData>, StressErrorType> {
         val user = auth.currentUser
         val email = user?.email
-        val keyName = email?.substringBefore("@")
-        val rawDataRef = keyName?.let { dbReference.child(it).child("RawData") }
+        val keyname = email?.substringBefore("@")
+        val rawDataref = keyname?.let { dbreference.child(it).child("RawData") }
         return try {
-            val snapshot= rawDataRef?.get()?.await()
-            val stressDataList= mutableListOf<StressRawData>()
-            snapshot?.children?.forEach{ childSnapshot->
-                val timestamp=childSnapshot.key?.toLongOrNull()
-                val heartRateSensor=childSnapshot.child("heartRateSensor").value as Float
-                val skinTemperatureSensor=childSnapshot.child("skinTemperatureSensor").value as Float
+            val snapshot = rawDataref?.get()?.await()
+            val stressDataList = mutableListOf<StressRawData>()
+            snapshot?.children?.forEach { childSnapshot ->
+                val timestamp = childSnapshot.key?.toLongOrNull()
+                val heartrateSensor = childSnapshot.child("heartrateSensor").value as Float
+                val skinTemperatureSensor = childSnapshot.child("skinTemperatureSensor").value as Float
+                val edaSensor = childSnapshot.child("edaSensor").value as Float
                 if (timestamp != null) {
-                    val stressData = StressRawData(timestamp, heartRateSensor, skinTemperatureSensor)
+                    val stressData = StressRawData(timestamp, heartrateSensor, skinTemperatureSensor, edaSensor)
                     stressDataList.add(stressData)
                 }
             }
+
             ServiceResult(success = true, data = stressDataList, error = null)
 
         } catch (e: Exception) {
             Log.e("readStressDataFromFirebase", "An exception occurred", e)
             ServiceResult(success = false, data = null, error = StressErrorType.COMMUNICATION_PROBLEM)
         }
+
+    }
+
+    suspend fun avgRawData(sincewhen: Long): ServiceResult<StressRawData?,StressErrorType> {
+        val auth = Firebase.auth
+        val db = Firebase.firestore
+        val currentUser = auth.currentUser
+        val currentUserEmail = currentUser?.email
+
+        if (currentUserEmail != null) {
+            val documentRef = db.document(currentUserEmail).collection("RawData")
+            val query = documentRef.whereGreaterThan("timestamp", sincewhen)
+            val snapshot = query.get().await()
+
+            var totalHeartSensor = 0.0F
+            var totalSkinTemperatureSensor = 0.0F
+            var totalEdaSensor = 0.0F
+            var count = 0
+
+            snapshot.forEach { document ->
+                val heartSensor = document.getDouble("heartSensor")
+                val skinTemperatureSensor = document.getDouble("skinTemperatureSensor")
+                val edaSensor = document.getDouble("edaSensor")
+
+                if (heartSensor != null && skinTemperatureSensor != null && edaSensor != null) {
+                    totalHeartSensor += heartSensor.toFloat()
+                    totalSkinTemperatureSensor += skinTemperatureSensor.toFloat()
+                    totalEdaSensor += edaSensor.toFloat()
+                    count++
+                }
+            }
+
+
+            val avgHeartSensor = if (count > 0) totalHeartSensor / count else 0.0F
+            val avgSkinTemperatureSensor = if (count > 0) totalSkinTemperatureSensor / count else 0.0F
+            val avgEdaSensor = if (count > 0) totalEdaSensor / count else 0.0F
+            Log.d("Insert avg", "Completed")
+            return  ServiceResult(true,StressRawData(sincewhen,avgHeartSensor, avgSkinTemperatureSensor, avgEdaSensor),null)
+
+        } else {
+            Log.d("Insert avg", "not Completed")
+            return ServiceResult(false,null, null)
+        }
     }
 
 }
+
+
+
+
+   

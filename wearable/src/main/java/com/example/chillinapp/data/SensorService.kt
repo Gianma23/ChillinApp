@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import com.example.chillinapp.synchronization.SensorDataHandler
 import com.example.chillinapp.synchronization.WearableDataProvider
 import com.google.android.gms.location.*
+import kotlinx.coroutines.*
 import java.io.*
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
@@ -33,6 +34,8 @@ class SensorService: Service(), SensorEventListener {
     private var hrSensor: Sensor? = null
     private var edaSensor: Sensor? = null
     private var tempSensor: Sensor? = null
+
+    private var job: Job? = null
     private var lastHRValue: Float = 0f
     private var lastEDAValue: Float = 0f
     private var lastTempValue: Float = 0f
@@ -98,16 +101,38 @@ class SensorService: Service(), SensorEventListener {
             return
         }
         val value = event.values[0]
-        val timestamp = event.timestamp
         Log.d(TAG, "Sensor ${event.sensor?.name} new value: ${event.values[0]}}")
 
-        if(event.sensor == edaSensor) {
+        // DEBUG: save sensor data to files
+        /*if (event.sensor == sensorManager?.getDefaultSensor(65554) || //eda
+            event.sensor == sensorManager?.getDefaultSensor(65572) || //ppg
+            event.sensor == sensorManager?.getDefaultSensor(65550)    //ecg
+        ) {
             try {
-                val fos = openFileOutput("test.csv", Context.MODE_APPEND)
+                val timestamp = System.currentTimeMillis()
+                val fileTitle =
+                when(event.sensor) {
+                    sensorManager?.getDefaultSensor(65554) -> "eda.csv"
+                    sensorManager?.getDefaultSensor(65572) -> "ppg.csv"
+                    sensorManager?.getDefaultSensor(65550) -> "ecg.csv"
+                    else -> "test.csv"
+                }
+                val fos = openFileOutput(fileTitle, Context.MODE_APPEND)
                 val writer = OutputStreamWriter(fos)
 
-                val datatest = listOf(value, timestamp)
-                val csvRow = datatest.joinToString(separator = ",")
+                var header = "timestamp"
+                if (fos.channel.size() == 0L) {
+                    for(i in 0..event.values.size) {
+                        header += ",value$i"
+                    }
+                    writer.write(header+"\n")
+                }
+                val dataTest = listOf(timestamp)
+                for(i in 0..event.values.size) {
+                    dataTest.plus(event.values[i])
+                }
+
+                val csvRow = dataTest.joinToString(separator = ",")
                 writer.write(csvRow)
                 writer.write("\n") // new line
 
@@ -116,7 +141,7 @@ class SensorService: Service(), SensorEventListener {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-        }
+        }*/
 
         if (value == 0f) {
             return
@@ -126,9 +151,49 @@ class SensorService: Service(), SensorEventListener {
             edaSensor -> lastEDAValue = value
             tempSensor -> lastTempValue = value
         }
-        
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // do nothing
+    }
+
+    // ============================= PRIVATE METHODS =============================
+
+    private fun startSensors() {
+        if (hrSensor != null)
+            sensorManager?.registerListener(this, hrSensor, SAMPLING_PERIOD)
+        if (edaSensor != null)
+            sensorManager?.registerListener(this, edaSensor, SAMPLING_PERIOD)
+        if (tempSensor != null)
+            sensorManager?.registerListener(this, tempSensor, SAMPLING_PERIOD)
+
+        LocationProvider.startLocationUpdates()
+
+        job?.cancel()
+        job = MainScope().launch(Dispatchers.IO) {
+            while(true) {
+                saveData()
+                delay(1000)
+            }
+        }
+
+        Log.d(TAG, "Sensors started")
+    }
+
+    private fun stopSensors() {
+        //TODO dump dati sensori
+        job?.cancel()
+        LocationProvider.stopLocationUpdates()
+        sensorManager?.unregisterListener(this, hrSensor)
+        sensorManager?.unregisterListener(this, edaSensor)
+        sensorManager?.unregisterListener(this, tempSensor)
+        Log.d(TAG, "Sensors stopped")
+    }
+
+    private fun saveData() {
+        Log.d(TAG, "save data, time: ${System.currentTimeMillis()}, location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")
         var data = ByteArray(0)
-        var tmpByte = ByteBuffer.allocate(8).putLong(timestamp).array()
+        var tmpByte = ByteBuffer.allocate(8).putLong(System.currentTimeMillis()).array()
         data = data.plus(tmpByte)
         tmpByte = ByteBuffer.allocate(4).putFloat(lastEDAValue).array()
         data = data.plus(tmpByte)
@@ -136,7 +201,6 @@ class SensorService: Service(), SensorEventListener {
         data = data.plus(tmpByte)
         tmpByte = ByteBuffer.allocate(4).putFloat(lastHRValue).array()
         data = data.plus(tmpByte)
-        Log.d(TAG, "latitude: ${LocationProvider.latitude}, longitude: ${LocationProvider.longitude}")
         tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.latitude).array()
         data = data.plus(tmpByte)
         tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.longitude).array()
@@ -151,35 +215,5 @@ class SensorService: Service(), SensorEventListener {
             startService(intent)
             Log.d(TAG, "Provider service called to send data")
         }
-    }
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // do nothing
-    }
-
-    // ============================= PRIVATE METHODS =============================
-
-
-    @SuppressLint("MissingPermission")
-    private fun startSensors() {
-        if (hrSensor != null)
-            sensorManager?.registerListener(this, hrSensor, SAMPLING_PERIOD)
-        if (edaSensor != null)
-            sensorManager?.registerListener(this, edaSensor, SAMPLING_PERIOD)
-        if (tempSensor != null)
-            sensorManager?.registerListener(this, tempSensor, SAMPLING_PERIOD)
-
-        LocationProvider.startLocationUpdates()
-
-        Log.d(TAG, "Sensors started")
-    }
-
-    private fun stopSensors() {
-        //TODO dump dati sensori
-        LocationProvider.stopLocationUpdates()
-        sensorManager?.unregisterListener(this, hrSensor)
-        sensorManager?.unregisterListener(this, edaSensor)
-        sensorManager?.unregisterListener(this, tempSensor)
-        Log.d(TAG, "Sensors stopped")
     }
 }
