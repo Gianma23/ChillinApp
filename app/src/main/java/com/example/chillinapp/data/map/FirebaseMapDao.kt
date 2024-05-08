@@ -3,12 +3,14 @@ package com.example.chillinapp.data.map
 import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.maps.android.heatmaps.WeightedLatLng
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.ZoneId
@@ -64,7 +66,7 @@ class FirebaseMapDao {
                     distance: Double,
                     date: LocalDate = LocalDate.now(),
                     hour: Int = 0
-    ): ServiceResult<List<Coordinate>, MapErrorType> {
+    ): ServiceResult<List<WeightedLatLng>, MapErrorType> {
         // Calculate the boundaries of the query
         val maxLat = centerLat + distance
         val minLat = centerLat - distance
@@ -87,9 +89,9 @@ class FirebaseMapDao {
      * @param hour the hour
      * @return a ServiceResult object containing the list of Map objects if the operation was successful, an error type otherwise
      */
-    private suspend fun get(minLat: Double, maxLat: Double, minLng: Double, maxLng: Double, date: String, hour: Int): ServiceResult<List<Coordinate>, MapErrorType> {
+    private suspend fun get(minLat: Double, maxLat: Double, minLng: Double, maxLng: Double, date: String, hour: Int): ServiceResult<List<WeightedLatLng>, MapErrorType> {
         return try {
-            val coordinateList = mutableListOf<Coordinate>()
+            val coordinateList = mutableListOf<WeightedLatLng>()
 
             // Query to get all documents within the specified boundaries
             val querySnapshot = mapCollection
@@ -119,9 +121,9 @@ class FirebaseMapDao {
                 // Get the stress score from the filtered hour
                 val stressScore = filteredHours.first()["stress_score"] as Float
 
-                // Build the Coordinate object and add it to the list
-                val coordinate = Coordinate(latitude, longitude, stressScore)
-                coordinateList.add(coordinate)
+                // Build the WeightedLatLng object and add it to the list
+                val weightedLatLng = WeightedLatLng(LatLng(latitude, longitude), stressScore.toDouble())
+                coordinateList.add(weightedLatLng)
             }
 
             ServiceResult(true, coordinateList, null)
