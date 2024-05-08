@@ -79,7 +79,7 @@ class FirebaseStressDataDao {
         }
     }
 
-    suspend fun getRawData(n: Int): ServiceResult<List<StressRawData>, StressErrorType> {
+    suspend fun getRawData(startTime:Long, endTime:Long): ServiceResult<List<StressRawData>, StressErrorType> {
         val user = auth.currentUser
         val email = user?.email
         val userDocument = email?.let { accountCollection.document(it) }
@@ -88,8 +88,9 @@ class FirebaseStressDataDao {
             val rawDataList = mutableListOf<StressRawData>()
 
             // Effettua una query per ottenere un numero specifico di documenti raw data
-            val querySnapshot = rawDataCollection?.limit(n.toLong())?.get()?.await()
-
+            val querySnapshot = rawDataCollection?.whereGreaterThanOrEqualTo("timestamp", startTime)
+                ?.whereLessThanOrEqualTo("timestamp", endTime)
+                ?.get()?.await()
             // Itera sui documenti restituiti e converte i dati in oggetti StressRawData
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
@@ -113,7 +114,7 @@ class FirebaseStressDataDao {
         }
     }
 
-    suspend fun getDerivedData(n: Int): ServiceResult<List<StressDerivedData>, StressErrorType> {
+    suspend fun getDerivedData(startTime: Long, endTime: Long): ServiceResult<List<StressDerivedData>, StressErrorType> {
         val user = auth.currentUser
         val email = user?.email
         val userDocument = email?.let { accountCollection.document(it) }
@@ -122,8 +123,9 @@ class FirebaseStressDataDao {
             val derivedDataList = mutableListOf<StressDerivedData>()
 
             // Effettua una query per ottenere un numero specifico di documenti raw data
-            val querySnapshot = derivedDataCollection?.limit(n.toLong())?.get()?.await()
-
+            val querySnapshot = derivedDataCollection?.whereGreaterThanOrEqualTo("timestamp", startTime)
+                ?.whereLessThanOrEqualTo("timestamp", endTime)
+                ?.get()?.await()
             // Itera sui documenti restituiti e converte i dati in oggetti StressRawData
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()

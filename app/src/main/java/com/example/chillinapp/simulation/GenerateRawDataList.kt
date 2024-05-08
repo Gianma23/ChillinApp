@@ -4,7 +4,6 @@ import com.example.chillinapp.data.stress.StressRawData
 import java.util.Calendar
 import java.util.Random
 
-
 /**
  * Generates a list of [StressRawData] objects for a given time range with a given step.
  * Each [StressRawData] object represents a data point with a timestamp, heart rate sensor reading, and skin temperature sensor reading.
