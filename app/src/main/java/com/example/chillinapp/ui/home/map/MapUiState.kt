@@ -22,6 +22,9 @@ data class MapUiState (
     val currentDate: Date = Date(),
     val stressDataResponse: ServiceResult<List<WeightedLatLng>, StressErrorType>? = null,
 
-    val isNotificationVisible: Boolean = false
+    val isNotificationVisible: Boolean = false,
+
+    val maxStressValue: Int? = null,
+    val minStressValue: Int? = null,
 
 )

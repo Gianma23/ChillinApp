@@ -151,9 +151,22 @@ class MapViewModel(
                 )
             }
 
+            // Update min and max stress values
+            if (response.data != null) {
+                val max = (response.data.maxByOrNull { it.intensity }?.intensity)?.toInt()
+                val min = (response.data.minByOrNull { it.intensity }?.intensity)?.toInt()
+                _uiState.value = _uiState.value.copy(
+                    maxStressValue = max,
+                    minStressValue = min
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    maxStressValue = null,
+                    minStressValue = null
+                )
+            }
 
-
-            Log.d("MapViewModel", "Map Reloaded")
+            Log.d("MapViewModel", "Stress Points loaded")
         }
 
     }
@@ -165,8 +178,6 @@ class MapViewModel(
 
         _uiState.value = _uiState.value.copy(currentDate = calendar.time)
         Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
-
-        loadHeatPoints(uiState.value.cameraPositionState.position.target)
     }
 
     fun nextDay() {
@@ -174,10 +185,15 @@ class MapViewModel(
         calendar.time = uiState.value.currentDate
         calendar.add(Calendar.DAY_OF_MONTH, 1)
 
+        val now = Calendar.getInstance()
+
+        // Hour check
+        if (isSameDay(calendar.time, now.time) && calendar.get(Calendar.HOUR_OF_DAY) > now.get(Calendar.HOUR_OF_DAY)) {
+            calendar.set(Calendar.HOUR_OF_DAY, now.get(Calendar.HOUR_OF_DAY))
+        }
+
         _uiState.value = _uiState.value.copy(currentDate = calendar.time)
         Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
-
-        loadHeatPoints(uiState.value.cameraPositionState.position.target)
     }
 
     fun formatDate(): String {
@@ -212,6 +228,42 @@ class MapViewModel(
                 )
             )
         )
+    }
+
+    fun previousHour() {
+        val calendar = Calendar.getInstance()
+        calendar.time = uiState.value.currentDate
+        calendar.add(Calendar.HOUR_OF_DAY, -1)
+
+        _uiState.value = _uiState.value.copy(currentDate = calendar.time)
+        Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
+    }
+
+    fun formatTime(): String {
+        val currentHour = SimpleDateFormat("HH:00", Locale.getDefault()).format(uiState.value.currentDate)
+
+        val calendar = Calendar.getInstance()
+        calendar.time = uiState.value.currentDate
+        calendar.add(Calendar.HOUR_OF_DAY, 1)
+        val nextHour = SimpleDateFormat("HH:00", Locale.getDefault()).format(calendar.time)
+
+        return "$currentHour\n-\n$nextHour"
+    }
+
+    fun nextHour() {
+        val calendar = Calendar.getInstance()
+        calendar.time = uiState.value.currentDate
+        calendar.add(Calendar.HOUR_OF_DAY, 1)
+
+        _uiState.value = _uiState.value.copy(currentDate = calendar.time)
+        Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
+    }
+
+    fun isCurrentHour(): Boolean {
+        val calendar = Calendar.getInstance()
+        calendar.time = uiState.value.currentDate
+        return calendar.get(Calendar.HOUR_OF_DAY) == Calendar.getInstance().get(Calendar.HOUR_OF_DAY) &&
+                isSameDay(calendar.time, Date())
     }
 
 }

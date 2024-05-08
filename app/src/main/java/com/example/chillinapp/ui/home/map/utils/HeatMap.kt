@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.map
+package com.example.chillinapp.ui.home.map.utils
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -17,16 +17,18 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.heatmaps.Gradient
 import com.google.maps.android.heatmaps.HeatmapTileProvider
 import com.google.maps.android.heatmaps.WeightedLatLng
 
 
 @Composable
-fun HeatMap(
+internal fun HeatMap(
     cameraPositionState: CameraPositionState,
     points: List<WeightedLatLng>,
     setOnCameraMoveListener: (CameraPositionState) -> Unit,
-    setOnMapLoadedCallback: (LatLng) -> Unit
+    setOnMapLoadedCallback: (LatLng) -> Unit,
+    gradient: Gradient
 ) {
 
     val tileOverlay: MutableState<TileOverlay?> =
@@ -68,11 +70,13 @@ fun HeatMap(
                             Log.d("HeatMap Factory", "Adding heat map layer")
                             val heatMap = HeatmapTileProvider.Builder()
                                 .weightedData(points)
+                                .gradient(gradient)
                                 .build()
                             tileOverlay.value = googleMap.addTileOverlay(TileOverlayOptions().tileProvider(heatMap))
                             chargedPoints.value = points
                         }
 
+                        // Set the listeners
                         googleMap.setOnCameraMoveListener {
                             setOnCameraMoveListener(CameraPositionState(googleMap.cameraPosition))
                         }
@@ -84,14 +88,16 @@ fun HeatMap(
             },
             update = { mapView ->
 
+                // Update the heat map layer only if the points have changed
                 if(points.isEmpty() || points == chargedPoints.value)
                     return@AndroidView
 
+                // Change the heat map layer
                 mapView.getMapAsync { googleMap ->
-                    // Add new heatmap layer
                     Log.d("HeatMap Update", "Adding heat map layer")
                     val heatMap = HeatmapTileProvider.Builder()
                         .weightedData(points)
+                        .gradient(gradient)
                         .build()
                     tileOverlay.value?.remove()
                     tileOverlay.value?.clearTileCache()
