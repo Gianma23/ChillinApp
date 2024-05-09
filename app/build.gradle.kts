@@ -1,12 +1,32 @@
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
     namespace = "com.example.chillinapp"
     compileSdk = 34
+
+    signingConfigs {
+        create("release") {
+            val properties = Properties()
+            try {
+                properties.load(FileInputStream(project.rootProject.file("local.properties")))
+            } catch (e: FileNotFoundException) {
+                properties.load(FileInputStream(project.rootProject.file("local.default.properties")))
+            }
+            storeFile = file(project.rootProject.file(properties["storeFile"].toString()))
+            storePassword = properties["storePassword"].toString()
+            keyAlias = properties["keyAlias"].toString()
+            keyPassword = properties["keyPassword"].toString()
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.chillinapp"
@@ -22,7 +42,8 @@ android {
     }
 
     buildTypes {
-        release {
+        getByName("release") {
+            signingConfig  = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -35,6 +56,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -47,13 +69,23 @@ android {
     }
 }
 
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "local.properties"
+
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
+}
+
 dependencies {
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
-    implementation("androidx.core:core-ktx:1.13.0")
+    implementation("androidx.core:core-ktx:1.13.1")
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.9.0")
-    implementation(platform("androidx.compose:compose-bom:2024.04.01"))
+    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -62,23 +94,32 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
 
-    implementation("com.google.firebase:firebase-firestore-ktx:24.11.1")
-    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
-    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation("com.google.firebase:firebase-firestore-ktx:25.0.0")
+    implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-auth")
 
-    implementation("com.google.android.gms:play-services-auth:21.1.0")
+    implementation("com.google.android.gms:play-services-auth:21.1.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
+
+    implementation("co.yml:ycharts:2.1.0")
+
+    implementation("com.google.maps.android:maps-compose:4.4.2")
+    implementation("com.google.maps.android:maps-compose-utils:4.4.2")
+    implementation("com.google.maps.android:maps-compose-widgets:4.4.2")
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("com.google.maps.android:android-maps-utils:3.7.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.04.01"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 
     testImplementation("io.mockk:mockk:1.12.0")

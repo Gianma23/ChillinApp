@@ -13,21 +13,19 @@ import com.example.chillinapp.ui.access.registration.SignInDestination
 import com.example.chillinapp.ui.access.registration.SignInScreen
 import com.example.chillinapp.ui.home.HomeDestination
 import com.example.chillinapp.ui.home.HomeScreen
-import com.example.chillinapp.ui.splash.LandingScreen
 import com.example.chillinapp.ui.splash.LandingDestination
+import com.example.chillinapp.ui.splash.LandingScreen
 
 
 /**
  * Composable function that provides the navigation graph for the application.
  *
  * This function creates a NavHost with the start destination set to the LandingScreen. It defines several routes:
- * - LandingDestination: Displays the LandingScreen and provides navigation action to the LogInScreen.
- * - LogInDestination: Displays the LogInScreen and provides navigation actions to the SignInScreen, PswRecoveryScreen and OverallScreen.
- * - SignInDestination: Displays the SignInScreen and provides a navigation action to the LogInScreen.
- * - PswRecoveryDestination: Displays the PswRecoveryScreen and provides navigation actions to the LogInScreen and SignInScreen.
- * - MonitorDestination: Displays the OverallScreen and provides navigation actions to the SettingsScreen and MapScreen.
- * - SettingsDestination: Displays the SettingsScreen and provides navigation actions to the LogInScreen and OverallScreen.
- * - MapDestination: Displays the MapScreen and provides navigation actions to the SettingsScreen and OverallScreen.
+ * - [LandingDestination]: Displays the LandingScreen and provides navigation action to the LogInScreen.
+ * - [LogInDestination]: Displays the LogInScreen and provides navigation actions to the SignInScreen, PswRecoveryScreen and OverallScreen.
+ * - [SignInDestination]: Displays the SignInScreen and provides a navigation action to the LogInScreen.
+ * - [PswRecoveryDestination]: Displays the PswRecoveryScreen and provides navigation actions to the LogInScreen and SignInScreen.
+ * - [HomeDestination]: Displays the HomeScreen.
  *
  * @param navController The NavHostController that controls the navigation within the NavHost.
  * @param modifier The Modifier to be applied to the NavHost.
@@ -46,8 +44,14 @@ fun ChillInAppNavHost(
         // Landing screen route
         composable(route = LandingDestination.route) {
             LandingScreen(
-                onTimeout = { navController.navigate(LogInDestination.route) },
-                navController = navController
+                ifLogged = { navController.navigate(HomeDestination.route){
+                    navController.popBackStack()
+                    popUpTo(LandingDestination.route) { inclusive = true }
+                } },
+                ifNotLogged = { navController.navigate(LogInDestination.route) {
+                    navController.popBackStack()
+                    popUpTo(LandingDestination.route) { inclusive = true }
+                } }
             )
         }
 
@@ -82,7 +86,7 @@ fun ChillInAppNavHost(
 
         // Home screen route
         composable(route = HomeDestination.route) {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
 
     }

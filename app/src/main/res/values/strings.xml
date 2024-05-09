@@ -5,7 +5,7 @@
     <string name="login_title">Login</string>
     <string name="registration_string">Registration</string>
     <string name="password_recovery">Recovery</string>
-    <string name="login_header">Welcome back!</string>
+    <string name="login_header">Welcome!</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="registration_link">Sign Up</string>
     <string name="home_link">Home</string>
@@ -29,7 +29,6 @@
     <string name="login_link">Log in</string>
     <string name="registration_notify_success_text">Registration successful!</string>
     <string name="default_notify_success_text">Success!</string>
-
     <string name="default_notify_failure_text">Failure!</string>
     <string name="name_label">Name</string>
     <string name="confirm_password_label">Confirm password</string>
@@ -61,5 +60,18 @@
     <string name="chillin_logo_description">ChillIn Logo</string>
     <string name="settings_title">Settings</string>
     <string name="map_screen_title">Maps</string>
-    <string name="home_screen_title">Home</string>
+    <string name="home_screen_title">ChillIn</string>
+    <string name="general_settings_label">General</string>
+    <string name="log_out_label">Log out</string>
+    <string name="danger_zone_setting_label">Danger Zone</string>
+    <string name="delete_account_label">Delete account</string>
+    <string name="delete_account_confirmation_text">Are you sure you want to delete your account? This action cannot be undone, all data will be lost.</string>
+    <string name="delete_account_confirmation_title">Confirm Delete Account</string>
+    <string name="cancel_button_label">Cancel</string>
+    <string name="confirm_button_label">Confirm</string>
+    <string name="operation_failed">"Operation failed: "</string>
+    <string name="authentication_error">Authentication error</string>
+    <string name="network_error">Network error</string>
+    <string name="communication_problem">Communication problem</string>
+    <string name="no_data_available_for_this_area">No data available for this area.</string>
 </resources>

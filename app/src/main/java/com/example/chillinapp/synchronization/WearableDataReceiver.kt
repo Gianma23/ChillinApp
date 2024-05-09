@@ -1,45 +1,49 @@
-package com.example.chillinapp.synchronization;
+package com.example.chillinapp.synchronization
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-
-import android.util.Log;
-
-import com.example.chillinapp.data.stress.FirebaseStressDataDao;
-import com.example.chillinapp.data.stress.FirebaseStressDataService;
-import com.example.chillinapp.data.stress.StressRawData;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.wearable.*
-import kotlinx.coroutines.*
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
+import android.util.Log
+import com.example.chillinapp.data.stress.FirebaseStressDataDao
+import com.example.chillinapp.data.stress.FirebaseStressDataService
+import com.example.chillinapp.data.stress.StressRawData
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.wearable.ChannelClient
+import com.google.android.gms.wearable.Wearable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
 
-class WearableDataReceiver : WearableListenerService(), CoroutineScope {
-    private val TAG = "WearableDataReceiver"
-    private val CHANNEL_MSG = "/chillinapp"
+class WearableDataReceiver : Service(), CoroutineScope {
+    private val tag = "WearableDataReceiver"
+    private val channelMsg = "/chillinapp"
     private lateinit var job: Job
-    private val BYTES_PER_SAMPLE = 20
+    private val bytesPerSample = 20
+
 
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
 
+    override fun onBind(intent: Intent): IBinder? {
+        return null
+    }
+
     override fun onCreate(){
-        super.onCreate();
+        super.onCreate()
         job = Job()
-        Log.d(TAG, "Service created")
+        Log.d(tag, "Service created")
     }
 
     override fun onDestroy(){
-        super.onDestroy();
+        super.onDestroy()
         job.cancel()
-        Log.d(TAG, "Service destroyed")
+        Log.d(tag, "Service destroyed")
     }
 
     override fun onStartCommand(intent: Intent?,flags: Int,startId: Int): Int {
@@ -48,98 +52,40 @@ class WearableDataReceiver : WearableListenerService(), CoroutineScope {
         // Check the action received
         when (intent?.action) {
             "START_SERVICE" -> {
-                Log.d(TAG, "Starting service")
+                Log.d(tag, "Starting service")
+                receiveData()
+
+                // Get the node id of itself
+                Wearable.getNodeClient(applicationContext).localNode.addOnSuccessListener { node ->
+                    val nodeId = node.id
+                    Log.d(tag, "Node id: $nodeId")
+                }
             }
             "STOP_SERVICE" -> {
-                Log.d(TAG, "Stopping service")
+                Log.d(tag, "Stopping service")
                 stopSelf()
             }
-            else -> Log.w(TAG, "No action found")
+            else -> Log.w(tag, "No action found")
         }
 
         // Return START_STICKY to restart the service if it gets killed
         return START_STICKY
     }
 
-    override fun onConnectedNodes(p0: MutableList<Node>) {
-        super.onConnectedNodes(p0)
-        Log.d(TAG, "Connected nodes: $p0")
-    }
-
-    override fun onDataChanged(p0: DataEventBuffer) {
-        super.onDataChanged(p0)
-        Log.d(TAG, "Data changed: $p0")
-    }
-
-    override fun onMessageReceived(messageEvent: MessageEvent) {
-        super.onMessageReceived(messageEvent)
-        Log.d(TAG, "Message received: $messageEvent")
-    }
-
-    override fun onChannelClosed(channel: ChannelClient.Channel, p1: Int, p2: Int) {
-        super.onChannelClosed(channel, p1, p2)
-        Log.d(TAG, "Channel closed")
-    }
-
-    override fun onOutputClosed(p0: Channel, p1: Int, p2: Int) {
-        super.onOutputClosed(p0, p1, p2)
-        Log.d(TAG, "Output closed")
-    }
-
-    override fun onChannelOpened(channel: ChannelClient.Channel) {
-        Log.d(TAG, "onChannelOpened")
-        super.onChannelOpened(channel);
-        if (channel.path != CHANNEL_MSG) {
-            Log.e(TAG, "Channel not found")
-            return
-        }
-        Log.e(TAG, "onChannelOpened");
-        Log.d(TAG, "Channel: ${channel.path}")
-        val inputStreamTask: Task<InputStream> = Wearable.getChannelClient(applicationContext).getInputStream(channel)
-        inputStreamTask.addOnSuccessListener{ inputStream ->
-            launch {
-                try {
-                    // TODO: remove useless logs after testing
-                    val text = StringBuilder()
-                    val buffer = ByteArrayOutputStream()
-                    var read: Int
-                    val data = ByteArray(1024)
-                    while (inputStream.read(data, 0, data.size).also { read = it } != -1) {
-                        Log.e(TAG, "Data length $read")
-                        buffer.write(data, 0, read)
-                        buffer.flush()
-                        val byteArray = buffer.toByteArray()
-                        text.append(String(byteArray, StandardCharsets.UTF_8))
-                    }
-                    Log.e(TAG, "Reading: $text")
-
-                    val stressRawDataList = parseBulkData(buffer.toByteArray())
-                    val firebaseStressDataService = FirebaseStressDataService(FirebaseStressDataDao())
-                    firebaseStressDataService.insertRawData(stressRawDataList)
-                    inputStream.close()
-                } catch (e: IOException) {
-                    Log.e(TAG, "Error in receiving data: $e")
-                } finally {
-                    Wearable.getChannelClient(applicationContext).close(channel)
-                }
-            }
-        }
-    }
-
     private fun receiveData() {
-        Log.d(TAG, "Receiving data")
-        Log.d(TAG, "Channel client: ${Wearable.getChannelClient(applicationContext)}")
+        Log.d(tag, "Receiving data")
+        Log.d(tag, "Channel client: ${Wearable.getChannelClient(applicationContext)}")
         // Register a channel callback to receive data from the wearable device
-        /*Wearable.getChannelClient(applicationContext).registerChannelCallback(object : ChannelClient.ChannelCallback() {
+        Wearable.getChannelClient(applicationContext).registerChannelCallback(object : ChannelClient.ChannelCallback() {
 
             override fun onChannelOpened(channel: ChannelClient.Channel) {
-                super.onChannelOpened(channel);
-                if (channel.path != CHANNEL_MSG) {
-                    Log.e(TAG, "Channel not found")
+                super.onChannelOpened(channel)
+                if (channel.path != channelMsg) {
+                    Log.e(tag, "Channel not found")
                     return
                 }
-                Log.d(TAG, "onChannelOpened");
-                Log.d(TAG, "Channel: ${channel.path}")
+                Log.d(tag, "onChannelOpened")
+                Log.d(tag, "Channel: ${channel.path}")
                 val inputStreamTask: Task<InputStream> = Wearable.getChannelClient(applicationContext).getInputStream(channel)
                 inputStreamTask.addOnSuccessListener{ inputStream ->
                     launch {
@@ -157,14 +103,14 @@ class WearableDataReceiver : WearableListenerService(), CoroutineScope {
                             firebaseStressDataService.insertRawData(stressRawDataList)
                             inputStream.close()
                         } catch (e: IOException) {
-                            Log.e(TAG, "Error in receiving data: $e")
+                            Log.e(tag, "Error in receiving data: $e")
                         } finally {
                             Wearable.getChannelClient(applicationContext).close(channel)
                         }
                     }
                 }
             }
-        })*/
+        })
     }
 
     /**
@@ -176,37 +122,48 @@ class WearableDataReceiver : WearableListenerService(), CoroutineScope {
         val sensorDataList = ArrayList<StressRawData>()
         var i = 0
         while (i < data.size) {
-            val singleData = ByteArray(BYTES_PER_SAMPLE)
-            System.arraycopy(data, i, singleData, 0, BYTES_PER_SAMPLE)
+            val singleData = ByteArray(bytesPerSample)
+            System.arraycopy(data, i, singleData, 0, bytesPerSample)
             val sensorData = parseSingleData(singleData)
             sensorDataList.add(sensorData)
-            i += BYTES_PER_SAMPLE
+            i += bytesPerSample
         }
         return sensorDataList
     }
 
     private fun parseSingleData(data: ByteArray): StressRawData {
-        // Array of bytes composed by:
-        // 8 bytes for timestamp
-        // 8 bytes for heart rate
-        // 8 bytes for gps
 
         // Timestamp
         val timestampBytes = ByteArray(8)
         System.arraycopy(data, 0, timestampBytes, 0, 8)
         val timestamp = bytesToLong(timestampBytes)
 
+        // EDA
+        val edaBytes = ByteArray(4)
+        System.arraycopy(data, 8, edaBytes, 0, 4)
+        val eda = bytesToFloat(edaBytes)
+
+        // Temperature
+        val temperatureBytes = ByteArray(4)
+        System.arraycopy(data, 12, temperatureBytes, 0, 4)
+        val temperature = bytesToFloat(temperatureBytes)
+
         // heart rate
         val heartRateBytes = ByteArray(4)
-        System.arraycopy(data, 8, heartRateBytes, 0, 4)
+        System.arraycopy(data, 16, heartRateBytes, 0, 4)
         val hr = bytesToFloat(heartRateBytes)
 
-        // GPS
-        val gpsBytes = ByteArray(8)
-        System.arraycopy(data, 12, gpsBytes, 0, 8)
-        val skinTemperature = bytesToDouble(gpsBytes)
+        // latitude
+        val latitudeBytes = ByteArray(8)
+        System.arraycopy(data, 20, latitudeBytes, 0, 8)
+        val latitude = bytesToDouble(latitudeBytes)
 
-        return StressRawData(timestamp, hr, skinTemperature)
+        // longitude
+        val longitudeBytes = ByteArray(8)
+        System.arraycopy(data, 28, longitudeBytes, 0, 8)
+        val longitude = bytesToDouble(longitudeBytes)
+
+        return StressRawData(timestamp, eda, temperature, hr, latitude, longitude)
     }
 
     /**

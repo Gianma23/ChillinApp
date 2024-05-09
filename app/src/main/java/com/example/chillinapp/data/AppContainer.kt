@@ -1,11 +1,14 @@
 package com.example.chillinapp.data
 
-import com.example.chillinapp.data.stress.FirebaseStressDataDao
-import com.example.chillinapp.data.stress.FirebaseStressDataService
-import com.example.chillinapp.data.stress.StressDataService
 import com.example.chillinapp.data.account.AccountService
 import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.example.chillinapp.data.account.FirebaseAccountService
+import com.example.chillinapp.data.map.FirebaseMapDao
+import com.example.chillinapp.data.map.FirebaseMapService
+import com.example.chillinapp.data.map.MapService
+import com.example.chillinapp.data.stress.FirebaseStressDataDao
+import com.example.chillinapp.data.stress.FirebaseStressDataService
+import com.example.chillinapp.data.stress.StressDataService
 
 /**
  * Interface for the [AppContainer] which is used for dependency injection in the application.
@@ -16,6 +19,7 @@ import com.example.chillinapp.data.account.FirebaseAccountService
 interface AppContainer {
     val accountService: AccountService
     val stressDataService: StressDataService
+    val mapService: MapService
 }
 
 /**
@@ -28,9 +32,9 @@ interface AppContainer {
 class AppDataContainer() : AppContainer {
 
     /**
-     * Lazily initialized property that provides an instance of AccountService.
+     * Lazily initialized property that provides an instance of [AccountService].
      *
-     * This property is an instance of FirebaseAccountService, which is created with a FirebaseAccountDao instance.
+     * This property is an instance of [FirebaseAccountService], which is created with a FirebaseAccountDao instance.
      * The property is initialized the first time it is accessed and the same instance is returned for all subsequent
      * accesses, making it a singleton in the scope of this class.
      */
@@ -38,7 +42,25 @@ class AppDataContainer() : AppContainer {
         FirebaseAccountService(accountDao = FirebaseAccountDao())
     }
 
+    /**
+     * Lazily initialized property that provides an instance of [StressDataService].
+     *
+     * This property is an instance of [FirebaseStressDataService], which is created with a FirebaseStressDataDao instance.
+     * The property is initialized the first time it is accessed and the same instance is returned for all subsequent
+     * accesses, making it a singleton in the scope of this class.
+     */
     override val stressDataService: StressDataService by lazy {
         FirebaseStressDataService(stressDataDao = FirebaseStressDataDao())
+    }
+
+    /**
+     * Lazily initialized property that provides an instance of [MapService].
+     *
+     * This property is an instance of [FirebaseMapService], which is created with a FirebaseMapDao instance.
+     * The property is initialized the first time it is accessed and the same instance is returned for all subsequent
+     * accesses, making it a singleton in the scope of this class.
+     */
+    override val mapService: MapService by lazy {
+        FirebaseMapService(mapDao = FirebaseMapDao())
     }
 }

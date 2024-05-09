@@ -15,6 +15,7 @@ package com.example.chillinapp.data.account
  * - INVALID_EMAIL: The email provided is not valid.
  * - INVALID_PASSWORD: The password provided is not valid.
  * - DATABASE_ERROR: An error occurred while interacting with the database.
+ * - AUTHENTICATION_ERROR: An error occurred during the authentication process.
  */
 enum class AccountErrorType{
     EMAIL_IN_USE,
@@ -26,3 +27,4 @@ enum class AccountErrorType{
     DATABASE_ERROR,
     AUTHENTICATION_ERROR
 }
+

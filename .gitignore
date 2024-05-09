@@ -1,6 +1,6 @@
 *.iml
 .gradle
-build.gradle.kts
+/build.gradle.kts
 /local.properties
 .idea
 /.idea/caches
@@ -15,3 +15,6 @@ build.gradle.kts
 .externalNativeBuild
 .cxx
 local.properties
+scripts/__pycache__
+scripts/utils/credentials.json
+/chill-keystore.jks

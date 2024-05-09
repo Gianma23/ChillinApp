@@ -1,32 +1,32 @@
 package com.example.chillinapp.ui.home
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.chillinapp.R
-import com.example.chillinapp.ui.access.login.LogInDestination
-import com.example.chillinapp.ui.home.map.MapDestination
-import com.example.chillinapp.ui.home.map.MapScreen
-import com.example.chillinapp.ui.home.monitor.MonitorDestination
-import com.example.chillinapp.ui.home.monitor.MonitorScreen
-import com.example.chillinapp.ui.home.settings.SettingsDestination
-import com.example.chillinapp.ui.home.settings.SettingsScreen
+import com.example.chillinapp.ui.navigation.HomeNavGraph
 import com.example.chillinapp.ui.navigation.NavigationDestination
 
 
@@ -38,78 +38,92 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
 
     val homeNavController = rememberNavController()
 
-    val items = listOf(
-        Screen.Overall,
-        Screen.Map,
-        Screen.Settings
-    )
-
     Scaffold(
-        bottomBar = {
-            BottomAppBar {
-                val navBackStackEntry by homeNavController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
-
-                items.forEach { screen ->
-                    NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = null) },
-                        label = { Text(screen.label) },
-                        selected = currentRoute == screen.route,
-                        onClick = {
-                            homeNavController.navigate(screen.route) {
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
-                }
-            }
+        topBar = {
+            HomeTopBar(homeNavController)
         },
-        modifier = modifier
+        bottomBar = {
+            HomeBottomBar(
+                navController = homeNavController,
+                items = listOf(
+                    Screen.Monitor,
+                    Screen.Map
+                )
+            )
+        },
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surfaceVariant
     ) { innerPadding ->
-        HomeNavHost(
-            navController = homeNavController,
+        HomeNavGraph(
+            homeNavController = homeNavController,
+            mainNavController = navController,
             modifier = Modifier.padding(innerPadding)
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeNavHost(
-    navController: NavHostController,
-    modifier: Modifier
-) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Overall.route,
-        modifier = modifier
-    ) {
+private fun HomeTopBar(navController: NavHostController) {
 
-        // Overall screen route
-        composable(route = MonitorDestination.route) {
-            MonitorScreen()
-        }
-
-        // Settings screen route
-        composable(route = SettingsDestination.route) {
-            SettingsScreen(
-                navigateToLogInScreen = { navController.navigate(LogInDestination.route) },
-            )
-        }
-
-        // Map screen route
-        composable(route = MapDestination.route) {
-            MapScreen()
-        }
-    }
+    TopAppBar(
+        title = {
+            Row(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(Modifier.size(16.dp))
+                Text(
+                    text = stringResource(id = HomeDestination.titleRes),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { if(navController.currentDestination?.route != Screen.Settings.route) {
+                navController.navigate(Screen.Settings.route)
+            } }) {
+                Icon(Screen.Settings.icon, contentDescription = Screen.Settings.label)
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    )
 }
 
-sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
-    data object Overall : Screen(MonitorDestination.route, "Overall", Icons.Default.Home)
-    data object Map : Screen(MapDestination.route, "Map", Icons.Default.Map)
-    data object Settings : Screen(SettingsDestination.route, "Settings", Icons.Default.Settings)
+@Composable
+private fun HomeBottomBar(
+    navController: NavHostController,
+    items: List<Screen>
+) {
+    BottomAppBar {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
+        items.forEach { screen ->
+            NavigationBarItem(
+                icon = { Icon(screen.icon, contentDescription = null) },
+                label = { Text(screen.label) },
+                selected = currentRoute == screen.route,
+                onClick = {
+                    if(currentRoute != screen.route) {
+                        navController.navigate(screen.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
+            )
+        }
+    }
 }
