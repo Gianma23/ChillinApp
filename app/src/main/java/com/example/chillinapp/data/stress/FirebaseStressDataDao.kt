@@ -2,12 +2,15 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.account.AccountService
+import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+
 
 
 class FirebaseStressDataDao {
@@ -36,7 +39,9 @@ class FirebaseStressDataDao {
                     "timestamp" to data.timestamp,
                     "heartrateSensor" to data.heartRateSensor,
                     "skinTemperatureSensor" to data.skinTemperatureSensor,
-                    "edaSensor" to data.edaSensor
+                    "edaSensor" to data.edaSensor,
+                    "latitude" to data.latitude,
+                    "longitude" to data.longitude
                 )
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(rawData)?.await()
