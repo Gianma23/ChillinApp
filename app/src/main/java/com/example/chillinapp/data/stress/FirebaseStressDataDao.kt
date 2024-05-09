@@ -39,7 +39,9 @@ class FirebaseStressDataDao {
                     "timestamp" to data.timestamp,
                     "heartrateSensor" to data.heartRateSensor,
                     "skinTemperatureSensor" to data.skinTemperatureSensor,
-                    "edaSensor" to data.edaSensor
+                    "edaSensor" to data.edaSensor,
+                    "latitude" to data.latitude,
+                    "longitude" to data.longitude
                 )
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(rawData)?.await()
@@ -100,7 +102,7 @@ class FirebaseStressDataDao {
                     val edaSensor: Float = (document.get("edaSensor") as Float)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
-                    val stressRawData = StressRawData(timestamp, heartrateSensor, skinTemperatureSensor)
+                    val stressRawData = StressRawData(timestamp,edaSensor,skinTemperatureSensor,heartrateSensor)
                     rawDataList.add(stressRawData)
                 }
 
