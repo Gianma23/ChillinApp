@@ -24,7 +24,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
     private val tag = "WearableDataReceiver"
     private val channelMsg = "/chillinapp"
     private lateinit var job: Job
-    private val bytesPerSample = 20
+    private val bytesPerSample = 36
 
 
     override val coroutineContext: CoroutineContext
