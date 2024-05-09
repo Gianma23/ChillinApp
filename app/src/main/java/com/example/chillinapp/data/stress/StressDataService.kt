@@ -19,13 +19,8 @@ interface StressDataService {
      */
     suspend fun insertRawData(stressData: List<StressRawData>) : ServiceResult<Unit,StressErrorType>
 
-    /**
-     * Retrieves a specified number of raw stress data.
-     *
-     * @param n The number of stress data to retrieve.
-     * @return A ServiceResult instance containing the result of the operation. If the operation was successful, the success flag is set to true and the data field contains the retrieved stress data. If an error occurred, the success flag is set to false and the error field contains a StressErrorType indicating the type of error.
-     */
-    suspend fun getRawData(Starttime: Long, Endtime: Long) : ServiceResult <List <StressRawData>,StressErrorType>
+
+    suspend fun getRawData(startTime: Long, endTime: Long) : ServiceResult <List <StressRawData>,StressErrorType>
     /**
      * Retrieves faster stress data.
      *
@@ -34,7 +29,7 @@ interface StressDataService {
      */
     suspend fun getFaster(): ServiceResult <List <StressRawData>,StressErrorType>
     suspend fun insertDerivedData(stressData:List<StressDerivedData>):ServiceResult<Unit,StressErrorType>
-    suspend fun getDerivedData(Starttime:Long, Endtime:Long):ServiceResult <List<StressDerivedData>,StressErrorType>
-    suspend fun getavgRawData(sincewhen:Long) : ServiceResult <StressRawData?,StressErrorType>
+    suspend fun getDerivedData(startTime:Long, endTime:Long):ServiceResult <List<StressDerivedData>,StressErrorType>
+    suspend fun getAvgData(since:Long) : ServiceResult <StressRawData?,StressErrorType>
 
 }

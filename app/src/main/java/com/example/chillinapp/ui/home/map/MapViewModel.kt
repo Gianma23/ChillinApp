@@ -8,25 +8,29 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.chillinapp.simulation.simulateStressDataService
+import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.map.MapErrorType
+import com.example.chillinapp.data.map.MapService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
-import kotlinx.coroutines.delay
+import com.google.maps.android.heatmaps.WeightedLatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.pow
 
 class MapViewModel(
-//    private val dataService : StressDataService
+    private val mapService: MapService
 ) : ViewModel() {
 
     // Mutable state flow for the UI state of the map screen
@@ -39,8 +43,26 @@ class MapViewModel(
         // Default location (Polo A - Engineering University of Pisa)
         private val DEFAULT_LOCATION = LatLng(43.72180384669495, 10.389285990216196)
 
-        // Default radius for generating stress data
-        private const val DEFAULT_RADIUS = 0.01
+        // Radius values
+        private const val MIN_ZOOM = 5.0f
+        private const val MAX_ZOOM = 17.5f
+        private const val MIN_RADIUS = 0.08
+        private const val MAX_RADIUS = 20.0
+    }
+
+    fun updateRadius(zoom: Float) {
+        when {
+            zoom < MAX_ZOOM && zoom > MIN_ZOOM -> {
+                val a = MAX_RADIUS
+                val b =
+                    (MIN_RADIUS / MAX_RADIUS).pow((1 / (MAX_ZOOM - MIN_ZOOM)).toDouble())
+                val radius = (a * b.pow(zoom.toDouble())).toFloat()
+                _uiState.value = _uiState.value.copy(
+                    radius = radius.toDouble()
+                )
+            }
+            else -> { }
+        }
     }
 
     fun checkPermissions(context: Context) {
@@ -123,6 +145,8 @@ class MapViewModel(
 
     fun loadHeatPoints(target: LatLng) {
 
+        hideNotifyAction()
+
         Log.d("MapViewModel", "Reloading heatPoints, target: $target")
         _uiState.update { it.copy(
             stressDataResponse = null
@@ -130,14 +154,30 @@ class MapViewModel(
 
         viewModelScope.launch {
 
-            // Simulate stressData
-            delay(2000)
-            val response = simulateStressDataService(
-                center = target,
-                radius = DEFAULT_RADIUS,
-                date = uiState.value.currentDate
+            Log.d("MapViewModel", "Loading stress points for:")
+            Log.d("MapViewModel", "Latitude: ${target.latitude}")
+            Log.d("MapViewModel", "Longitude: ${target.longitude}")
+            Log.d("MapViewModel", "Radius: ${uiState.value.radius}")
+            Log.d("MapViewModel", "Date: ${uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()}")
+            Log.d("MapViewModel", "Hour: ${uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().hour}")
+
+            // Load stress points
+            val response: ServiceResult<List<WeightedLatLng>, MapErrorType> = mapService.get(
+                centerLat = target.latitude,
+                centerLong = target.longitude,
+                distance = uiState.value.radius,
+                date = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                hour = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().hour
             )
-            Log.d("MapViewModel", "Response: $response")
+
+            // Simulate stressData
+//            delay(2000)
+//            val response = simulateStressDataService(
+//                center = target,
+//                radius = DEFAULT_RADIUS,
+//                date = uiState.value.currentDate
+//            )
+//            Log.d("MapViewModel", "Response: $response")
 
             // Update UI state
             _uiState.value = _uiState.value.copy(
@@ -153,8 +193,8 @@ class MapViewModel(
 
             // Update min and max stress values
             if (response.data != null) {
-                val max = (response.data.maxByOrNull { it.intensity }?.intensity)?.toInt()
-                val min = (response.data.minByOrNull { it.intensity }?.intensity)?.toInt()
+                val max = response.data.maxByOrNull { it.intensity }?.intensity?.toInt()
+                val min = response.data.minByOrNull { it.intensity }?.intensity?.toInt()
                 _uiState.value = _uiState.value.copy(
                     maxStressValue = max,
                     minStressValue = min
@@ -219,14 +259,9 @@ class MapViewModel(
         _uiState.value = _uiState.value.copy(isNotificationVisible = false)
     }
 
-    fun updateCameraPosition(target: LatLng) {
+    fun updateCameraPosition(cameraPositionState: CameraPositionState) {
         _uiState.value = _uiState.value.copy(
-            cameraPositionState = CameraPositionState(
-                CameraPosition.fromLatLngZoom(
-                    target,
-                    uiState.value.cameraPositionState.position.zoom
-                )
-            )
+            cameraPositionState = cameraPositionState
         )
     }
 

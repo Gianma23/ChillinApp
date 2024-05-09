@@ -1,5 +1,6 @@
 package com.example.chillinapp.data.map
 
+import android.util.Log
 import com.example.chillinapp.data.ServiceResult
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
@@ -56,8 +57,8 @@ class FirebaseMapDao {
     suspend fun get(centerLat: Double,
                     centerLng: Double,
                     distance: Double,
-                    date: LocalDate = LocalDate.now(),
-                    hour: Int = 0
+                    date: LocalDate,
+                    hour: Int
     ): ServiceResult<List<WeightedLatLng>, MapErrorType> {
         // Calculate the boundaries of the query
         val maxLat = centerLat + distance
@@ -87,39 +88,41 @@ class FirebaseMapDao {
 
             // Query to get all documents within the specified boundaries
             val querySnapshot = mapCollection
-                .whereGreaterThanOrEqualTo("latitude", minLat)
-                .whereLessThanOrEqualTo("latitude", maxLat)
-                .whereGreaterThanOrEqualTo("longitude", minLng)
-                .whereLessThanOrEqualTo("longitude", maxLng)
+                .whereGreaterThanOrEqualTo("lat", minLat)
+                .whereLessThanOrEqualTo("lat", maxLat)
+                .whereGreaterThanOrEqualTo("long", minLng)
+                .whereLessThanOrEqualTo("long", maxLng)
                 .get()
                 .await()
 
             // Iterate over the returned documents and convert the data into Coordinate objects
             querySnapshot.forEach { document ->
-                val latitude = document.get("latitude") as Double
-                val longitude = document.get("longitude") as Double
+                val latitude = (document.get("lat") as Number).toDouble()
+                val longitude = (document.get("long") as Number).toDouble()
                 val days = document.get("days") as Map<String, Map<String, List<Map<String, Any>>>>
 
                 // Filter the days based on the date
                 val filteredDay = days[date] ?: return@forEach
 
                 // Filter the hours based on the specified hour
-                val filteredHours = filteredDay["hours"]?.filter { it["id"] == hour }
+                val hours = filteredDay["hours"] as? Map<String, Any> ?: return@forEach
 
-                // If there are no hours matching the specified hour, skip this document
-                if (filteredHours.isNullOrEmpty())
-                    return@forEach
+                val filteredHourData = hours[hour.toString()] ?: return@forEach
 
                 // Get the stress score from the filtered hour
-                val stressScore = filteredHours.first()["stress_score"] as Float
+                val stressScore = (filteredHourData as Number).toDouble()
 
                 // Build the WeightedLatLng object and add it to the list
                 val weightedLatLng = WeightedLatLng(LatLng(latitude, longitude), stressScore.toDouble())
                 coordinateList.add(weightedLatLng)
             }
 
+            Log.d("FirebaseMapDao", "Coordinate list: $coordinateList")
             ServiceResult(true, coordinateList, null)
+
         } catch (e: Exception) {
+
+            Log.d("FirebaseMapDao", e.toString())
             ServiceResult(false, null, MapErrorType.NETWORK_ERROR)
         }
     }

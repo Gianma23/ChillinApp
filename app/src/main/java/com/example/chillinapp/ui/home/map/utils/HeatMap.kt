@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -28,15 +28,16 @@ internal fun HeatMap(
     points: List<WeightedLatLng>,
     setOnCameraMoveListener: (CameraPositionState) -> Unit,
     setOnMapLoadedCallback: (LatLng) -> Unit,
+    updateSearchRadius: (Float) -> Unit,
     gradient: Gradient
 ) {
 
     val tileOverlay: MutableState<TileOverlay?> =
-        remember {
+        rememberSaveable {
             mutableStateOf(null)
         }
     val chargedPoints: MutableState<List<WeightedLatLng>> =
-        remember {
+        rememberSaveable {
             mutableStateOf(points)
         }
 
@@ -63,6 +64,8 @@ internal fun HeatMap(
                             )
                         )
 
+                        updateSearchRadius(cameraPositionState.position.zoom)
+
                         // Add the heat map layer
                         if(points.isEmpty()) {
                             Log.d("HeatMap Factory", "No points to display")
@@ -76,9 +79,14 @@ internal fun HeatMap(
                             chargedPoints.value = points
                         }
 
+
                         // Set the listeners
                         googleMap.setOnCameraMoveListener {
                             setOnCameraMoveListener(CameraPositionState(googleMap.cameraPosition))
+
+                            // Set the radius of the search
+                            updateSearchRadius(CameraPositionState(googleMap.cameraPosition).position.zoom)
+
                         }
                         googleMap.setOnMapLoadedCallback {
                             setOnMapLoadedCallback(googleMap.cameraPosition.target)
@@ -88,9 +96,17 @@ internal fun HeatMap(
             },
             update = { mapView ->
 
-                // Update the heat map layer only if the points have changed
-                if(points.isEmpty() || points == chargedPoints.value)
+                // Remove the heat map layer if there are no points
+                if(points.isEmpty()) {
+                    tileOverlay.value?.remove()
+                    tileOverlay.value?.clearTileCache()
                     return@AndroidView
+                }
+
+                // Check if the points have changed
+                if(points == chargedPoints.value){
+                    return@AndroidView
+                }
 
                 // Change the heat map layer
                 mapView.getMapAsync { googleMap ->

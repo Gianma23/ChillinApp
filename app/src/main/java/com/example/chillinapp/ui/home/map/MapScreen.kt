@@ -24,15 +24,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
-import com.example.chillinapp.data.stress.StressErrorType
+import com.example.chillinapp.data.map.MapErrorType
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.SimpleNotification
 import com.example.chillinapp.ui.home.map.utils.DateChanger
 import com.example.chillinapp.ui.home.map.utils.HeatMap
 import com.example.chillinapp.ui.home.map.utils.StressBar
 import com.example.chillinapp.ui.home.map.utils.TimeChanger
+import com.example.chillinapp.ui.mapErrorText
 import com.example.chillinapp.ui.navigation.NavigationDestination
-import com.example.chillinapp.ui.stressErrorText
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 import com.google.maps.android.heatmaps.Gradient
 
@@ -71,8 +71,9 @@ fun MapScreen(
             HeatMap(
                 cameraPositionState = uiState.cameraPositionState,
                 points = uiState.stressDataResponse?.data ?: emptyList(),
-                setOnCameraMoveListener = { viewModel.updateCameraPosition(it.position.target) },
+                setOnCameraMoveListener = { viewModel.updateCameraPosition(it) },
                 setOnMapLoadedCallback = { viewModel.loadHeatPoints(uiState.cameraPositionState.position.target) },
+                updateSearchRadius = { zoom -> viewModel.updateRadius(zoom) },
                 gradient = gradient
             )
         }
@@ -136,10 +137,10 @@ fun MapScreen(
             SimpleNotification(
                 action = { viewModel.hideNotifyAction() },
                 buttonText = stringResource(id = R.string.hide_notify_action),
-                bodyText = stressErrorText(
+                bodyText = mapErrorText(
                     error =
                     if (uiState.stressDataResponse?.data?.isEmpty() == true) {
-                        StressErrorType.NO_DATA
+                        MapErrorType.NO_DATA
                     } else {
                         uiState.stressDataResponse?.error
                     }

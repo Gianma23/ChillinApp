@@ -1,7 +1,7 @@
 package com.example.chillinapp.ui.home.map
 
 import com.example.chillinapp.data.ServiceResult
-import com.example.chillinapp.data.stress.StressErrorType
+import com.example.chillinapp.data.map.MapErrorType
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -20,11 +20,12 @@ data class MapUiState (
     ),
 
     val currentDate: Date = Date(),
-    val stressDataResponse: ServiceResult<List<WeightedLatLng>, StressErrorType>? = null,
+    val stressDataResponse: ServiceResult<List<WeightedLatLng>, MapErrorType>? = null,
 
     val isNotificationVisible: Boolean = false,
 
     val maxStressValue: Int? = null,
     val minStressValue: Int? = null,
+    val radius: Double = 0.0,
 
 )

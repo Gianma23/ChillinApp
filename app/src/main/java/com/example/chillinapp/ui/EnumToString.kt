@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.chillinapp.R
 import com.example.chillinapp.data.account.AccountErrorType
+import com.example.chillinapp.data.map.MapErrorType
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.ui.access.utility.validationResult.ConfirmPasswordValidationResult
 import com.example.chillinapp.ui.access.utility.validationResult.EmailValidationResult
@@ -117,6 +118,15 @@ fun stressErrorText(error: StressErrorType?): String = when(error){
     StressErrorType.NETWORK_ERROR -> stringResource(R.string.network_error)
     StressErrorType.COMMUNICATION_PROBLEM -> stringResource(R.string.communication_problem)
     StressErrorType.NO_ACCOUNT -> stringResource(R.string.account_not_found)
-    StressErrorType.NO_DATA -> stringResource(R.string.no_data_available_for_this_area)
+    else -> stringResource(R.string.general_error)
+}
+
+@Composable
+fun mapErrorText(error: MapErrorType?): String = when(error){
+    MapErrorType.NOT_YET_IMPLEMENTED -> stringResource(R.string.not_yet_implemented)
+    MapErrorType.NETWORK_ERROR -> stringResource(R.string.network_error)
+    MapErrorType.COMMUNICATION_PROBLEM -> stringResource(R.string.communication_problem)
+    MapErrorType.NO_ACCOUNT -> stringResource(R.string.account_not_found)
+    MapErrorType.NO_DATA -> stringResource(R.string.no_data_available_for_this_area)
     else -> stringResource(R.string.general_error)
 }

@@ -13,5 +13,6 @@ enum class MapErrorType{
     NOT_YET_IMPLEMENTED,
     NETWORK_ERROR,
     COMMUNICATION_PROBLEM,
-    NO_ACCOUNT
+    NO_ACCOUNT,
+    NO_DATA
 }

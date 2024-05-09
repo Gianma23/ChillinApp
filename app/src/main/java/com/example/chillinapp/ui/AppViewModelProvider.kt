@@ -49,7 +49,7 @@ object AppViewModelProvider {
         initializer {
             // MapViewModel
             MapViewModel(
-//                dataService = chillInApplication().container.stressDataService
+                mapService = chillInApplication().container.mapService
             )
         }
         initializer {
