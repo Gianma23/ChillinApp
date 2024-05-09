@@ -19,6 +19,7 @@ import com.example.chillinapp.synchronization.SensorDataHandler
 import com.example.chillinapp.synchronization.WearableDataProvider
 import com.google.android.gms.location.*
 import kotlinx.coroutines.*
+import uk.me.berndporr.iirj.Butterworth
 import java.io.*
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
@@ -26,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 private const val TAG = "SensorService"
 
-private const val SAMPLING_PERIOD: Int = 10000000 // 1sec
+private const val SAMPLING_PERIOD: Int = 1000000 // 1sec
 
 class SensorService: Service(), SensorEventListener {
 
@@ -39,6 +40,8 @@ class SensorService: Service(), SensorEventListener {
     private var lastHRValue: Float = 0f
     private var lastEDAValue: Float = 0f
     private var lastTempValue: Float = 0f
+    private var highFilter = Butterworth()
+    private var lowFilter = Butterworth()
 
     override fun onCreate() {
         super.onCreate()
@@ -67,7 +70,7 @@ class SensorService: Service(), SensorEventListener {
 
         LocationProvider.setupLocationProvider(this)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        tempSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE)
+        tempSensor = sensorManager?.getDefaultSensor(65555)
         hrSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_HEART_RATE)
         edaSensor = sensorManager?.getDefaultSensor(65554)
     }
@@ -100,21 +103,24 @@ class SensorService: Service(), SensorEventListener {
         if (event.sensor != hrSensor && event.sensor != edaSensor && event.sensor != tempSensor) {
             return
         }
-        val value = event.values[0]
-        Log.d(TAG, "Sensor ${event.sensor?.name} new value: ${event.values[0]}}")
+        val value =
+        when(event.sensor) {
+            hrSensor -> event.values[0]
+            edaSensor -> event.values[2]
+            tempSensor -> event.values[0]
+            else -> 0f
+        }
+        //Log.d(TAG, "Sensor ${event.sensor?.name} new value: ${value}, time: ${System.currentTimeMillis()}")
 
         // DEBUG: save sensor data to files
-        /*if (event.sensor == sensorManager?.getDefaultSensor(65554) || //eda
-            event.sensor == sensorManager?.getDefaultSensor(65572) || //ppg
-            event.sensor == sensorManager?.getDefaultSensor(65550)    //ecg
+        if (
+            event.sensor == edaSensor
         ) {
             try {
                 val timestamp = System.currentTimeMillis()
                 val fileTitle =
                 when(event.sensor) {
                     sensorManager?.getDefaultSensor(65554) -> "eda.csv"
-                    sensorManager?.getDefaultSensor(65572) -> "ppg.csv"
-                    sensorManager?.getDefaultSensor(65550) -> "ecg.csv"
                     else -> "test.csv"
                 }
                 val fos = openFileOutput(fileTitle, Context.MODE_APPEND)
@@ -122,18 +128,16 @@ class SensorService: Service(), SensorEventListener {
 
                 var header = "timestamp"
                 if (fos.channel.size() == 0L) {
-                    for(i in 0..event.values.size) {
+                    for(i in 0..<event.values.size) {
                         header += ",value$i"
                     }
                     writer.write(header+"\n")
                 }
-                val dataTest = listOf(timestamp)
-                for(i in 0..event.values.size) {
-                    dataTest.plus(event.values[i])
+                var dataTest = "$timestamp"
+                for(i in 0..<event.values.size) {
+                   dataTest = "$dataTest,${event.values[i]}"
                 }
-
-                val csvRow = dataTest.joinToString(separator = ",")
-                writer.write(csvRow)
+                writer.write(dataTest)
                 writer.write("\n") // new line
 
                 writer.close()
@@ -141,7 +145,7 @@ class SensorService: Service(), SensorEventListener {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-        }*/
+        }
 
         if (value == 0f) {
             return
@@ -160,12 +164,18 @@ class SensorService: Service(), SensorEventListener {
     // ============================= PRIVATE METHODS =============================
 
     private fun startSensors() {
-        if (hrSensor != null)
+        if (hrSensor != null) {
             sensorManager?.registerListener(this, hrSensor, SAMPLING_PERIOD)
-        if (edaSensor != null)
+            Log.d(TAG, "HR sensor started")
+        }
+        if (edaSensor != null) {
             sensorManager?.registerListener(this, edaSensor, SAMPLING_PERIOD)
-        if (tempSensor != null)
+            Log.d(TAG, "EDA sensor started")
+        }
+        if (tempSensor != null) {
             sensorManager?.registerListener(this, tempSensor, SAMPLING_PERIOD)
+            Log.d(TAG, "Temp sensor started")
+        }
 
         LocationProvider.startLocationUpdates()
 
@@ -176,6 +186,9 @@ class SensorService: Service(), SensorEventListener {
                 delay(1000)
             }
         }
+
+        highFilter.highPass(1, 1.0, 0.05)
+        lowFilter.lowPass(1, 1.0, 0.49)
 
         Log.d(TAG, "Sensors started")
     }
@@ -191,7 +204,13 @@ class SensorService: Service(), SensorEventListener {
     }
 
     private fun saveData() {
-        Log.d(TAG, "save data, time: ${System.currentTimeMillis()}, location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")
+        /*Log.d(TAG, "Save data\n" +
+                "HR: $lastHRValue\n" +
+                "EDA: $lastEDAValue\n" +
+                "Temp: $lastTempValue\n" +
+                "time: ${System.currentTimeMillis()}\n" +
+                "location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")*/
+
         var data = ByteArray(0)
         var tmpByte = ByteBuffer.allocate(8).putLong(System.currentTimeMillis()).array()
         data = data.plus(tmpByte)
@@ -214,6 +233,37 @@ class SensorService: Service(), SensorEventListener {
             intent.action = "SEND"
             startService(intent)
             Log.d(TAG, "Provider service called to send data")
+        }
+
+        // DEBUG: save sensor data to files
+        /*try {
+            val timestamp = System.currentTimeMillis()
+            val header = "timestamp,eda"
+            val fileTitle = "eda_filter.csv"
+            lastEDAValue = lowFilter.filter(lastEDAValue.toDouble()).toFloat()
+            writeOnFile(fileTitle, "$timestamp,${lastEDAValue}", header)
+
+            val fileTitle2 = "eda_filter2.csv"
+            lastEDAValue = highFilter.filter(lastEDAValue.toDouble()).toFloat()
+            writeOnFile(fileTitle2, "$timestamp,${lastEDAValue}", header)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }*/
+    }
+
+    private fun writeOnFile(fileTitle: String, data: String, header: String) {
+        try {
+            val fos = openFileOutput(fileTitle, Context.MODE_APPEND)
+            val writer = OutputStreamWriter(fos)
+            if (fos.channel.size() == 0L) {
+                writer.write(header+"\n")
+            }
+            writer.write(data)
+            writer.write("\n") // new line
+            writer.close()
+            fos.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 }
