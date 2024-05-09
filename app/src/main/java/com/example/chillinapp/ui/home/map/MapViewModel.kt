@@ -51,7 +51,6 @@ class MapViewModel(
     }
 
     fun updateRadius(zoom: Float) {
-        Log.d("MapViewModel", "Zoom: $zoom")
         when {
             zoom < MAX_ZOOM && zoom > MIN_ZOOM -> {
                 val a = MAX_RADIUS
@@ -64,8 +63,6 @@ class MapViewModel(
             }
             else -> { }
         }
-        Log.d("MapViewModel", "Radius: ${uiState.value.radius}")
-
     }
 
     fun checkPermissions(context: Context) {

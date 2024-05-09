@@ -1,3 +1,7 @@
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -8,6 +12,21 @@ plugins {
 android {
     namespace = "com.example.chillinapp"
     compileSdk = 34
+
+    signingConfigs {
+        create("release") {
+            val properties = Properties()
+            try {
+                properties.load(FileInputStream(project.rootProject.file("local.properties")))
+            } catch (e: FileNotFoundException) {
+                properties.load(FileInputStream(project.rootProject.file("local.default.properties")))
+            }
+            storeFile = file(project.rootProject.file(properties["storeFile"].toString()))
+            storePassword = properties["storePassword"].toString()
+            keyAlias = properties["keyAlias"].toString()
+            keyPassword = properties["keyPassword"].toString()
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.chillinapp"
@@ -23,7 +42,8 @@ android {
     }
 
     buildTypes {
-        release {
+        getByName("release") {
+            signingConfig  = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
