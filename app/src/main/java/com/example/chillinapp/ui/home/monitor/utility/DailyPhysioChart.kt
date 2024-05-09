@@ -58,34 +58,18 @@ fun PhysioMonitorCard(
             val titleFormatFunction = titleFormatMap[entry.key]
             Text(
                 text = titleFormatFunction ?: entry.key,
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.labelLarge
             )
 
-            if (entry.value.isEmpty()) {
-                Log.d("MonitorScreen", "No data for ${entry.key}")
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No data available",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            } else {
-                PhysioCardContent(
-                    isPhysiologicalDataLoading = isPhysiologicalDataLoading,
-                    physiologicalError = physiologicalError,
-                    points = entry.value.map { (timestamp, value) ->
-                        Point(timestampToHourOfDay(timestamp), value as Float)
-                    }
-                )
+            val points = entry.value.map { (timestamp, value) ->
+                Point(timestampToHourOfDay(timestamp), value as Float)
             }
+
+            PhysioCardContent(
+                isPhysiologicalDataLoading = isPhysiologicalDataLoading,
+                physiologicalError = physiologicalError,
+                points = points
+            )
 
         }
     }
@@ -142,6 +126,24 @@ private fun PhysioCardContent(
                         )
                     }
                 }
+            }
+        }
+
+        points.isEmpty() -> {
+            Log.d("MonitorScreen", "No data")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No data",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    textAlign = TextAlign.Center
+                )
             }
         }
 

@@ -57,7 +57,7 @@ class MonitorViewModel(
 
         // Retrieve the data
         retrievePhysiologicalData()
-//        retrieveStressData()
+        retrieveStressData()
     }
 
     private fun retrieveStressData() {
@@ -179,7 +179,8 @@ class MonitorViewModel(
                     FormattedStressRawData(
                         millis = rawData.timestamp,
                         skinTemperatureSensor = rawData.skinTemperatureSensor,
-                        edaSensor = rawData.edaSensor
+                        edaSensor = rawData.edaSensor,
+                        heartRateSensor = rawData.heartRateSensor
                     )
                 } ?: emptyList(),
                 physiologicalError = response.error
@@ -225,24 +226,29 @@ class MonitorViewModel(
 //    }
 
     private fun temporalMapping() {
+
+        val map = FormattedStressRawData::class.java.declaredFields
+            .filter { it.name != "millis" && it.name != "\$stable" && it.name != "timestamp" }
+            .associateBy({ it.name }, { mutableListOf<Pair<String, Any>>() })
+
         _uiState.value.physiologicalData.forEach { data ->
             FormattedStressRawData::class.java.declaredFields
-                .filter { it.name != "timestamp" && it.name != "\$stable" }
+                .filter { it.name != "millis" && it.name != "\$stable" && it.name != "timestamp" }
                 .forEach { field ->
                     field.isAccessible = true
-                    field.get(data)?.let { value ->
-                        _uiState.update {
-                            it.copy(
-                                physiologicalMappedData = it.physiologicalMappedData + mapOf(
-                                    field.name to ((it.physiologicalMappedData[field.name])?.plus(
-                                        Pair(data.timestamp, value)) ?: listOf(Pair(data.timestamp, value))
-                                    )
-                                )
-                            )
-                        }
+                    val value = field.get(data)
+                    if (value != null) {
+                        map[field.name]?.add(Pair(data.timestamp, value))
                     }
                 }
         }
+
+        _uiState.update {
+            it.copy(
+                physiologicalMappedData = map
+            )
+        }
+
         Log.d("MonitorViewModel", "Temporal mapping finished: ${_uiState.value.physiologicalMappedData}")
     }
 
