@@ -26,5 +26,6 @@ data class MapUiState (
 
     val maxStressValue: Int? = null,
     val minStressValue: Int? = null,
+    val radius: Double = 0.0,
 
 )

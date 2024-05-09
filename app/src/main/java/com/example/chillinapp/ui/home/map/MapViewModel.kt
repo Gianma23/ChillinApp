@@ -27,6 +27,7 @@ import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.pow
 
 class MapViewModel(
     private val mapService: MapService
@@ -42,8 +43,29 @@ class MapViewModel(
         // Default location (Polo A - Engineering University of Pisa)
         private val DEFAULT_LOCATION = LatLng(43.72180384669495, 10.389285990216196)
 
-        // Default radius for which provide stress data
-        private const val DEFAULT_RADIUS = 0.1
+        // Radius values
+        private const val MIN_ZOOM = 5.0f
+        private const val MAX_ZOOM = 17.5f
+        private const val MIN_RADIUS = 0.08
+        private const val MAX_RADIUS = 20.0
+    }
+
+    fun updateRadius(zoom: Float) {
+        Log.d("MapViewModel", "Zoom: $zoom")
+        when {
+            zoom < MAX_ZOOM && zoom > MIN_ZOOM -> {
+                val a = MAX_RADIUS
+                val b =
+                    (MIN_RADIUS / MAX_RADIUS).pow((1 / (MAX_ZOOM - MIN_ZOOM)).toDouble())
+                val radius = (a * b.pow(zoom.toDouble())).toFloat()
+                _uiState.value = _uiState.value.copy(
+                    radius = radius.toDouble()
+                )
+            }
+            else -> { }
+        }
+        Log.d("MapViewModel", "Radius: ${uiState.value.radius}")
+
     }
 
     fun checkPermissions(context: Context) {
@@ -126,6 +148,8 @@ class MapViewModel(
 
     fun loadHeatPoints(target: LatLng) {
 
+        hideNotifyAction()
+
         Log.d("MapViewModel", "Reloading heatPoints, target: $target")
         _uiState.update { it.copy(
             stressDataResponse = null
@@ -133,10 +157,18 @@ class MapViewModel(
 
         viewModelScope.launch {
 
+            Log.d("MapViewModel", "Loading stress points for:")
+            Log.d("MapViewModel", "Latitude: ${target.latitude}")
+            Log.d("MapViewModel", "Longitude: ${target.longitude}")
+            Log.d("MapViewModel", "Radius: ${uiState.value.radius}")
+            Log.d("MapViewModel", "Date: ${uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()}")
+            Log.d("MapViewModel", "Hour: ${uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().hour}")
+
+            // Load stress points
             val response: ServiceResult<List<WeightedLatLng>, MapErrorType> = mapService.get(
                 centerLat = target.latitude,
                 centerLong = target.longitude,
-                distance = DEFAULT_RADIUS,
+                distance = uiState.value.radius,
                 date = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
                 hour = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().hour
             )
@@ -230,14 +262,9 @@ class MapViewModel(
         _uiState.value = _uiState.value.copy(isNotificationVisible = false)
     }
 
-    fun updateCameraPosition(target: LatLng) {
+    fun updateCameraPosition(cameraPositionState: CameraPositionState) {
         _uiState.value = _uiState.value.copy(
-            cameraPositionState = CameraPositionState(
-                CameraPosition.fromLatLngZoom(
-                    target,
-                    uiState.value.cameraPositionState.position.zoom
-                )
-            )
+            cameraPositionState = cameraPositionState
         )
     }
 

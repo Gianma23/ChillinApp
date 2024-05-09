@@ -71,8 +71,9 @@ fun MapScreen(
             HeatMap(
                 cameraPositionState = uiState.cameraPositionState,
                 points = uiState.stressDataResponse?.data ?: emptyList(),
-                setOnCameraMoveListener = { viewModel.updateCameraPosition(it.position.target) },
+                setOnCameraMoveListener = { viewModel.updateCameraPosition(it) },
                 setOnMapLoadedCallback = { viewModel.loadHeatPoints(uiState.cameraPositionState.position.target) },
+                updateSearchRadius = { zoom -> viewModel.updateRadius(zoom) },
                 gradient = gradient
             )
         }
