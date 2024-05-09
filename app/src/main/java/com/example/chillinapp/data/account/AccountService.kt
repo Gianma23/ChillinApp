@@ -13,7 +13,7 @@ import com.example.chillinapp.data.ServiceResult
  * long-running operations such as network requests or database queries without blocking the main thread.
  *
  * Each method returns a ServiceResult instance which encapsulates the result of the operation. The ServiceResult
- * instance contains a success flag, data (if the operation was successful), and error information (if the operation failed).
+ * instance contains a success flag, data (if the operation was successful), and physiologicalError information (if the operation failed).
  */
 interface AccountService {
 

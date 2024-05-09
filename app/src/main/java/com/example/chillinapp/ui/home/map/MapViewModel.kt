@@ -170,7 +170,7 @@ class MapViewModel(
                 hour = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().hour
             )
 
-            // Simulate stressData
+            // Simulate physiologicalData
 //            delay(2000)
 //            val response = simulateStressDataService(
 //                center = target,
@@ -184,7 +184,7 @@ class MapViewModel(
                 stressDataResponse = response
             )
 
-            // Show notification if error or no data
+            // Show notification if physiologicalError or no data
             if (response.error != null || response.data.isNullOrEmpty()) {
                 _uiState.value = _uiState.value.copy(
                     isNotificationVisible = true

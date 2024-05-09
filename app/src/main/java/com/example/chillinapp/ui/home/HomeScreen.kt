@@ -88,7 +88,7 @@ private fun HomeTopBar(navController: NavHostController) {
                 Spacer(Modifier.size(16.dp))
                 Text(
                     text = stringResource(id = HomeDestination.titleRes),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
         },

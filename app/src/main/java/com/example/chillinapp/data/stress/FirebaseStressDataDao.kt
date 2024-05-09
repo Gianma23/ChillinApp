@@ -20,7 +20,7 @@ class FirebaseStressDataDao {
     /**
      * Insert raw data to the database. Protocol is defined to get 30 samples of data at a time.
      * @param stressData List of [StressRawData] to be inserted
-     * @return [ServiceResult] with Unit as success type and [StressErrorType] as error type
+     * @return [ServiceResult] with Unit as success type and [StressErrorType] as physiologicalError type
      */
     suspend fun insertRawData(stressData: List<StressRawData>): ServiceResult<Unit, StressErrorType> {
         val user = auth.currentUser

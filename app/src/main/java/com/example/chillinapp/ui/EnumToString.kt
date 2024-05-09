@@ -80,9 +80,9 @@ fun ConfirmPasswordSupportingText(confirmPasswordStatus: ConfirmPasswordValidati
 }
 
 /**
- * Composable function that displays an error text.
+ * Composable function that displays an physiologicalError text.
  *
- * @param text The error text to be displayed.
+ * @param text The physiologicalError text to be displayed.
  */
 @Composable
 fun SupportingErrorText(text: String){
