@@ -1,8 +1,6 @@
 package com.example.chillinapp.data
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,11 +8,10 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.location.Location
-import android.os.IBinder
-import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.example.chillinapp.synchronization.SensorDataHandler
 import com.example.chillinapp.synchronization.WearableDataProvider
 import com.google.android.gms.location.*
@@ -22,14 +19,13 @@ import kotlinx.coroutines.*
 import uk.me.berndporr.iirj.Butterworth
 import java.io.*
 import java.nio.ByteBuffer
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 
 private const val TAG = "SensorService"
 
-private const val SAMPLING_PERIOD: Int = 1000000 // 1sec
+private const val SAMPLING_PERIOD: Int = 1000000 // 1sec in microsecond
+private const val SEND_RATE: Long = 1000 // 1sec in ms
 
-class SensorService: Service(), SensorEventListener {
+class SensorService: LifecycleService(), SensorEventListener {
 
     private var sensorManager: SensorManager? = null
     private var hrSensor: Sensor? = null
@@ -77,18 +73,15 @@ class SensorService: Service(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopSensors()
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
+        stopService()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         if(intent?.action != null) {
             when(intent.action) {
-                "start_sensors" -> startSensors()
-                "stop_sensors" -> stopSensors()
+                "start_sensors" -> startService()
+                "stop_sensors" -> stopService()
                 else -> {
                     TODO("throw error")
                 }
@@ -98,9 +91,9 @@ class SensorService: Service(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (event == null)
-            return
-        if (event.sensor != hrSensor && event.sensor != edaSensor && event.sensor != tempSensor) {
+        if (event == null ||
+            (event.sensor != hrSensor && event.sensor != edaSensor && event.sensor != tempSensor)
+        ) {
             return
         }
         val value =
@@ -110,10 +103,13 @@ class SensorService: Service(), SensorEventListener {
             tempSensor -> event.values[0]
             else -> 0f
         }
+        if (value == 0f) {
+            return
+        }
         //Log.d(TAG, "Sensor ${event.sensor?.name} new value: ${value}, time: ${System.currentTimeMillis()}")
 
         // DEBUG: save sensor data to files
-        if (
+        /*if (
             event.sensor == edaSensor
         ) {
             try {
@@ -121,6 +117,7 @@ class SensorService: Service(), SensorEventListener {
                 val fileTitle =
                 when(event.sensor) {
                     sensorManager?.getDefaultSensor(65554) -> "eda.csv"
+                    sensorManager?.getDefaultSensor(65572) -> "ppg.csv"
                     else -> "test.csv"
                 }
                 val fos = openFileOutput(fileTitle, Context.MODE_APPEND)
@@ -145,11 +142,8 @@ class SensorService: Service(), SensorEventListener {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-        }
+        }*/
 
-        if (value == 0f) {
-            return
-        }
         when (event.sensor) {
             hrSensor -> lastHRValue = value
             edaSensor -> lastEDAValue = value
@@ -163,7 +157,11 @@ class SensorService: Service(), SensorEventListener {
 
     // ============================= PRIVATE METHODS =============================
 
-    private fun startSensors() {
+    /**
+     * Start the sensor service. It registers the sensors, start the location updates and the
+     * coroutine that will save the data. It also initializes the filters for the EDA sensor.
+     */
+    private fun startService() {
         if (hrSensor != null) {
             sensorManager?.registerListener(this, hrSensor, SAMPLING_PERIOD)
             Log.d(TAG, "HR sensor started")
@@ -180,29 +178,39 @@ class SensorService: Service(), SensorEventListener {
         LocationProvider.startLocationUpdates()
 
         job?.cancel()
-        job = MainScope().launch(Dispatchers.IO) {
+        /* withContext is not needed because saveData is non-blocking */
+        job = lifecycleScope.launch {
             while(true) {
                 saveData()
-                delay(1000)
+                delay(SEND_RATE)
             }
         }
 
         highFilter.highPass(1, 1.0, 0.05)
         lowFilter.lowPass(1, 1.0, 0.49)
 
-        Log.d(TAG, "Sensors started")
+        Log.d(TAG, "Service started")
     }
 
-    private fun stopSensors() {
-        //TODO dump dati sensori
+
+    /**
+     * Stop the sensor service. It stops the location updates, the coroutine that saves the data
+     * and unregisters the sensors.
+     */
+    private fun stopService() {
         job?.cancel()
         LocationProvider.stopLocationUpdates()
         sensorManager?.unregisterListener(this, hrSensor)
         sensorManager?.unregisterListener(this, edaSensor)
         sensorManager?.unregisterListener(this, tempSensor)
-        Log.d(TAG, "Sensors stopped")
+        //TODO dump dati sensori
+        Log.d(TAG, "Service stopped")
     }
 
+    /**
+     * Save the data from the sensors in the singleton class SensorDataHandler. When the buffer is
+     * full, it starts the WearableDataProvider service to send the data to the phone.
+     */
     private fun saveData() {
         /*Log.d(TAG, "Save data\n" +
                 "HR: $lastHRValue\n" +
@@ -225,7 +233,6 @@ class SensorService: Service(), SensorEventListener {
         tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.longitude).array()
         data = data.plus(tmpByte)
 
-        //val dataHandler = SensorDataHandler.instance
         val isFull = SensorDataHandler.pushData(data)
 
         if (isFull) {
@@ -251,6 +258,9 @@ class SensorService: Service(), SensorEventListener {
         }*/
     }
 
+    /**
+    * Debug function to write sensor data on a file.
+    */
     private fun writeOnFile(fileTitle: String, data: String, header: String) {
         try {
             val fos = openFileOutput(fileTitle, Context.MODE_APPEND)
