@@ -63,24 +63,31 @@ class MonitorViewModel(
     private fun retrieveStressData() {
         viewModelScope.launch(Dispatchers.IO) {
 
-            Log.d("MonitorViewModel", "Loading stress data...")
+            val startTime = Calendar.getInstance().apply {
+                time = _uiState.value.day
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+
+            val endTime = Calendar.getInstance().apply {
+                time = _uiState.value.day
+                set(Calendar.HOUR_OF_DAY, 23)
+                set(Calendar.MINUTE, 59)
+                set(Calendar.SECOND, 59)
+                set(Calendar.MILLISECOND, 999)
+            }.timeInMillis
+
+            Log.d("MonitorViewModel", "Loading stress data for day ${_uiState.value.day}...")
+            Log.d("MonitorViewModel", "Start time: $startTime")
+            Log.d("MonitorViewModel", "End time: $endTime")
+
             // Retrieve the data
             val response: ServiceResult<List<StressDerivedData>, StressErrorType> =
                 dataService.getDerivedData(
-                    startTime = Calendar.getInstance().apply {
-                        time = _uiState.value.day
-                        set(Calendar.HOUR_OF_DAY, 0)
-                        set(Calendar.MINUTE, 0)
-                        set(Calendar.SECOND, 0)
-                        set(Calendar.MILLISECOND, 0)
-                    }.timeInMillis,
-                    endTime = Calendar.getInstance().apply {
-                        time = _uiState.value.day
-                        set(Calendar.HOUR_OF_DAY, 23)
-                        set(Calendar.MINUTE, 59)
-                        set(Calendar.SECOND, 59)
-                        set(Calendar.MILLISECOND, 999)
-                    }.timeInMillis
+                    startTime = startTime,
+                    endTime = endTime
                 )
 
             if (response.success.not()) {
