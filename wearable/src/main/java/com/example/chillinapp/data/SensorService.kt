@@ -225,8 +225,8 @@ class SensorService: Service(), SensorEventListener {
         tmpByte = ByteBuffer.allocate(8).putDouble(LocationProvider.longitude).array()
         data = data.plus(tmpByte)
 
-        val dataHandler = SensorDataHandler.getInstance()
-        val isFull = dataHandler.pushData(data)
+        //val dataHandler = SensorDataHandler.instance
+        val isFull = SensorDataHandler.pushData(data)
 
         if (isFull) {
             val intent = Intent(this, WearableDataProvider::class.java)
