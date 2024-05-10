@@ -2,11 +2,14 @@ package com.example.chillinapp.data
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import android.os.Looper
 import com.google.android.gms.location.*
+import com.google.android.gms.tasks.OnSuccessListener
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
+
 
 private const val TAG = "LocationProvider"
 
@@ -21,8 +24,18 @@ object LocationProvider {
     var longitude: Double = 0.0
     var latitude: Double = 0.0
 
+    @SuppressLint("MissingPermission")
     fun setupLocationProvider(context : Context) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    longitude = BigDecimal(location.longitude).setScale(DECIMAL_PLACES, RoundingMode.HALF_EVEN).toDouble()
+                    latitude = BigDecimal(location.latitude).setScale(DECIMAL_PLACES, RoundingMode.HALF_EVEN).toDouble()
+                }
+            }
+
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
                 val lastLoc = p0.lastLocation ?: return

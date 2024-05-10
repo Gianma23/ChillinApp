@@ -162,6 +162,8 @@ class SensorService: LifecycleService(), SensorEventListener {
      * coroutine that will save the data. It also initializes the filters for the EDA sensor.
      */
     private fun startService() {
+        LocationProvider.startLocationUpdates()
+
         if (hrSensor != null) {
             sensorManager?.registerListener(this, hrSensor, SAMPLING_PERIOD)
             Log.d(TAG, "HR sensor started")
@@ -175,14 +177,12 @@ class SensorService: LifecycleService(), SensorEventListener {
             Log.d(TAG, "Temp sensor started")
         }
 
-        LocationProvider.startLocationUpdates()
-
         job?.cancel()
         /* withContext is not needed because saveData is non-blocking */
         job = lifecycleScope.launch {
             while(true) {
-                saveData()
                 delay(SEND_RATE)
+                saveData()
             }
         }
 
@@ -212,16 +212,22 @@ class SensorService: LifecycleService(), SensorEventListener {
      * full, it starts the WearableDataProvider service to send the data to the phone.
      */
     private fun saveData() {
-        /*Log.d(TAG, "Save data\n" +
+        Log.d(TAG, "Save data\n" +
                 "HR: $lastHRValue\n" +
                 "EDA: $lastEDAValue\n" +
                 "Temp: $lastTempValue\n" +
                 "time: ${System.currentTimeMillis()}\n" +
-                "location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")*/
+                "location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")
+
+        if (lastHRValue == 0f || LocationProvider.latitude == 0.0 || LocationProvider.longitude == 0.0) {
+            return
+        }
 
         var data = ByteArray(0)
         var tmpByte = ByteBuffer.allocate(8).putLong(System.currentTimeMillis()).array()
         data = data.plus(tmpByte)
+        lastEDAValue = lowFilter.filter(lastEDAValue.toDouble()).toFloat()
+        lastEDAValue = highFilter.filter(lastEDAValue.toDouble()).toFloat()
         tmpByte = ByteBuffer.allocate(4).putFloat(lastEDAValue).array()
         data = data.plus(tmpByte)
         tmpByte = ByteBuffer.allocate(4).putFloat(lastTempValue).array()
