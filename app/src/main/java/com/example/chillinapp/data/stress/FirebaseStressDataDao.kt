@@ -97,16 +97,17 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartrateSensor: Float = (document.get("heartrateSensor") as Float)
-                    val skinTemperatureSensor: Float = (document.get("skinTemperatureSensor") as Float)
-                    val edaSensor: Float = (document.get("edaSensor") as Float)
+                    val heartrateSensor: Double= (document.get("heartrateSensor") as Double)
+                    Log.d("heartsensor", "$heartrateSensor")
+                    val skinTemperatureSensor: Double = (document.get("skinTemperatureSensor") as Double)
+                    val edaSensor: Double = (document.get("edaSensor") as   Double)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
                     val stressRawData = StressRawData(
                         timestamp = timestamp,
-                        heartRateSensor = heartrateSensor,
-                        skinTemperatureSensor = skinTemperatureSensor,
-                        edaSensor = edaSensor
+                        heartRateSensor = heartrateSensor.toFloat(),
+                        skinTemperatureSensor = skinTemperatureSensor.toFloat(),
+                        edaSensor = edaSensor.toFloat()
                     )
                     rawDataList.add(stressRawData)
                 }
@@ -115,6 +116,7 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
+            Log.d("Get Raw Data", e.toString())
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
 
 
