@@ -13,7 +13,7 @@ private const val TAG = "LocationProvider"
 object LocationProvider {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
-    private const val SAMPLING_PERIOD_SEC: Long = 30
+    private const val SAMPLING_PERIOD_SEC: Long = 60
     private const val DECIMAL_PLACES = 3
     private const val LENGTH_SQUARE = 100 // meters
     var longitude: Double = 0.0
