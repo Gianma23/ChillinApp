@@ -15,6 +15,6 @@
 .externalNativeBuild
 .cxx
 local.properties
-scripts/__pycache__
+__pycache__
 scripts/utils/credentials.json
 /chill-keystore.jks
