@@ -1,5 +1,5 @@
 # define a main that runs the job and tries to call function from the Map class
-from Map import Map
+from models.Map import Map
 from datetime import datetime
 import time
 
@@ -17,27 +17,27 @@ def main():
         None
     """
     derived_data = [
-        {"lat": 1, "long": 1, "stress_score": 0.7},
-        {"lat": 2, "long": 2, "stress_score": 0.8},
-        {"lat": 1, "long": 1, "stress_score": 0.9},
-        {"lat": 3, "long": 3, "stress_score": 0.6},
-        {"lat": 2, "long": 2, "stress_score": 0.7},
-        {"lat": 1, "long": 1, "stress_score": 0.8},
-        {"lat": 3, "long": 3, "stress_score": 0.3},
-        {"lat": 1, "long": 1, "stress_score": 0.7},
-        {"lat": 4, "long": 1, "stress_score": 0.8},
-        {"lat": 1, "long": 1, "stress_score": 0.9},
-        {"lat": 3, "long": 3, "stress_score": 0.6},
-        {"lat": 2, "long": 2, "stress_score": 0.7},
-        {"lat": 1, "long": 1, "stress_score": 0.8},
-        {"lat": 4, "long": 55, "stress_score": 0.3},
-        {"lat": 1, "long": 1, "stress_score": 0.7},
-        {"lat": 2, "long": 3, "stress_score": 0.8},
-        {"lat": 1, "long": 1, "stress_score": 0.9},
-        {"lat": 5, "long": 3, "stress_score": 0.6},
-        {"lat": 2, "long": 2, "stress_score": 0.7},
-        {"lat": 1, "long": 1, "stress_score": 0.8},
-        {"lat": 3, "long": 3, "stress_score": 0.3},
+        {"lat": 1, "long": 1, "stress_score": 0.7, "timestamp": 1715323304365},
+        {"lat": 2, "long": 2, "stress_score": 0.8, "timestamp": 1715323304365},
+        {"lat": 1, "long": 1, "stress_score": 0.9, "timestamp": 1715323304365},
+        {"lat": 3, "long": 3, "stress_score": 0.6, "timestamp": 1715323304365},
+        {"lat": 2, "long": 2, "stress_score": 0.7, "timestamp": 1715326407178},
+        {"lat": 1, "long": 1, "stress_score": 0.8, "timestamp": 1715323304365},
+        {"lat": 3, "long": 3, "stress_score": 0.3, "timestamp": 1715323304365},
+        {"lat": 1, "long": 1, "stress_score": 0.7, "timestamp": 1715347774},
+        {"lat": 4, "long": 1, "stress_score": 0.8, "timestamp": 1715323304365},
+        {"lat": 1, "long": 1, "stress_score": 0.9, "timestamp": 1715347774},
+        {"lat": 3, "long": 3, "stress_score": 0.6, "timestamp": 1715321756497},
+        {"lat": 2, "long": 2, "stress_score": 0.7, "timestamp": 1715323304365},
+        {"lat": 1, "long": 1, "stress_score": 0.8, "timestamp": 1715323304365},
+        {"lat": 4, "long": 55, "stress_score": 0.3, "timestamp": 1715347774},
+        {"lat": 1, "long": 1, "stress_score": 0.7, "timestamp": 1715321756497},
+        {"lat": 2, "long": 3, "stress_score": 0.8, "timestamp": 1715323304365},
+        {"lat": 1, "long": 1, "stress_score": 0.9, "timestamp": 1715347774},
+        {"lat": 5, "long": 3, "stress_score": 0.6, "timestamp": 1715321756497},
+        {"lat": 2, "long": 2, "stress_score": 0.7, "timestamp": 1715323304365},
+        {"lat": 1, "long": 1, "stress_score": 0.8, "timestamp": 1715326407178},
+        {"lat": 3, "long": 3, "stress_score": 0.3, "timestamp": 1715323304365},
     ]
 
     map = Map()

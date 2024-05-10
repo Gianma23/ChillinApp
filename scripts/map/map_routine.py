@@ -25,28 +25,29 @@ def job():
     map_ref = db.reference('Map')
     map_data = map_ref.get()
 
-    # retrieve current day YYYY-MM-DD
-    current_day = time.strftime('%Y-%m-%d')
-
-    # retrieve current hour from 0 to 23
-    current_hour = int(time.strftime('%H'))
-
     if map_data is None:
         return
     
     # Push the data to Firestore
     for key, value in map_data.items():
+        print(key, value)
         doc_ref = db_firestore.collection('Map').document(key)
+        
+        # Retrieve the existing document
+        existing_doc = doc_ref.get()
+        if existing_doc.exists:
+            # If the document exists, add the new stress_score to the existing one
+            existing_data = existing_doc.to_dict()
+            for day, day_data in value['days'].items():
+                for hour, hour_data in day_data['hours'].items():
+                    existing_score = existing_data['days'].get(day, {}).get('hours', {}).get(hour, {}).get('stress_score', 0)
+                    new_score = hour_data['stress_score']
+                    hour_data['stress_score'] = existing_score + new_score
+
         doc_ref.set({
             'lat': value['lat'],
             'long': value['long'],
-            'days': {
-                str(current_day): {
-                    'hours': {
-                        str(current_hour): value['stress_score']
-                    }
-                }
-            }
+            'days': value['days']
         }, merge=True)
 
     # Clear the data from the Realtime Database
@@ -55,7 +56,7 @@ def job():
 
 # Schedule the job to run every new hour
 schedule.every().hour.at(':00').do(job)
-#schedule.every(15).seconds.do(job)
+# schedule.every(5).seconds.do(job)
 
 # Keep the script running
 while True:
