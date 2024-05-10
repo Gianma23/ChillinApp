@@ -83,7 +83,6 @@ private fun PhysioCardContent(
 ) {
     when {
         isPhysiologicalDataLoading -> {
-            Log.d("MonitorScreen", "Loading data...")
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,7 +97,6 @@ private fun PhysioCardContent(
         }
 
         physiologicalError != null -> {
-            Log.e("MonitorScreen", "Error loading data: $physiologicalError")
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,26 +104,12 @@ private fun PhysioCardContent(
                     .padding(16.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Card (
-                    modifier = Modifier
-                        .padding(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    )
-                ){
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Error: ${stressErrorText(physiologicalError)}",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
+                Text(
+                    text = "Error: ${stressErrorText(physiologicalError)}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
             }
         }
 

@@ -2,15 +2,12 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
-import com.example.chillinapp.data.account.AccountService
-import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
-
 
 
 class FirebaseStressDataDao {
@@ -77,6 +74,7 @@ class FirebaseStressDataDao {
             }
             ServiceResult(true, null, null)
         } catch (e: Exception) {
+            Log.e("insertDerivedData", "An exception occurred", e)
             ServiceResult(false, null, StressErrorType.COMMUNICATION_PROBLEM)
         }
     }
@@ -89,22 +87,22 @@ class FirebaseStressDataDao {
         return try {
             val rawDataList = mutableListOf<StressRawData>()
 
-            // Effettua una query per ottenere un numero specifico di documenti raw data
+            // Query to obtain a specific number of raw data documents
             val querySnapshot = rawDataCollection?.whereGreaterThanOrEqualTo("timestamp", startTime)
                 ?.whereLessThanOrEqualTo("timestamp", endTime)
                 ?.get()?.await()
-            // Itera sui documenti restituiti e converte i dati in oggetti StressRawData
+            // Iterate over the returned documents and convert the data into StressRawData objects
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartrateSensor: Float = (document.get("heartrateSensor") as Float)
+                    val heartRateSensor: Float = (document.get("heartrateSensor") as Float)
                     val skinTemperatureSensor: Float = (document.get("skinTemperatureSensor") as Float)
                     val edaSensor: Float = (document.get("edaSensor") as Float)
 
-                    // Costruisci l'oggetto StressRawData e aggiungilo alla lista
+                    // Make the StressRawData object and add it to the list
                     val stressRawData = StressRawData(
                         timestamp = timestamp,
-                        heartRateSensor = heartrateSensor,
+                        heartRateSensor = heartRateSensor,
                         skinTemperatureSensor = skinTemperatureSensor,
                         edaSensor = edaSensor
                     )
@@ -115,6 +113,7 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
+            Log.e("getRawData", "An exception occurred", e)
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
 
 

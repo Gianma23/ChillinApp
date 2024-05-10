@@ -47,6 +47,26 @@ class MonitorViewModel(
 
     private fun retrieveData() {
 
+        val startTime = Calendar.getInstance().apply {
+            time = _uiState.value.day
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        val endTime = Calendar.getInstance().apply {
+            time = _uiState.value.day
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.timeInMillis
+
+        Log.d("MonitorViewModel", "Loading data for day ${_uiState.value.day}...")
+        Log.d("MonitorViewModel", "Start time: $startTime")
+        Log.d("MonitorViewModel", "End time: $endTime")
+
         // Set the loading state to true
         _uiState.update {
             it.copy(
@@ -56,33 +76,14 @@ class MonitorViewModel(
         }
 
         // Retrieve the data
-        retrievePhysiologicalData()
-        retrieveStressData()
+        retrievePhysiologicalData(startTime, endTime)
+        retrieveStressData(startTime, endTime)
     }
 
-    private fun retrieveStressData() {
+    private fun retrieveStressData(startTime: Long, endTime: Long) {
         viewModelScope.launch(Dispatchers.IO) {
 
-            val startTime = Calendar.getInstance().apply {
-                time = _uiState.value.day
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.timeInMillis
-
-            val endTime = Calendar.getInstance().apply {
-                time = _uiState.value.day
-                set(Calendar.HOUR_OF_DAY, 23)
-                set(Calendar.MINUTE, 59)
-                set(Calendar.SECOND, 59)
-                set(Calendar.MILLISECOND, 999)
-            }.timeInMillis
-
-            Log.d("MonitorViewModel", "Loading stress data for day ${_uiState.value.day}...")
-            Log.d("MonitorViewModel", "Start time: $startTime")
-            Log.d("MonitorViewModel", "End time: $endTime")
-
+            Log.d("MonitorViewModel", "Loading stress data...")
             // Retrieve the data
             val response: ServiceResult<List<StressDerivedData>, StressErrorType> =
                 dataService.getDerivedData(
@@ -91,7 +92,7 @@ class MonitorViewModel(
                 )
 
             if (response.success.not()) {
-                Log.e("MonitorViewModel", "Error loading initial data: ${response.error}")
+                Log.e("MonitorViewModel", "Error loading stress data: ${response.error}")
                 _uiState.update {
                     it.copy(
                         stressError = response.error,
@@ -102,7 +103,7 @@ class MonitorViewModel(
             }
             Log.d(
                 "MonitorViewModel",
-                "Initial data loaded successfully. (${response.data?.size} items)"
+                "Data loaded successfully. (${response.data?.size} items)"
             )
 
             // Order by timestamp
@@ -131,27 +132,15 @@ class MonitorViewModel(
         }
     }
 
-    private fun retrievePhysiologicalData() {
+    private fun retrievePhysiologicalData(startTime: Long, endTime: Long) {
         viewModelScope.launch(Dispatchers.IO) {
 
             Log.d("MonitorViewModel", "Loading physiological data...")
             // Retrieve the data
             val response: ServiceResult<List<StressRawData>, StressErrorType> =
                 dataService.getRawData(
-                    startTime = Calendar.getInstance().apply {
-                        time = _uiState.value.day
-                        set(Calendar.HOUR_OF_DAY, 0)
-                        set(Calendar.MINUTE, 0)
-                        set(Calendar.SECOND, 0)
-                        set(Calendar.MILLISECOND, 0)
-                    }.timeInMillis,
-                    endTime = Calendar.getInstance().apply {
-                        time = _uiState.value.day
-                        set(Calendar.HOUR_OF_DAY, 23)
-                        set(Calendar.MINUTE, 59)
-                        set(Calendar.SECOND, 59)
-                        set(Calendar.MILLISECOND, 999)
-                    }.timeInMillis
+                    startTime = startTime,
+                    endTime = endTime
                 )
 
             // Simulate the starting data
@@ -163,7 +152,7 @@ class MonitorViewModel(
             //    networkErrorSimulation()
 
             if (response.success.not()) {
-                Log.e("MonitorViewModel", "Error loading initial data: ${response.error}")
+                Log.e("MonitorViewModel", "Error loading physiological data: ${response.error}")
                 _uiState.update {
                     it.copy(
                         physiologicalError = response.error,
@@ -174,7 +163,7 @@ class MonitorViewModel(
             }
             Log.d(
                 "MonitorViewModel",
-                "Initial data loaded successfully. (${response.data?.size} items)"
+                "Data loaded successfully. (${response.data?.size} items)"
             )
 
             // Order by timestamp
