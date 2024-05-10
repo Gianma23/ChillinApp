@@ -80,11 +80,7 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
      * @return A ServiceResult instance containing the result of the operation.
      */
     override suspend fun recoverPassword(email: String): ServiceResult<Unit, AccountErrorType> =
-        ServiceResult(
-            success = false,
-            data = null,
-            error = AccountErrorType.NOT_YET_IMPLEMENTED
-        )
+        accountDao.forgotPassword(email)
 
     /**
      * Updates an account. This method is not yet implemented and always returns a ServiceResult indicating failure.

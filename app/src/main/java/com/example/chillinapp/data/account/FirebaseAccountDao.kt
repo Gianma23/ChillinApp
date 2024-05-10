@@ -2,6 +2,7 @@ package com.example.chillinapp.data.account
 //noinspection SuspiciousImport
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
+import com.example.chillinapp.data.stress.StressErrorType
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -290,6 +291,17 @@ class FirebaseAccountDao {
                 data = null,
                 error = AccountErrorType.ACCOUNT_NOT_FOUND
             )
+        }
+    }
+    suspend fun forgotPassword(email:String):ServiceResult<Unit, AccountErrorType>{
+        return try {
+            auth.sendPasswordResetEmail(email).await()
+            Log.d("mail inviata con successo", email)
+            ServiceResult(true, null, null)
+        }
+        catch (e:Exception){
+            Log.d("mail NON inviata con successo", e.toString())
+            ServiceResult(false,null ,AccountErrorType.AUTHENTICATION_ERROR)
         }
     }
 

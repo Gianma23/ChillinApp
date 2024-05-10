@@ -11,34 +11,38 @@ package com.example.chillinapp.data.stress
  * @property prediction A double representing a prediction value. Defaults to 0.0.
  * @property stressLevel A float representing the stress level. Defaults to 0.0f.
  */
-data class StressDerivedData (
+data class StressDerivedData(
     val timestamp: Long = 0,
-    val bInterval: Array<Float> = arrayOf(0.0f, 0.0f),
+    val bInterval: Array<Float>,
     val prediction: Double = 0.0,
     val stressLevel: Float = 0.0f
 ) {
-
-    /**
-     * Checks if this StressDerivedData is equal to another object.
-     *
-     * @param other The object to compare to this StressDerivedData.
-     * @return A boolean indicating whether this StressDerivedData is equal to the other object.
-     */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as StressDerivedData
 
-        return bInterval.contentEquals(other.bInterval)
+        if (timestamp != other.timestamp) return false
+        if (!bInterval.contentEquals(other.bInterval)) return false
+        if (prediction != other.prediction) return false
+        if (stressLevel != other.stressLevel) return false
+
+        return true
     }
 
-    /**
-     * Generates a hash code for this StressDerivedData.
-     *
-     * @return An int representing the hash code of this StressDerivedData.
-     */
     override fun hashCode(): Int {
-        return bInterval.contentHashCode()
+        var result = timestamp.hashCode()
+        result = 31 * result + bInterval.contentHashCode()
+        result = 31 * result + prediction.hashCode()
+        result = 31 * result + stressLevel.hashCode()
+        return result
     }
 }
+
+/**
+     * Checks if this StressDerivedData is equal to another object.
+     *
+     * @param other The object to compare to this StressDerivedData.
+     * @return A boolean indicating whether this StressDerivedData is equal to the other object.
+     */
