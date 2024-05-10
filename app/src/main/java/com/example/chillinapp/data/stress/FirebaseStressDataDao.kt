@@ -115,9 +115,8 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
+            Log.d("getRawData", "Error: ${e.message}")
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
-
-
         }
     }
 
