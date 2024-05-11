@@ -66,8 +66,7 @@ class FirebaseStressDataDao {
                 val derivedData = hashMapOf(
                     "timestamp" to data.timestamp,
                     "binterval" to data.bInterval,
-                    "prediction" to data.prediction,
-                    "stress_level" to data.stressLevel
+                    "stress_score" to data.stressLevel
                 )
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(derivedData)?.await()
@@ -133,12 +132,11 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val binterval: Array<Float> = document.get("binterval") as Array<Float>
-                    val prediction: Double = (document.get("prediction") as Double)
-                    val stress_level: Double = (document.get("stress_level") as Double)
+                    val binterval: ArrayList<Float> = document.get("binterval") as ArrayList<Float>
+                    val stressScore: Double = (document.get("stress_score") as Double)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
-                    val stressDerivedData = StressDerivedData(timestamp, binterval, prediction, stress_level.toFloat())
+                    val stressDerivedData = StressDerivedData(timestamp, binterval, stressScore.toFloat())
                     derivedDataList.add(stressDerivedData)
                 }
 

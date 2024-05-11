@@ -187,7 +187,7 @@ class SensorService: LifecycleService(), SensorEventListener {
         }
 
         highFilter.highPass(1, 1.0, 0.05)
-        lowFilter.lowPass(1, 1.0, 0.49)
+        lowFilter.lowPass(1, 1.0, 0.45)
 
         Log.d(TAG, "Service started")
     }
@@ -217,18 +217,19 @@ class SensorService: LifecycleService(), SensorEventListener {
             LocationProvider.latitude == 0.0 || LocationProvider.longitude == 0.0) {
             return
         }
+        val time = System.currentTimeMillis()
+        lastEDAValue = lowFilter.filter(lastEDAValue.toDouble()).toFloat()
+        lastEDAValue = highFilter.filter(lastEDAValue.toDouble()).toFloat()
         Log.d(TAG, "Save data\n" +
                 "HR: $lastHRValue\n" +
                 "EDA: $lastEDAValue\n" +
                 "Temp: $lastTempValue\n" +
-                "time: ${System.currentTimeMillis()}\n" +
+                "time: ${time}\n" +
                 "location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")
 
         var data = ByteArray(0)
-        var tmpByte = ByteBuffer.allocate(8).putLong(System.currentTimeMillis()).array()
+        var tmpByte = ByteBuffer.allocate(8).putLong(time).array()
         data = data.plus(tmpByte)
-        lastEDAValue = lowFilter.filter(lastEDAValue.toDouble()).toFloat()
-        lastEDAValue = highFilter.filter(lastEDAValue.toDouble()).toFloat()
         tmpByte = ByteBuffer.allocate(4).putFloat(lastEDAValue).array()
         data = data.plus(tmpByte)
         tmpByte = ByteBuffer.allocate(4).putFloat(lastTempValue).array()

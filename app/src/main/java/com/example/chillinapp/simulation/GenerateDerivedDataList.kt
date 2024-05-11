@@ -43,8 +43,7 @@ private fun generateDerivedDataList(
             val stressDerivedData = StressDerivedData(
                 timestamp = currentTime,
                 stressLevel = (0.4 + random.nextGaussian() * 0.4).toFloat().coerceIn(0.0f,1.0f), // Mean 0.4, st.dev. 0.4
-                prediction = 0.0,
-                bInterval = arrayOf(
+                bInterval = arrayListOf(
                     (0.2 + random.nextGaussian() * 0.2).toFloat().coerceIn(0.0f,1.0f), // Mean 0.2, st.dev. 0.2
                     (0.6 + random.nextGaussian() * 0.4).toFloat().coerceIn(0.0f,1.0f) // Mean 0.5, st.dev. 0.1
                 )
