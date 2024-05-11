@@ -121,7 +121,7 @@ class FirebaseStressDataDao {
         val user = auth.currentUser
         val email = user?.email
         val userDocument = email?.let { accountCollection.document(it) }
-        val derivedDataCollection = userDocument?.collection("RawData")
+        val derivedDataCollection = userDocument?.collection("DerivedData")
         return try {
             val derivedDataList = mutableListOf<StressDerivedData>()
 
@@ -146,6 +146,7 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, derivedDataList, null)
         } catch (e: Exception) {
+            Log.e("getDerivedData", e.toString())
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
 
 
@@ -156,9 +157,7 @@ class FirebaseStressDataDao {
         val email = auth.currentUser?.email
         var key: String? = null
         if (email != null) {
-            if(email.contains(".")){
-                key = email.replace(".", "")
-            }
+            key = email.replace("@", "@@").replace(".", "@")
         }
         val rawdatareference = key?.let { dbreference.child("account").child(it).child("RawData") }
         return if (rawdatareference != null) {

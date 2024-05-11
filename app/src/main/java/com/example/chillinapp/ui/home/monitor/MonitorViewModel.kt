@@ -31,7 +31,7 @@ class MonitorViewModel(
     companion object{
         const val STRESS_THRESHOLD = 0.6F
         const val STRESS_STEP_SIZE = 1000L * 60 * 5 // 5 minutes
-        const val PHYSIO_STEP_SIZE = 1000L * 60 // 1 minute
+        const val PHYSIO_STEP_SIZE = 1000L * 60 * 5 // 1 minute
     }
 
     init {
@@ -91,14 +91,14 @@ class MonitorViewModel(
     private suspend fun retrieveStressData(startTime: Long, endTime: Long) {
         Log.d("MonitorViewModel", "Loading stress data...")
         // Retrieve the data
-       val response: ServiceResult<List<StressDerivedData>, StressErrorType> =
+        val response: ServiceResult<List<StressDerivedData>, StressErrorType> =
             dataService.getDerivedData(
                 startTime = startTime,
                 endTime = endTime
             )
 
         // Simulate the data
-//        val response = simulateDerivedDataService(startTime, endTime)
+        //val response = simulateDerivedDataService(startTime, endTime)
 
         if (response.success.not()) {
             Log.e("MonitorViewModel", "Error loading stress data: ${response.error}")
@@ -170,8 +170,8 @@ class MonitorViewModel(
             )
 
         // Simulate the starting data
-//        val response: ServiceResult<List<StressRawData>, StressErrorType> =
-//            retrieveDailySimulatedSata()
+        /*val response: ServiceResult<List<StressRawData>, StressErrorType> =
+            retrieveDailySimulatedSata()*/
 
         // Simulate a network physiologicalError
         // val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
