@@ -5,10 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.stress.StressDataService
+import com.example.chillinapp.data.stress.StressDerivedData
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
-import com.example.chillinapp.simulation.generateStressRawDataList
-import com.example.chillinapp.simulation.simulateDerivedDataService
 import com.example.chillinapp.ui.home.monitor.utility.FormattedStressDerivedData
 import com.example.chillinapp.ui.home.monitor.utility.FormattedStressRawData
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +31,7 @@ class MonitorViewModel(
     companion object{
         const val STRESS_THRESHOLD = 0.6F
         const val STRESS_STEP_SIZE = 1000L * 60 * 5 // 5 minutes
-        const val PHYSIO_STEP_SIZE = 1000L * 60 // 1 minute
+        const val PHYSIO_STEP_SIZE = 1000L * 60 * 5 // 1 minute
     }
 
     init {
@@ -92,14 +91,14 @@ class MonitorViewModel(
     private suspend fun retrieveStressData(startTime: Long, endTime: Long) {
         Log.d("MonitorViewModel", "Loading stress data...")
         // Retrieve the data
-//       val response: ServiceResult<List<StressDerivedData>, StressErrorType> =
-//            dataService.getDerivedData(
-//                startTime = startTime,
-//                endTime = endTime
-//            )
+        val response: ServiceResult<List<StressDerivedData>, StressErrorType> =
+            dataService.getDerivedData(
+                startTime = startTime,
+                endTime = endTime
+            )
 
         // Simulate the data
-        val response = simulateDerivedDataService(startTime, endTime)
+        //val response = simulateDerivedDataService(startTime, endTime)
 
         if (response.success.not()) {
             Log.e("MonitorViewModel", "Error loading stress data: ${response.error}")
@@ -164,15 +163,15 @@ class MonitorViewModel(
 
         Log.d("MonitorViewModel", "Loading physiological data...")
         // Retrieve the data
-//        val response: ServiceResult<List<StressRawData>, StressErrorType> =
-//            dataService.getRawData(
-//                startTime = startTime,
-//                endTime = endTime
-//            )
+        val response: ServiceResult<List<StressRawData>, StressErrorType> =
+            dataService.getRawData(
+                startTime = startTime,
+                endTime = endTime
+            )
 
         // Simulate the starting data
-        val response: ServiceResult<List<StressRawData>, StressErrorType> =
-            retrieveDailySimulatedSata()
+        /*val response: ServiceResult<List<StressRawData>, StressErrorType> =
+            retrieveDailySimulatedSata()*/
 
         // Simulate a network physiologicalError
         // val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
@@ -241,23 +240,23 @@ class MonitorViewModel(
     }
 
 
-    private fun retrieveDailySimulatedSata(): ServiceResult<List<StressRawData>, StressErrorType> {
-        return ServiceResult(
-            success = true,
-            data = generateStressRawDataList(
-                start = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                },
-                end = Calendar.getInstance(),
-                step = 6000,
-                invalidDataProbability = 0.2
-            ),
-            error = null
-        )
-    }
+//    private fun retrieveDailySimulatedSata(): ServiceResult<List<StressRawData>, StressErrorType> {
+//        return ServiceResult(
+//            success = true,
+//            data = generateStressRawDataList(
+//                start = Calendar.getInstance().apply {
+//                    set(Calendar.HOUR_OF_DAY, 0)
+//                    set(Calendar.MINUTE, 0)
+//                    set(Calendar.SECOND, 0)
+//                    set(Calendar.MILLISECOND, 0)
+//                },
+//                end = Calendar.getInstance(),
+//                step = 6000,
+//                invalidDataProbability = 0.2
+//            ),
+//            error = null
+//        )
+//    }
 
 //    private suspend fun networkErrorSimulation(): ServiceResult<List<StressRawData>, StressErrorType> {
 //        delay(4000)

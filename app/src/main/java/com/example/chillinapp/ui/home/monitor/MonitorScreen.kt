@@ -97,7 +97,7 @@ fun MonitorScreen(
                     isToday = { viewModel.isToday() }
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 ActivityMonitor(
                     titleFormatMap = titleFormatMap,
