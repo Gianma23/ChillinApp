@@ -174,10 +174,10 @@ class MapViewModel(
 //            delay(2000)
 //            val response = simulateStressDataService(
 //                center = target,
-//                radius = DEFAULT_RADIUS,
+//                radius = uiState.value.radius,
 //                date = uiState.value.currentDate
 //            )
-//            Log.d("MapViewModel", "Response: $response")
+            Log.d("MapViewModel", "Response: $response")
 
             // Update UI state
             _uiState.value = _uiState.value.copy(
