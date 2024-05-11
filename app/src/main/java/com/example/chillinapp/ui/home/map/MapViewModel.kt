@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -158,16 +158,16 @@ class MapViewModel(
             Log.d("MapViewModel", "Latitude: ${target.latitude}")
             Log.d("MapViewModel", "Longitude: ${target.longitude}")
             Log.d("MapViewModel", "Radius: ${uiState.value.radius}")
-            Log.d("MapViewModel", "Date: ${uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()}")
-            Log.d("MapViewModel", "Hour: ${uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().hour}")
+            Log.d("MapViewModel", "Date: ${uiState.value.currentDate.toInstant().atZone(ZoneOffset.UTC).toLocalDate()}")
+            Log.d("MapViewModel", "Hour: ${uiState.value.currentDate.toInstant().atZone(ZoneOffset.UTC).toLocalTime().hour}")
 
             // Load stress points
             val response: ServiceResult<List<WeightedLatLng>, MapErrorType> = mapService.get(
                 centerLat = target.latitude,
                 centerLong = target.longitude,
                 distance = uiState.value.radius,
-                date = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                hour = uiState.value.currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime().hour
+                date = uiState.value.currentDate.toInstant().atZone(ZoneOffset.UTC).toLocalDate(),
+                hour = uiState.value.currentDate.toInstant().atZone(ZoneOffset.UTC).toLocalTime().hour
             )
 
             // Simulate physiologicalData
