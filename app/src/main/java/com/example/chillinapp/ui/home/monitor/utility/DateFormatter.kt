@@ -24,3 +24,14 @@ fun timestampToHourOfDay(timestamp: String): Float {
     val second = calendar.get(Calendar.SECOND)
     return hour + minute / 60.0f + second / 3600.0f
 }
+
+fun timestampToMillis(timestamp: String): Long {
+    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS", Locale.getDefault())
+    val date = sdf.parse(timestamp)
+    return date?.time ?: 0
+}
+
+fun timestampToTime(timestamp: Long): String {
+    val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    return sdf.format(Date(timestamp))
+}

@@ -5,9 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.stress.StressDataService
-import com.example.chillinapp.data.stress.StressDerivedData
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
+import com.example.chillinapp.simulation.generateStressRawDataList
+import com.example.chillinapp.simulation.simulateDerivedDataService
 import com.example.chillinapp.ui.home.monitor.utility.FormattedStressDerivedData
 import com.example.chillinapp.ui.home.monitor.utility.FormattedStressRawData
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,12 @@ class MonitorViewModel(
 
     // State flow for the UI state of the overall screen
     val uiState: StateFlow<MonitorUiState> = _uiState.asStateFlow()
+
+    companion object{
+        const val STRESS_THRESHOLD = 0.6F
+        const val STRESS_STEP_SIZE = 1000L * 60 * 5 // 5 minutes
+        const val PHYSIO_STEP_SIZE = 1000L * 60 // 1 minute
+    }
 
     init {
         Log.d("MonitorViewModel", "Initializing MonitorViewModel...")
@@ -76,101 +83,122 @@ class MonitorViewModel(
         }
 
         // Retrieve the data
-        retrievePhysiologicalData(startTime, endTime)
-        retrieveStressData(startTime, endTime)
-    }
-
-    private fun retrieveStressData(startTime: Long, endTime: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-
-            Log.d("MonitorViewModel", "Loading stress data...")
-            // Retrieve the data
-            val response: ServiceResult<List<StressDerivedData>, StressErrorType> =
-                dataService.getDerivedData(
-                    startTime = startTime,
-                    endTime = endTime
-                )
-
-            if (response.success.not()) {
-                Log.e("MonitorViewModel", "Error loading stress data: ${response.error}")
-                _uiState.update {
-                    it.copy(
-                        stressError = response.error,
-                        isStressDataLoading = false
-                    )
-                }
-                return@launch
-            }
-            Log.d(
-                "MonitorViewModel",
-                "Data loaded successfully. (${response.data?.size} items)"
-            )
-
-            // Order by timestamp
-            response.data?.sortedBy { it.timestamp }
-
-            // Update the UI state with the starting data
-            _uiState.update {
-                it.copy(
-                    stressData = response.data?.map { derivedData ->
-                        FormattedStressDerivedData(
-                            millis = derivedData.timestamp,
-                            stressLevel = derivedData.stressLevel,
-                            lowerBound = derivedData.bInterval.minOrNull()?: 0f,
-                            upperBound = derivedData.bInterval.maxOrNull()?: 0f
-                        )
-                    } ?: emptyList(),
-                    stressError = response.error
-                )
-            }
-
-            // Set the loading state to false
-            _uiState.update {
-                it.copy(isStressDataLoading = false)
-            }
-            Log.d("MonitorViewModel", "Stress data loading finished.")
+            retrieveStressData(startTime, endTime)
+            retrievePhysiologicalData(startTime, endTime)
         }
     }
 
-    private fun retrievePhysiologicalData(startTime: Long, endTime: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+    private suspend fun retrieveStressData(startTime: Long, endTime: Long) {
+        Log.d("MonitorViewModel", "Loading stress data...")
+        // Retrieve the data
+//       val response: ServiceResult<List<StressDerivedData>, StressErrorType> =
+//            dataService.getDerivedData(
+//                startTime = startTime,
+//                endTime = endTime
+//            )
 
-            Log.d("MonitorViewModel", "Loading physiological data...")
-            // Retrieve the data
-            val response: ServiceResult<List<StressRawData>, StressErrorType> =
-                dataService.getRawData(
-                    startTime = startTime,
-                    endTime = endTime
+        // Simulate the data
+        val response = simulateDerivedDataService(startTime, endTime)
+
+        if (response.success.not()) {
+            Log.e("MonitorViewModel", "Error loading stress data: ${response.error}")
+            _uiState.update {
+                it.copy(
+                    stressError = response.error,
+                    isStressDataLoading = false
                 )
-
-            // Simulate the starting data
-//            val response: ServiceResult<List<StressRawData>, StressErrorType> =
-//                retrieveDailySimulatedSata()
-
-            // Simulate a network physiologicalError
-            // val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
-            //    networkErrorSimulation()
-
-            if (response.success.not()) {
-                Log.e("MonitorViewModel", "Error loading physiological data: ${response.error}")
-                _uiState.update {
-                    it.copy(
-                        physiologicalError = response.error,
-                        isPhysiologicalDataLoading = false
-                    )
-                }
-                return@launch
             }
-            Log.d(
-                "MonitorViewModel",
-                "Data loaded successfully. (${response.data?.size} items)"
+            return
+        }
+        Log.d(
+            "MonitorViewModel",
+            "Data loaded successfully. (${response.data?.size} items)"
+        )
+
+        // Order by timestamp
+        response.data?.sortedBy { it.timestamp }
+
+        // Update the UI state with the starting data
+        _uiState.update {
+            it.copy(
+                stressData = response.data?.map { derivedData ->
+                    FormattedStressDerivedData(
+                        millis = derivedData.timestamp,
+                        stressLevel = derivedData.stressLevel,
+                        lowerBound = derivedData.bInterval.minOrNull()?: 0f,
+                        upperBound = derivedData.bInterval.maxOrNull()?: 0f
+                    )
+                } ?: emptyList(),
+                stressError = response.error
             )
+        }
 
-            // Order by timestamp
-            response.data?.sortedBy { it.timestamp }
+        // Clean data
+        if (response.data != null) {
+            val data = generateDerivedDataForInterval(
+                startTime = startTime,
+                endTime = (
+                        if(isToday())
+                            Calendar.getInstance().timeInMillis
+                        else
+                            endTime
+                        ),
+                data = _uiState.value.stressData
+            )
+            _uiState.update {
+                it.copy(
+                    stressData = data
+                )
+            }
+        }
 
-            // Update the UI state with the starting data
-            _uiState.value = MonitorUiState(
+        // Set the loading state to false
+        _uiState.update {
+            it.copy(isStressDataLoading = false)
+        }
+        Log.d("MonitorViewModel", "Stress data loading finished.")
+    }
+
+    private suspend fun retrievePhysiologicalData(startTime: Long, endTime: Long) {
+
+        Log.d("MonitorViewModel", "Loading physiological data...")
+        // Retrieve the data
+//        val response: ServiceResult<List<StressRawData>, StressErrorType> =
+//            dataService.getRawData(
+//                startTime = startTime,
+//                endTime = endTime
+//            )
+
+        // Simulate the starting data
+        val response: ServiceResult<List<StressRawData>, StressErrorType> =
+            retrieveDailySimulatedSata()
+
+        // Simulate a network physiologicalError
+        // val startingData: ServiceResult<List<StressRawData>, StressErrorType> =
+        //    networkErrorSimulation()
+
+        if (response.success.not()) {
+            Log.e("MonitorViewModel", "Error loading physiological data: ${response.error}")
+            _uiState.update {
+                it.copy(
+                    physiologicalError = response.error,
+                    isPhysiologicalDataLoading = false
+                )
+            }
+            return
+        }
+        Log.d(
+            "MonitorViewModel",
+            "Data loaded successfully. (${response.data?.size} items)"
+        )
+
+        // Order by timestamp
+        response.data?.sortedBy { it.timestamp }
+
+        // Update the UI state with the starting data
+        _uiState.update {
+            it.copy(
                 physiologicalData = response.data?.map { rawData ->
                     FormattedStressRawData(
                         millis = rawData.timestamp,
@@ -181,35 +209,55 @@ class MonitorViewModel(
                 } ?: emptyList(),
                 physiologicalError = response.error
             )
-
-            // Create a map where the key is the field name and the value is a list of pairs (timestamp, field value)
-            temporalMapping()
-
-            // Set the loading state to false
-            _uiState.update {
-                it.copy(isPhysiologicalDataLoading = false)
-            }
-            Log.d("MonitorViewModel", "Physiological data loading finished.")
         }
+
+        // Clean data
+        if (response.data != null) {
+            val data = generateRawDataForInterval(
+                startTime = startTime,
+                endTime = (
+                    if(isToday())
+                        Calendar.getInstance().timeInMillis
+                    else
+                        endTime
+                ),
+                data = _uiState.value.physiologicalData
+            )
+            _uiState.update {
+                it.copy(
+                    physiologicalData = data
+                )
+            }
+        }
+
+        // Create a map where the key is the field name and the value is a list of pairs (timestamp, field value)
+        temporalMapping()
+
+        // Set the loading state to false
+        _uiState.update {
+            it.copy(isPhysiologicalDataLoading = false)
+        }
+        Log.d("MonitorViewModel", "Physiological data loading finished.")
     }
 
-//    private fun retrieveDailySimulatedSata(): ServiceResult<List<StressRawData>, StressErrorType> {
-//        return ServiceResult(
-//            success = true,
-//            data = generateStressRawDataList(
-//                start = Calendar.getInstance().apply {
-//                    set(Calendar.HOUR_OF_DAY, 0)
-//                    set(Calendar.MINUTE, 0)
-//                    set(Calendar.SECOND, 0)
-//                    set(Calendar.MILLISECOND, 0)
-//                },
-//                end = Calendar.getInstance(),
-//                step = STEP_SIZE,
-//                invalidDataProbability = 0.2
-//            ),
-//            error = null
-//        )
-//    }
+
+    private fun retrieveDailySimulatedSata(): ServiceResult<List<StressRawData>, StressErrorType> {
+        return ServiceResult(
+            success = true,
+            data = generateStressRawDataList(
+                start = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                },
+                end = Calendar.getInstance(),
+                step = 6000,
+                invalidDataProbability = 0.2
+            ),
+            error = null
+        )
+    }
 
 //    private suspend fun networkErrorSimulation(): ServiceResult<List<StressRawData>, StressErrorType> {
 //        delay(4000)
@@ -223,13 +271,18 @@ class MonitorViewModel(
 
     private fun temporalMapping() {
 
+        // Filter fields that are not needed
+        val filter = { field: java.lang.reflect.Field ->
+            field.name != "millis" && field.name != "\$stable" && field.name != "timestamp" && field.name != "dummy"
+        }
+
         val map = FormattedStressRawData::class.java.declaredFields
-            .filter { it.name != "millis" && it.name != "\$stable" && it.name != "timestamp" }
+            .filter { filter(it) }
             .associateBy({ it.name }, { mutableListOf<Pair<String, Any>>() })
 
         _uiState.value.physiologicalData.forEach { data ->
             FormattedStressRawData::class.java.declaredFields
-                .filter { it.name != "millis" && it.name != "\$stable" && it.name != "timestamp" }
+                .filter { filter(it) }
                 .forEach { field ->
                     field.isAccessible = true
                     val value = field.get(data)
@@ -248,12 +301,90 @@ class MonitorViewModel(
         Log.d("MonitorViewModel", "Temporal mapping finished: ${_uiState.value.physiologicalMappedData}")
     }
 
+    private fun generateRawDataForInterval(startTime: Long, endTime: Long, data: List<FormattedStressRawData>): List<FormattedStressRawData> {
+
+        val minHeartRateSensor = data.minOfOrNull { it.heartRateSensor } ?: 0f
+        val minSkinTemperatureSensor = data.minOfOrNull { it.skinTemperatureSensor } ?: 0f
+        val minEdaSensor = data.minOfOrNull { it.edaSensor } ?: 0f
+        val result = mutableListOf<FormattedStressRawData>()
+
+        for (time in startTime until endTime step PHYSIO_STEP_SIZE) {
+            val dataInSecond = data.filter { it.millis in time until time + PHYSIO_STEP_SIZE }
+
+            if (dataInSecond.isNotEmpty()) {
+                val heartRateSensorAvg = dataInSecond.map { it.heartRateSensor }.average()
+                val skinTemperatureSensorAvg = dataInSecond.map { it.skinTemperatureSensor }.average()
+                val edaSensorAvg = dataInSecond.map { it.edaSensor }.average()
+
+                result.add(
+                    FormattedStressRawData(
+                        millis = time,
+                        heartRateSensor = heartRateSensorAvg.toFloat(),
+                        skinTemperatureSensor = skinTemperatureSensorAvg.toFloat(),
+                        edaSensor = edaSensorAvg.toFloat()
+                    )
+                )
+            } else {
+                result.add(
+                    FormattedStressRawData(
+                        millis = time,
+                        heartRateSensor = minHeartRateSensor,
+                        skinTemperatureSensor = minSkinTemperatureSensor,
+                        edaSensor = minEdaSensor,
+                        dummy = true
+                    )
+                )
+            }
+        }
+
+        Log.d("MonitorViewModel", "Generated data for interval: $result")
+        return result
+    }
+
+    private fun generateDerivedDataForInterval(startTime: Long, endTime: Long, data: List<FormattedStressDerivedData>) : List<FormattedStressDerivedData> {
+        val result = mutableListOf<FormattedStressDerivedData>()
+
+        for (time in startTime until endTime step STRESS_STEP_SIZE) {
+            val dataInSecond = data.filter { it.millis in time until time + STRESS_STEP_SIZE }
+
+            if (dataInSecond.isNotEmpty()) {
+                val weightedAverage = (dataInSecond.sumOf { (it.stressLevel * it.stressLevel).toDouble() } / dataInSecond.sumOf { it.stressLevel.toDouble() }).coerceIn(0.0, 1.0)
+                val lowerBoundAvg = dataInSecond.map { it.lowerBound }.average()
+                val upperBoundAvg = dataInSecond.map { it.upperBound }.average()
+
+                result.add(
+                    FormattedStressDerivedData(
+                        millis = time,
+                        stressLevel = weightedAverage.toFloat(),
+                        lowerBound = lowerBoundAvg.toFloat(),
+                        upperBound = upperBoundAvg.toFloat()
+                    )
+                )
+            } else {
+                result.add(
+                    FormattedStressDerivedData(
+                        millis = time,
+                        stressLevel = 0f,
+                        lowerBound = 0f,
+                        upperBound = 0f,
+                        dummy = true
+                    )
+                )
+            }
+        }
+
+        return result
+    }
+
+
     fun previousDay() {
         _uiState.update {
-            it.copy(day = Calendar.getInstance().apply {
-                time = it.day
-                add(Calendar.DAY_OF_MONTH, -1)
-            }.time)
+            it.copy(
+                day = Calendar.getInstance().apply {
+                    time = it.day
+                    add(Calendar.DAY_OF_MONTH, -1)
+                }.time
+            )
         }
         retrieveData()
     }

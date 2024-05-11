@@ -6,4 +6,5 @@ data class FormattedStressDerivedData(
     val lowerBound: Float,
     val upperBound: Float,
     val timestamp: String = timestampToString(millis),
+    val dummy: Boolean = false
 )

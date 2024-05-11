@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,13 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
-import com.example.chillinapp.ui.home.monitor.utility.PhysioMonitorCard
+import com.example.chillinapp.ui.home.monitor.utility.ActivityMonitor
+import com.example.chillinapp.ui.home.monitor.utility.StressMonitor
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -88,33 +90,28 @@ fun MonitorScreen(
             ) {
 
 
-                Text(
-                    text = "Stress level",
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Start
+                StressMonitor(
+                    isStressDataLoading = uiState.isStressDataLoading,
+                    stressError = uiState.stressError,
+                    stressData = uiState.stressData,
+                    isToday = { viewModel.isToday() }
                 )
 
-                Text(
-                    text = "Activity",
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Start
-                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                for(entry in uiState.physiologicalMappedData.entries.toList())
-                    PhysioMonitorCard(
-                        titleFormatMap = titleFormatMap,
-                        entry = entry,
-                        isPhysiologicalDataLoading = uiState.isPhysiologicalDataLoading,
-                        physiologicalError = uiState.physiologicalError
-                    )
+                ActivityMonitor(
+                    titleFormatMap = titleFormatMap,
+                    mappedData = uiState.physiologicalMappedData.entries.toList(),
+                    data = uiState.physiologicalData,
+                    isPhysiologicalDataLoading = uiState.isPhysiologicalDataLoading,
+                    physiologicalError = uiState.physiologicalError,
+                )
 
             }
         }
 
     }
 }
-
-
 
 @Composable
 fun DaySwitcher(

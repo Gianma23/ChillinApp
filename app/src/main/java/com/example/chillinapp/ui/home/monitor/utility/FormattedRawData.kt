@@ -6,4 +6,5 @@ data class FormattedStressRawData(
     val skinTemperatureSensor: Float,
     val edaSensor: Float,
     val timestamp: String = timestampToString(millis),
+    val dummy: Boolean = false
 )

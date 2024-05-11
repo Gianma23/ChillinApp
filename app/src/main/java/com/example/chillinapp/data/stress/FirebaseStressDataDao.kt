@@ -2,15 +2,12 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
-import com.example.chillinapp.data.account.AccountService
-import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
-
 
 
 class FirebaseStressDataDao {
@@ -97,8 +94,7 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartrateSensor: Double= (document.get("heartrateSensor") as Double)
-                    Log.d("heartsensor", "$heartrateSensor")
+                    val heartrateSensor: Double = (document.get("heartrateSensor") as Double)
                     val skinTemperatureSensor: Double = (document.get("skinTemperatureSensor") as Double)
                     val edaSensor: Double = (document.get("edaSensor") as   Double)
 
@@ -116,7 +112,7 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
-            Log.d("Get Raw Data", e.toString())
+            Log.e("getRawData", "An exception occurred", e)
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
 
 
