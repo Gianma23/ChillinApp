@@ -164,7 +164,7 @@ class FirebaseStressDataDao {
                 key = email.replace(".", "")
             }
         }
-        val rawdatareference = key?.let { dbreference.child(it).child("RawData") }
+        val rawdatareference = key?.let { dbreference.child("account").child(it).child("RawData") }
         return if (rawdatareference != null) {
             try {
                 rawdatareference.removeValue().await()
@@ -185,7 +185,7 @@ class FirebaseStressDataDao {
         val user = auth.currentUser
         val email = user?.email
         val keyname = email?.substringBefore("@")
-        val rawDataref = keyname?.let { dbreference.child(it).child("RawData") }
+        val rawDataref = keyname?.let { dbreference.child("account").child(it).child("RawData") }
         return try {
             val snapshot = rawDataref?.get()?.await()
             val stressDataList = mutableListOf<StressRawData>()
