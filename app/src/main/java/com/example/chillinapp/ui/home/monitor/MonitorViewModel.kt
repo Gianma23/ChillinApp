@@ -340,7 +340,7 @@ class MonitorViewModel(
 
         val minHeartRateSensor = data.minOfOrNull { it.heartRateSensor } ?: 0f
         val minSkinTemperatureSensor = data.minOfOrNull { it.skinTemperatureSensor } ?: 0f
-        val minEdaSensor = data.minOfOrNull { it.edaSensor } ?: 0f
+        val minEdaSensor = 0f
         val result = mutableListOf<FormattedStressRawData>()
 
         for (time in startTime until endTime step PHYSIO_STEP_SIZE) {
