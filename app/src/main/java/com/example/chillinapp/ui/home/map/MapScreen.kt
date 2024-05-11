@@ -2,11 +2,11 @@ package com.example.chillinapp.ui.home.map
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,11 +36,20 @@ import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 import com.google.maps.android.heatmaps.Gradient
 
+/**
+ * Represents the destination for the map in the navigation system.
+ */
 object MapDestination : NavigationDestination {
     override val route: String = "map"
     override val titleRes: Int = R.string.map_screen_title
 }
 
+/**
+ * A Composable function that represents the main screen of the map.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param viewModel The ViewModel that contains the business logic for the map.
+ */
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
@@ -57,6 +66,7 @@ fun MapScreen(
     val startPoints = floatArrayOf(0.2f, 1f)
     val gradient = Gradient(colors, startPoints)
 
+    // Check permissions when the Composable is first launched.
     LaunchedEffect(Unit) {
         viewModel.checkPermissions(context)
     }
@@ -67,6 +77,7 @@ fun MapScreen(
             .background(color = MaterialTheme.colorScheme.background),
     ) {
 
+        // Display the heat map if permissions are not being checked.
         if (!uiState.checkingPermissions) {
             HeatMap(
                 cameraPositionState = uiState.cameraPositionState,
@@ -78,21 +89,23 @@ fun MapScreen(
             )
         }
 
-        Column(
+        // Display a reload button at the top center of the screen.
+        Button(
+            onClick = { viewModel.loadHeatPoints(uiState.cameraPositionState.position.target) },
+            enabled = uiState.stressDataResponse != null,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .alpha(0.7f)
+                .padding(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         ) {
-            Button(
-                onClick = { viewModel.loadHeatPoints(uiState.cameraPositionState.position.target) },
-                enabled = uiState.stressDataResponse != null,
-                modifier = Modifier
-                    .padding(8.dp)
-            ) {
-                Text("Reload")
-            }
+            Text("Reload")
         }
 
+        // Display a time changer at the center left of the screen.
         TimeChanger(
             viewModel = viewModel,
             uiState = uiState,
@@ -103,6 +116,7 @@ fun MapScreen(
                 .alpha(0.7f)
         )
 
+        // Display a date changer at the bottom center of the screen.
         DateChanger(
             viewModel = viewModel,
             uiState = uiState,
@@ -112,6 +126,7 @@ fun MapScreen(
                 .alpha(0.7f)
         )
 
+        // Display a stress bar at the center right of the screen.
         StressBar(
             gradient = gradient,
             minValue = uiState.minStressValue,
@@ -122,7 +137,7 @@ fun MapScreen(
                 .alpha(0.7f)
         )
 
-
+        // Display a circular progress indicator at the center of the screen if data is loading or permissions are being checked.
         if (uiState.stressDataResponse == null || uiState.checkingPermissions) {
             CircularProgressIndicator(
                 modifier = Modifier
@@ -131,6 +146,7 @@ fun MapScreen(
             )
         }
 
+        // Display a notification if there is an error or no data and the notification is visible.
         if ((uiState.stressDataResponse?.error != null || uiState.stressDataResponse?.data.isNullOrEmpty())
             && uiState.isNotificationVisible
         ) {
@@ -151,6 +167,9 @@ fun MapScreen(
     }
 }
 
+/**
+ * A preview Composable function that displays a preview of the map screen.
+ */
 @Preview
 @Composable
 fun MapScreenPreview() {
@@ -159,6 +178,9 @@ fun MapScreenPreview() {
     }
 }
 
+/**
+ * A preview Composable function that displays a preview of the map screen in dark theme.
+ */
 @Preview
 @Composable
 fun MapScreenDarkPreview() {

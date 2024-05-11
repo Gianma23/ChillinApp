@@ -9,6 +9,20 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.heatmaps.WeightedLatLng
 import java.util.Date
 
+/**
+ * Data class representing the UI state of the map.
+ *
+ * @property checkingPermissions Boolean indicating if permissions are currently being checked.
+ * @property cameraPositionState The current state of the camera position on the map.
+ * @property mapUiSettings The current UI settings of the map.
+ * @property mapProperties The current properties of the map.
+ * @property currentDate The current date being displayed on the map.
+ * @property stressDataResponse The current response from the service for the stress data.
+ * @property isNotificationVisible Boolean indicating if a notification is currently visible.
+ * @property maxStressValue The maximum stress value currently being displayed on the map.
+ * @property minStressValue The minimum stress value currently being displayed on the map.
+ * @property radius The current radius of the search on the map.
+ */
 data class MapUiState (
 
     val checkingPermissions: Boolean = true,
@@ -28,4 +42,4 @@ data class MapUiState (
     val minStressValue: Int? = null,
     val radius: Double = 0.0,
 
-)
+    )

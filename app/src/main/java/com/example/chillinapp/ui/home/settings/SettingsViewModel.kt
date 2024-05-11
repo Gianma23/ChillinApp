@@ -29,6 +29,21 @@ class SettingsViewModel(
     // State flow for the UI state of the settings screen
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
+    init{
+        viewModelScope.launch(Dispatchers.IO){
+            val currentAccountResponse: ServiceResult<Account?, AccountErrorType> = accountService.getCurrentAccount()
+
+            if (currentAccountResponse.success) {
+                _uiState.update { settingsUiState ->
+                    settingsUiState.copy(
+                        name = currentAccountResponse.data?.name,
+                        email = currentAccountResponse.data?.email
+                    )
+                }
+            }
+        }
+    }
+
     /**
      * Handles the logout operation.
      * Updates the UI state before and after the logout operation.

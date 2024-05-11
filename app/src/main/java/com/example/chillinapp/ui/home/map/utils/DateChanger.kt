@@ -20,7 +20,13 @@ import androidx.compose.ui.unit.dp
 import com.example.chillinapp.ui.home.map.MapUiState
 import com.example.chillinapp.ui.home.map.MapViewModel
 
-
+/**
+ * A Composable function that provides a UI for changing the date.
+ *
+ * @param viewModel The ViewModel that contains the business logic for the map.
+ * @param uiState The current state of the UI.
+ * @param modifier The modifier to be applied to the layout.
+ */
 @Composable
 internal fun DateChanger(
     viewModel: MapViewModel,
@@ -28,27 +34,31 @@ internal fun DateChanger(
     modifier: Modifier = Modifier
 ) {
 
+    // A row layout that aligns its children vertically in the center.
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // A button that triggers the action to go to the previous day.
         Button(
             onClick = { viewModel.previousDay() },
             enabled = uiState.stressDataResponse != null,
             modifier = Modifier.padding(8.dp)
         ) {
+            // An icon representing the "previous" action.
             Icon(
                 imageVector = Icons.Filled.ArrowBackIosNew,
                 contentDescription = "Previous"
             )
         }
 
+        // A box that displays the current date.
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
                 .background(color = MaterialTheme.colorScheme.surfaceVariant)
-
         ) {
+            // The text view that displays the formatted date.
             Text(
                 text = viewModel.formatDate(),
                 style = MaterialTheme.typography.labelMedium,
@@ -57,11 +67,13 @@ internal fun DateChanger(
             )
         }
 
+        // A button that triggers the action to go to the next day.
         Button(
             onClick = { viewModel.nextDay() },
             enabled = !viewModel.isToday() && uiState.stressDataResponse != null,
             modifier = Modifier.padding(8.dp)
         ) {
+            // An icon representing the "next" action.
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                 contentDescription = "Next"

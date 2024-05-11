@@ -18,6 +18,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
+/**
+ * ViewModel for the Monitor screen. It handles the business logic for fetching and processing stress data.
+ *
+ * @property dataService The service used to fetch stress data.
+ */
 class MonitorViewModel(
     private val dataService : StressDataService
 ): ViewModel(){
@@ -34,6 +39,9 @@ class MonitorViewModel(
         const val PHYSIO_STEP_SIZE = 1000L * 60 * 5 // 1 minute
     }
 
+    /**
+     * Initializes the MonitorViewModel by setting the initial UI state to a loading state and fetching the data.
+     */
     init {
         Log.d("MonitorViewModel", "Initializing MonitorViewModel...")
         // Set the initial UI state to a loading state
@@ -51,6 +59,9 @@ class MonitorViewModel(
         retrieveData()
     }
 
+    /**
+     * Function to retrieve stress and physiological data.
+     */
     private fun retrieveData() {
 
         val startTime = Calendar.getInstance().apply {
@@ -88,6 +99,12 @@ class MonitorViewModel(
         }
     }
 
+    /**
+     * Function to retrieve stress data.
+     *
+     * @param startTime The start time for the data retrieval.
+     * @param endTime The end time for the data retrieval.
+     */
     private suspend fun retrieveStressData(startTime: Long, endTime: Long) {
         Log.d("MonitorViewModel", "Loading stress data...")
         // Retrieve the data
@@ -159,6 +176,12 @@ class MonitorViewModel(
         Log.d("MonitorViewModel", "Stress data loading finished.")
     }
 
+    /**
+     * Function to retrieve physiological data.
+     *
+     * @param startTime The start time for the data retrieval.
+     * @param endTime The end time for the data retrieval.
+     */
     private suspend fun retrievePhysiologicalData(startTime: Long, endTime: Long) {
 
         Log.d("MonitorViewModel", "Loading physiological data...")
@@ -268,6 +291,12 @@ class MonitorViewModel(
 //        return startingData
 //    }
 
+    /**
+     * Function to map the physiological data over time.
+     *
+     * This function creates a map where the key is the field name and the value is a list of pairs (timestamp, field value).
+     * It filters out fields that are not needed and populates the map with the physiological data.
+     */
     private fun temporalMapping() {
 
         // Filter fields that are not needed
@@ -300,6 +329,13 @@ class MonitorViewModel(
         Log.d("MonitorViewModel", "Temporal mapping finished: ${_uiState.value.physiologicalMappedData}")
     }
 
+    /**
+     * Function to generate raw data for a given interval.
+     *
+     * @param startTime The start time for the data generation.
+     * @param endTime The end time for the data generation.
+     * @param data The data to be used for the generation.
+     */
     private fun generateRawDataForInterval(startTime: Long, endTime: Long, data: List<FormattedStressRawData>): List<FormattedStressRawData> {
 
         val minHeartRateSensor = data.minOfOrNull { it.heartRateSensor } ?: 0f
@@ -340,6 +376,13 @@ class MonitorViewModel(
         return result
     }
 
+    /**
+     * Function to generate derived data for a given interval.
+     *
+     * @param startTime The start time for the data generation.
+     * @param endTime The end time for the data generation.
+     * @param data The data to be used for the generation.
+     */
     private fun generateDerivedDataForInterval(startTime: Long, endTime: Long, data: List<FormattedStressDerivedData>) : List<FormattedStressDerivedData> {
         val result = mutableListOf<FormattedStressDerivedData>()
 
@@ -375,7 +418,9 @@ class MonitorViewModel(
         return result
     }
 
-
+    /**
+     * Function to switch to the previous day.
+     */
     fun previousDay() {
         _uiState.update {
             it.copy(
@@ -388,6 +433,9 @@ class MonitorViewModel(
         retrieveData()
     }
 
+    /**
+     * Function to switch to the next day.
+     */
     fun nextDay() {
         _uiState.update {
             it.copy(day = Calendar.getInstance().apply {
@@ -398,12 +446,22 @@ class MonitorViewModel(
         retrieveData()
     }
 
+    /**
+     * Function to check if the current day is today.
+     *
+     * @return A boolean indicating whether the current day is today.
+     */
     fun isToday(): Boolean {
         return Calendar.getInstance().apply {
             time = _uiState.value.day
         }.get(Calendar.DAY_OF_YEAR) == Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
     }
 
+    /**
+     * Function to format the current date.
+     *
+     * @return A string representing the formatted date.
+     */
     fun formatDate(): String {
         return when {
             isToday() -> "Today"

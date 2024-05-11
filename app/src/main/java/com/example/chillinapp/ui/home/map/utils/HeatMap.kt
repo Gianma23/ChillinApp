@@ -21,7 +21,16 @@ import com.google.maps.android.heatmaps.Gradient
 import com.google.maps.android.heatmaps.HeatmapTileProvider
 import com.google.maps.android.heatmaps.WeightedLatLng
 
-
+/**
+ * A Composable function that displays a heat map on a Google Map.
+ *
+ * @param cameraPositionState The current camera position state.
+ * @param points The list of weighted points to be displayed on the heat map.
+ * @param setOnCameraMoveListener A function to be called when the camera moves.
+ * @param setOnMapLoadedCallback A function to be called when the map is loaded.
+ * @param updateSearchRadius A function to update the search radius based on the zoom level.
+ * @param gradient The gradient to be used for the heat map.
+ */
 @Composable
 internal fun HeatMap(
     cameraPositionState: CameraPositionState,
@@ -32,18 +41,22 @@ internal fun HeatMap(
     gradient: Gradient
 ) {
 
+    // A mutable state holding the current tile overlay for the heat map.
     val tileOverlay: MutableState<TileOverlay?> =
         rememberSaveable {
             mutableStateOf(null)
         }
+    // A mutable state holding the current list of weighted points for the heat map.
     val chargedPoints: MutableState<List<WeightedLatLng>> =
         rememberSaveable {
             mutableStateOf(points)
         }
 
+    // A box layout that fills the maximum size.
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+        // An Android view that displays the Google Map.
         AndroidView(
             modifier = Modifier
                 .fillMaxSize()

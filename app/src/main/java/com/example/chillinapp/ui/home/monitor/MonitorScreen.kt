@@ -39,11 +39,20 @@ import com.example.chillinapp.ui.home.monitor.utility.StressMonitor
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
+/**
+ * Object representing the monitor destination in the navigation.
+ */
 object MonitorDestination: NavigationDestination {
     override val route: String = "monitor"
     override val titleRes: Int = R.string.overview_title
 }
 
+/**
+ * A Composable function that represents the monitor screen.
+ *
+ * @param modifier The modifier to be applied to the monitor screen, default value is Modifier.
+ * @param viewModel The view model for the monitor screen, default value is the view model from the AppViewModelProvider factory.
+ */
 @Composable
 fun MonitorScreen(
     modifier: Modifier = Modifier,
@@ -53,13 +62,14 @@ fun MonitorScreen(
     // Collect the UI state from the view model
     val uiState by viewModel.uiState.collectAsState()
 
-
+    // Map of sensor names to their display names
     val titleFormatMap = mapOf(
         "heartRateSensor" to "Heart Rate",
         "skinTemperatureSensor" to "Skin Temperature",
         "edaSensor" to "Electrodermal Activity"
     )
 
+    // Define the layout of the monitor screen
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surfaceVariant
@@ -70,6 +80,7 @@ fun MonitorScreen(
                 .fillMaxSize()
         ) {
 
+            // Define the day switcher
             DaySwitcher(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -80,6 +91,7 @@ fun MonitorScreen(
                 displayedText = viewModel.formatDate()
             )
 
+            // Define the layout of the stress monitor and activity monitor
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -89,7 +101,7 @@ fun MonitorScreen(
                 verticalArrangement = Arrangement.Top
             ) {
 
-
+                // Define the stress monitor
                 StressMonitor(
                     isStressDataLoading = uiState.isStressDataLoading,
                     stressError = uiState.stressError,
@@ -99,6 +111,7 @@ fun MonitorScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Define the activity monitor
                 ActivityMonitor(
                     titleFormatMap = titleFormatMap,
                     mappedData = uiState.physiologicalMappedData.entries.toList(),
@@ -113,6 +126,16 @@ fun MonitorScreen(
     }
 }
 
+/**
+ * A Composable function that represents a day switcher.
+ *
+ * @param modifier The modifier to be applied to the day switcher, default value is Modifier.
+ * @param onLeftButtonClick The function to be executed when the left button is clicked, default value is an empty function.
+ * @param onRightButtonClick The function to be executed when the right button is clicked, default value is an empty function.
+ * @param leftButtonEnabled A boolean flag indicating whether the left button is enabled, default value is true.
+ * @param rightButtonEnabled A boolean flag indicating whether the right button is enabled, default value is true.
+ * @param displayedText The text to be displayed in the day switcher, default value is an empty string.
+ */
 @Composable
 fun DaySwitcher(
     modifier: Modifier = Modifier,
@@ -182,6 +205,9 @@ fun DaySwitcher(
     }
 }
 
+/**
+ * A Composable function that represents a preview of the monitor screen.
+ */
 @Preview(showBackground = true)
 @Composable
 fun MonitorScreenPreview() {

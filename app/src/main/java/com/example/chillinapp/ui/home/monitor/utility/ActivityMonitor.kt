@@ -22,7 +22,15 @@ import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.ui.stressErrorText
 import java.util.Locale
 
-
+/**
+ * A Composable function that represents the main screen of the activity monitor.
+ *
+ * @param mappedData The mapped data to be displayed on the monitor.
+ * @param data The raw stress data to be displayed on the monitor.
+ * @param isPhysiologicalDataLoading Boolean indicating if the physiological data is currently being loaded.
+ * @param physiologicalError The current error, if any, related to the physiological data.
+ * @param titleFormatMap The map of title formats to be used for the monitor.
+ */
 @Composable
 fun ActivityMonitor(
     mappedData: List<Map.Entry<String, List<Pair<String, Any>>>>,
@@ -47,7 +55,15 @@ fun ActivityMonitor(
         )
 }
 
-
+/**
+ * A Composable function that represents a card in the activity monitor.
+ *
+ * @param titleFormatMap The map of title formats to be used for the monitor.
+ * @param entry The entry to be displayed on the card.
+ * @param data The raw stress data to be displayed on the card.
+ * @param isPhysiologicalDataLoading Boolean indicating if the physiological data is currently being loaded.
+ * @param physiologicalError The current error, if any, related to the physiological data.
+ */
 @Composable
 private fun PhysioMonitorCard(
     titleFormatMap: Map<String, String>,
@@ -92,6 +108,13 @@ private fun PhysioMonitorCard(
     }
 }
 
+/**
+ * A Composable function that represents the content of a card in the activity monitor.
+ *
+ * @param isPhysiologicalDataLoading Boolean indicating if the physiological data is currently being loaded.
+ * @param physiologicalError The current error, if any, related to the physiological data.
+ * @param points The points to be displayed on the card.
+ */
 @Composable
 private fun PhysioCardContent(
     isPhysiologicalDataLoading: Boolean,

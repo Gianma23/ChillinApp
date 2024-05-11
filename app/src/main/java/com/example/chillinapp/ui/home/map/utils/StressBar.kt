@@ -20,7 +20,14 @@ import androidx.compose.ui.unit.dp
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 import com.google.maps.android.heatmaps.Gradient
 
-
+/**
+ * A Composable function that displays a stress bar with a gradient.
+ *
+ * @param gradient The gradient to be used for the stress bar.
+ * @param minValue The minimum value to be displayed at the bottom of the stress bar.
+ * @param maxValue The maximum value to be displayed at the top of the stress bar.
+ * @param modifier The modifier to be applied to the layout.
+ */
 @Composable
 internal fun StressBar(
     gradient: Gradient,
@@ -29,18 +36,22 @@ internal fun StressBar(
     modifier: Modifier = Modifier
 ) {
 
+    // Convert the gradient colors to Compose colors and reverse the list.
     val colors = gradient.mColors.map { Color(it).copy(alpha = 0.7f) }.reversed()
 
+    // Create a vertical gradient brush with the colors.
     val brush = Brush.verticalGradient(
         colors = colors
     )
 
+    // A column layout that centers its children horizontally.
     Column(
         modifier = modifier
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        // A box that displays the maximum value.
         Box(
             modifier = Modifier
                 .padding(4.dp)
@@ -56,6 +67,7 @@ internal fun StressBar(
             )
         }
 
+        // A box that displays the gradient.
         Box(
             modifier = Modifier
                 .background(brush)
@@ -63,6 +75,7 @@ internal fun StressBar(
                 .padding(4.dp),
         )
 
+        // A box that displays the minimum value.
         Box(
             modifier = Modifier
                 .padding(4.dp)
@@ -81,6 +94,9 @@ internal fun StressBar(
     }
 }
 
+/**
+ * A preview Composable function that displays a stress bar with a gradient.
+ */
 @Preview
 @Composable
 fun StressBarPreview() {

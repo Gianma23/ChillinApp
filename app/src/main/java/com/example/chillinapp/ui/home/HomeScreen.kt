@@ -31,12 +31,20 @@ import com.example.chillinapp.ui.navigation.HomeNavGraph
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
-
+/**
+ * Object representing the home destination in the navigation.
+ */
 object HomeDestination : NavigationDestination {
     override val route = "home"
     override val titleRes = R.string.home_screen_title
 }
 
+/**
+ * A Composable function that represents the home screen.
+ *
+ * @param modifier The modifier to be applied to the home screen, default value is Modifier.
+ * @param navController The navigation controller for the home screen.
+ */
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -70,6 +78,11 @@ fun HomeScreen(
     }
 }
 
+/**
+ * A Composable function that represents the top bar of the home screen.
+ *
+ * @param navController The navigation controller for the top bar.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeTopBar(navController: NavHostController) {
@@ -104,6 +117,12 @@ private fun HomeTopBar(navController: NavHostController) {
     )
 }
 
+/**
+ * A Composable function that represents the bottom bar of the home screen.
+ *
+ * @param navController The navigation controller for the bottom bar.
+ * @param items The list of screens to be displayed in the bottom bar.
+ */
 @Composable
 private fun HomeBottomBar(
     navController: NavHostController,
@@ -134,6 +153,9 @@ private fun HomeBottomBar(
     }
 }
 
+/**
+ * A Composable function that represents a preview of the home screen.
+ */
 @Preview
 @Composable
 fun HomeScreenPreview() {

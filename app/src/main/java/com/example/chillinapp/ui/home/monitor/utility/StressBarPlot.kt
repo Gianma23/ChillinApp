@@ -31,7 +31,13 @@ import co.yml.charts.common.model.Point
 import com.example.chillinapp.ui.home.monitor.MonitorViewModel
 import java.util.Locale
 
-
+/**
+ * A Composable function that represents a bar plot for displaying stress data.
+ *
+ * @param points The points to be displayed on the bar plot.
+ * @param isToday A function that returns true if the current date is today.
+ * @param modifier The modifier to be applied to the bar plot, default value is Modifier.
+ */
 @Composable
 fun StressBarPlot(
     points: List<Point>,
@@ -39,9 +45,13 @@ fun StressBarPlot(
     modifier: Modifier = Modifier
 ) {
 
+    // Define the height of the bar plot.
     val height = 250.dp
+
+    // Remember the scroll state of the bar plot.
     val scrollState = rememberScrollState()
 
+    // Define the layout of the bar plot.
     Column(
         modifier = modifier
             .fillMaxSize(),
