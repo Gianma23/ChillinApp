@@ -293,17 +293,32 @@ class FirebaseAccountDao {
             )
         }
     }
-    suspend fun forgotPassword(email:String):ServiceResult<Unit, AccountErrorType>{
-        return try {
+    suspend fun forgotPassword(email: String): ServiceResult<Unit, AccountErrorType> {
+        try {
+            
+            val documentSnapshot = FirebaseFirestore.getInstance()
+                .collection("account")
+                .document(email)
+                .get()
+                .await()
+
+
+            if (!documentSnapshot.exists()) {
+                Log.d("Email non trovata nel database", email)
+                return ServiceResult(false, null, AccountErrorType.ACCOUNT_NOT_FOUND)
+            }
+
+
             auth.sendPasswordResetEmail(email).await()
-            Log.d("mail inviata con successo", email)
-            ServiceResult(true, null, null)
-        }
-        catch (e:Exception){
-            Log.d("mail NON inviata con successo", e.toString())
-            ServiceResult(false,null ,AccountErrorType.AUTHENTICATION_ERROR)
+            Log.d("Email inviata con successo", email)
+            return ServiceResult(true, null, null)
+
+        } catch (e: Exception) {
+            Log.d("Errore durante il recupero della password", e.toString())
+            return ServiceResult(false, null, AccountErrorType.AUTHENTICATION_ERROR)
         }
     }
+
 
     /**
      * Signs out the current user from Firebase's Authentication service.
