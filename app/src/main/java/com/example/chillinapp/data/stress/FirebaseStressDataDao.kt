@@ -135,10 +135,10 @@ class FirebaseStressDataDao {
                 if (timestamp != null) {
                     val binterval: Array<Float> = document.get("binterval") as Array<Float>
                     val prediction: Double = (document.get("prediction") as Double)
-                    val stress_level: Float = (document.get("stress_level") as Float)
+                    val stress_level: Double = (document.get("stress_level") as Double)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
-                    val stressDerivedData = StressDerivedData(timestamp, binterval, prediction, stress_level)
+                    val stressDerivedData = StressDerivedData(timestamp, binterval, prediction, stress_level.toFloat())
                     derivedDataList.add(stressDerivedData)
                 }
 
@@ -204,6 +204,7 @@ class FirebaseStressDataDao {
         }
 
     }
+
 
     suspend fun avgRawData(sincewhen: Long): ServiceResult<StressRawData?,StressErrorType> {
         val auth = Firebase.auth

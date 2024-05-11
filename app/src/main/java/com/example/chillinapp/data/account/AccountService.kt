@@ -95,6 +95,7 @@ interface AccountService {
      * @return A ServiceResult instance containing the result of the operation.
      */
     suspend fun getCurrentAccount() : ServiceResult <Account?, AccountErrorType>
+
     fun signOut(): ServiceResult<Unit, AccountErrorType>
 
 }
