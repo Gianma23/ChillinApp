@@ -103,7 +103,7 @@ class SensorService: LifecycleService(), SensorEventListener {
             tempSensor -> event.values[0]
             else -> 0f
         }
-        if (value == 0f) {
+        if (value <= 0f) {
             return
         }
         //Log.d(TAG, "Sensor ${event.sensor?.name} new value: ${value}, time: ${System.currentTimeMillis()}")
@@ -212,16 +212,17 @@ class SensorService: LifecycleService(), SensorEventListener {
      * full, it starts the WearableDataProvider service to send the data to the phone.
      */
     private fun saveData() {
+
+        if (lastHRValue == 0f ||
+            LocationProvider.latitude == 0.0 || LocationProvider.longitude == 0.0) {
+            return
+        }
         Log.d(TAG, "Save data\n" +
                 "HR: $lastHRValue\n" +
                 "EDA: $lastEDAValue\n" +
                 "Temp: $lastTempValue\n" +
                 "time: ${System.currentTimeMillis()}\n" +
                 "location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")
-
-        if (lastHRValue == 0f || LocationProvider.latitude == 0.0 || LocationProvider.longitude == 0.0) {
-            return
-        }
 
         var data = ByteArray(0)
         var tmpByte = ByteBuffer.allocate(8).putLong(System.currentTimeMillis()).array()

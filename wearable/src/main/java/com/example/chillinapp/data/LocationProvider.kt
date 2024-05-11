@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.OnSuccessListener
 import java.math.BigDecimal
@@ -68,6 +69,7 @@ object LocationProvider {
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build()
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+        Log.d(TAG, "Location updates started with sampling period: $samplingPeriod")
     }
 
     fun stopLocationUpdates() {
