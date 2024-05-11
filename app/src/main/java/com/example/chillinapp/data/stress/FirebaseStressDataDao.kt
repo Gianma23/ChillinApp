@@ -2,15 +2,12 @@ package com.example.chillinapp.data.stress
 
 import android.util.Log
 import com.example.chillinapp.data.ServiceResult
-import com.example.chillinapp.data.account.AccountService
-import com.example.chillinapp.data.account.FirebaseAccountDao
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
-
 
 
 class FirebaseStressDataDao {
@@ -46,15 +43,15 @@ class FirebaseStressDataDao {
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(rawData)?.await()
             }
-
             val fastreturn = fastInsert(stressData)
             if (fastreturn.success)
                 ServiceResult(true, null, null)
-            else
+            else {
                 fastreturn
+            }
         } catch (e: Exception) {
+            Log.e("Insert", e.toString())
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
-
         }
     }
 
@@ -97,16 +94,16 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartrateSensor: Float = (document.get("heartrateSensor") as Float)
-                    val skinTemperatureSensor: Float = (document.get("skinTemperatureSensor") as Float)
-                    val edaSensor: Float = (document.get("edaSensor") as Float)
+                    val heartrateSensor: Double = (document.get("heartrateSensor") as Double)
+                    val skinTemperatureSensor: Double = (document.get("skinTemperatureSensor") as Double)
+                    val edaSensor: Double = (document.get("edaSensor") as   Double)
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
                     val stressRawData = StressRawData(
                         timestamp = timestamp,
-                        heartRateSensor = heartrateSensor,
-                        skinTemperatureSensor = skinTemperatureSensor,
-                        edaSensor = edaSensor
+                        heartRateSensor = heartrateSensor.toFloat(),
+                        skinTemperatureSensor = skinTemperatureSensor.toFloat(),
+                        edaSensor = edaSensor.toFloat()
                     )
                     rawDataList.add(stressRawData)
                 }
@@ -115,7 +112,7 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
-            Log.d("getRawData", "Error: ${e.message}")
+            Log.e("getRawData", "An exception occurred", e)
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
         }
     }
@@ -157,8 +154,13 @@ class FirebaseStressDataDao {
 
     private suspend fun fastInsert(stressData: List<StressRawData>): ServiceResult<Unit, StressErrorType> {
         val email = auth.currentUser?.email
-        val key = email?.substringBefore("@")
-        val rawdatareference = key?.let { dbreference.child(it).child("RawData") }
+        var key: String? = null
+        if (email != null) {
+            if(email.contains(".")){
+                key = email.replace(".", "")
+            }
+        }
+        val rawdatareference = key?.let { dbreference.child("account").child(it).child("RawData") }
         return if (rawdatareference != null) {
             try {
                 rawdatareference.removeValue().await()
@@ -179,7 +181,7 @@ class FirebaseStressDataDao {
         val user = auth.currentUser
         val email = user?.email
         val keyname = email?.substringBefore("@")
-        val rawDataref = keyname?.let { dbreference.child(it).child("RawData") }
+        val rawDataref = keyname?.let { dbreference.child("account").child(it).child("RawData") }
         return try {
             val snapshot = rawDataref?.get()?.await()
             val stressDataList = mutableListOf<StressRawData>()

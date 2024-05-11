@@ -276,7 +276,7 @@ class FirebaseAccountDao {
      *
      * @param account The account to be created. It should contain the email, name, and password for the new account.
      * @return A ServiceResult instance containing the result of the operation. The success flag indicates whether the operation was successful.
-     * The data field is null. The error field contains an AccountErrorType indicating the type of error that occurred, if any.
+     * The data field is null. The physiologicalError field contains an AccountErrorType indicating the type of physiologicalError that occurred, if any.
      */
     suspend fun getCurrentAccount(): ServiceResult<Account?, AccountErrorType> {
         val currentUser = auth.currentUser

@@ -18,7 +18,7 @@ class FirebaseMapDao {
 
     /**
      * Get all the documents in the Map collection
-     * @return a ServiceResult object containing the list of Map objects if the operation was successful, an error type otherwise
+     * @return a ServiceResult object containing the list of Map objects if the operation was successful, an physiologicalError type otherwise
      */
     /*
     suspend fun get(): ServiceResult<List<Map>, MapErrorType> {
@@ -52,7 +52,7 @@ class FirebaseMapDao {
      * @param distance the distance from the center
      * @param date the date [default: today]
      * @param hour the hour
-     * @return a ServiceResult object containing the list of Map objects if the operation was successful, an error type otherwise
+     * @return a ServiceResult object containing the list of Map objects if the operation was successful, an physiologicalError type otherwise
      */
     suspend fun get(centerLat: Double,
                     centerLng: Double,
@@ -80,7 +80,7 @@ class FirebaseMapDao {
      * @param maxLng the maximum longitude
      * @param date the date
      * @param hour the hour
-     * @return a ServiceResult object containing the list of Map objects if the operation was successful, an error type otherwise
+     * @return a ServiceResult object containing the list of Map objects if the operation was successful, an physiologicalError type otherwise
      */
     private suspend fun get(minLat: Double, maxLat: Double, minLng: Double, maxLng: Double, date: String, hour: Int): ServiceResult<List<WeightedLatLng>, MapErrorType> {
         return try {

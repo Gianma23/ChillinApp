@@ -163,6 +163,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
         System.arraycopy(data, 28, longitudeBytes, 0, 8)
         val longitude = bytesToDouble(longitudeBytes)
 
+        Log.d(tag, "Latitude: $latitude, Longitude: $longitude")
         return StressRawData(timestamp, eda, temperature, hr, latitude, longitude)
     }
 

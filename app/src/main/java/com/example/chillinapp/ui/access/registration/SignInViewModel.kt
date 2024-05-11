@@ -357,7 +357,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
                 }
 
             } catch (e: Exception) {
-                Log.e("SignInViewModel", "Sign in error: ", e)
+                Log.e("SignInViewModel", "Sign in physiologicalError: ", e)
 
                 // If an exception occurs, update the UI state with the failed registration result
                 _uiState.update { logInUiState ->
