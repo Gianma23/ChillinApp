@@ -110,7 +110,6 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
             email.isEmpty() -> EmailValidationResult.EMPTY
             email.length > MAX_INPUT_LENGTH -> EmailValidationResult.TOO_LONG
             !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> EmailValidationResult.INVALID_FORMAT
-            /*TODO: Implement in-use validation */
             else -> EmailValidationResult.VALID
         }
     }
@@ -265,7 +264,7 @@ class SignInViewModel(private val accountService: AccountService): ViewModel() {
                 )
             }
 
-            /*TODO: Correct google authentication */
+            /*TODO: Fix google authentication */
             try {
                 // Attempt to authenticate with Google
                 val result = accountService.googleAuth("idToken")

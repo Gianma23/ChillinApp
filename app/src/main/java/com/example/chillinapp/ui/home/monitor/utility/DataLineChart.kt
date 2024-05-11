@@ -23,13 +23,21 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import java.util.Locale
 
-
+/**
+ * A Composable function that represents a line chart for displaying data.
+ *
+ * @param points The points to be displayed on the line chart.
+ * @param xLabelFun A function that generates the labels for the x-axis.
+ * @param yLabelFun A function that generates the labels for the y-axis.
+ */
 @Composable
 fun DataLineChart(
     points: List<Triple<Point, Long, Boolean>?>,
     xLabelFun: (Int) -> String,
     yLabelFun: (Int) -> String
 ) {
+
+    // Define the x-axis data.
     val xAxisData = AxisData.Builder()
         .axisLabelColor(MaterialTheme.colorScheme.tertiary)
         .axisLineColor(MaterialTheme.colorScheme.tertiary)
@@ -40,6 +48,7 @@ fun DataLineChart(
         .labelData(xLabelFun)
         .build()
 
+    // Define the y-axis data.
     val yAxisData = AxisData.Builder()
         .axisLabelColor(MaterialTheme.colorScheme.tertiary)
         .axisLineColor(MaterialTheme.colorScheme.tertiary)
@@ -49,6 +58,7 @@ fun DataLineChart(
         .labelData(yLabelFun)
         .build()
 
+    // Define the line chart data.
     val lineChartData = LineChartData(
         linePlotData = LinePlotData(
             lines = listOf(
@@ -98,6 +108,7 @@ fun DataLineChart(
         gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant)
     )
 
+    // Create the line chart.
     LineChart(
         modifier = Modifier
             .fillMaxWidth()

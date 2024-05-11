@@ -105,15 +105,15 @@ class FirebaseMapDao {
                 val filteredDay = days[date] ?: return@forEach
 
                 // Filter the hours based on the specified hour
-                val hours = filteredDay["hours"] as? Map<String, Any> ?: return@forEach
+                val hours = filteredDay["hours"] as? Map<String, Map<String, Any>> ?: return@forEach
 
                 val filteredHourData = hours[hour.toString()] ?: return@forEach
 
                 // Get the stress score from the filtered hour
-                val stressScore = (filteredHourData as Number).toDouble()
+                val stressScore = (filteredHourData["stress_score"] as Number).toDouble()
 
                 // Build the WeightedLatLng object and add it to the list
-                val weightedLatLng = WeightedLatLng(LatLng(latitude, longitude), stressScore.toDouble())
+                val weightedLatLng = WeightedLatLng(LatLng(latitude, longitude), stressScore)
                 coordinateList.add(weightedLatLng)
             }
 
