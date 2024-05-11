@@ -44,15 +44,15 @@ class FirebaseStressDataDao {
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(rawData)?.await()
             }
-
             val fastreturn = fastInsert(stressData)
             if (fastreturn.success)
                 ServiceResult(true, null, null)
-            else
+            else {
                 fastreturn
+            }
         } catch (e: Exception) {
+            Log.e("Insert", e.toString())
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
-
         }
     }
 
@@ -158,7 +158,12 @@ class FirebaseStressDataDao {
 
     private suspend fun fastInsert(stressData: List<StressRawData>): ServiceResult<Unit, StressErrorType> {
         val email = auth.currentUser?.email
-        val key = email?.substringBefore("@")
+        var key: String? = null
+        if (email != null) {
+            if(email.contains(".")){
+                key = email.replace(".", "")
+            }
+        }
         val rawdatareference = key?.let { dbreference.child(it).child("RawData") }
         return if (rawdatareference != null) {
             try {
