@@ -213,13 +213,14 @@ class SensorService: LifecycleService(), SensorEventListener {
      */
     private fun saveData() {
 
+        val time = System.currentTimeMillis()
+        lastEDAValue = lowFilter.filter(lastEDAValue.toDouble()).toFloat()
+        lastEDAValue = highFilter.filter(lastEDAValue.toDouble()).toFloat()
+
         if (lastHRValue == 0f ||
             LocationProvider.latitude == 0.0 || LocationProvider.longitude == 0.0) {
             return
         }
-        val time = System.currentTimeMillis()
-        lastEDAValue = lowFilter.filter(lastEDAValue.toDouble()).toFloat()
-        lastEDAValue = highFilter.filter(lastEDAValue.toDouble()).toFloat()
         Log.d(TAG, "Save data\n" +
                 "HR: $lastHRValue\n" +
                 "EDA: $lastEDAValue\n" +
