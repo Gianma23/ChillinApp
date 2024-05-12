@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.monitor.utility
+package com.example.chillinapp.ui.home.monitor.utils
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -21,6 +21,7 @@ import co.yml.charts.common.model.Point
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.ui.stressErrorText
 import java.util.Locale
+import kotlin.math.abs
 
 /**
  * A Composable function that represents the main screen of the activity monitor.
@@ -180,10 +181,10 @@ private fun PhysioCardContent(
                     val yScale = (points.mapNotNull { it?.first }.maxOf { it.y } - points.mapNotNull { it?.first }.minOf { it.y }) / (3)
                     val value = step * yScale + points.mapNotNull { it?.first }.minOf { it.y }
                     when {
-                        value >= 100 -> "${value.toInt()}   "
-                        value >= 10 -> "${"%.1f".format(Locale.getDefault(), value)}    "
-                        value >= 1 -> "${"%.2f".format(Locale.getDefault(), value)}   "
-                        value == 0f -> "0   "
+                        abs(value) >= 100 -> "${value.toInt()}   "
+                        abs(value) >= 10 -> "${"%.1f".format(Locale.getDefault(), value)}    "
+                        abs(value) >= 1 -> "${"%.2f".format(Locale.getDefault(), value)}   "
+                        abs(value) == 0f -> "0   "
                         else -> "${"%.3f".format(Locale.getDefault(), value)}   "
                     }
                 }

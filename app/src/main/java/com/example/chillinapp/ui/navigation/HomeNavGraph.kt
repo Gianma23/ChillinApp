@@ -11,8 +11,10 @@ import androidx.navigation.compose.composable
 import com.example.chillinapp.ui.access.login.LogInDestination
 import com.example.chillinapp.ui.home.map.MapDestination
 import com.example.chillinapp.ui.home.map.MapScreen
+import com.example.chillinapp.ui.home.map.MapViewModel
 import com.example.chillinapp.ui.home.monitor.MonitorDestination
 import com.example.chillinapp.ui.home.monitor.MonitorScreen
+import com.example.chillinapp.ui.home.monitor.MonitorViewModel
 import com.example.chillinapp.ui.home.settings.SettingsDestination
 import com.example.chillinapp.ui.home.settings.SettingsScreen
 
@@ -26,6 +28,8 @@ import com.example.chillinapp.ui.home.settings.SettingsScreen
 fun HomeNavGraph(
     homeNavController: NavHostController,
     mainNavController: NavHostController,
+    monitorViewModel: MonitorViewModel,
+    mapViewModel: MapViewModel,
     modifier: Modifier
 ) {
     NavHost(
@@ -51,7 +55,9 @@ fun HomeNavGraph(
                 )
             }
         ) {
-            MonitorScreen()
+            MonitorScreen(
+                viewModel = monitorViewModel
+            )
         }
 
         // Map screen route
@@ -68,7 +74,9 @@ fun HomeNavGraph(
                 )
             }
         ) {
-            MapScreen()
+            MapScreen(
+                viewModel = mapViewModel
+            )
         }
 
         // Settings screen route

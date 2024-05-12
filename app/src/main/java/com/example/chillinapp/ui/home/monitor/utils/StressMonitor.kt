@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.monitor.utility
+package com.example.chillinapp.ui.home.monitor.utils
 
 import android.util.Log
 import androidx.compose.foundation.background

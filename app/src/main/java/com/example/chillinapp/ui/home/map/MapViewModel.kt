@@ -15,7 +15,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.TileOverlay
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.heatmaps.HeatmapTileProvider
 import com.google.maps.android.heatmaps.WeightedLatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -178,6 +180,12 @@ class MapViewModel(
 //                date = uiState.value.currentDate
 //            )
             Log.d("MapViewModel", "Response: $response")
+            if(response.error == null) {
+                Log.d("MapViewModel", "Data:")
+                response.data?.forEach {
+                    Log.d("MapViewModel", "Lat: ${it.point.x}, Long: ${it.point.y}, Intensity: ${it.intensity}")
+                }
+            }
 
             // Update UI state
             _uiState.value = _uiState.value.copy(
@@ -228,8 +236,8 @@ class MapViewModel(
         val now = Calendar.getInstance()
 
         // Hour check
-        if (isSameDay(calendar.time, now.time) && calendar.get(Calendar.HOUR_OF_DAY) > now.get(Calendar.HOUR_OF_DAY)) {
-            calendar.set(Calendar.HOUR_OF_DAY, now.get(Calendar.HOUR_OF_DAY))
+        if (isSameDay(calendar.time, now.time) && calendar.get(Calendar.HOUR_OF_DAY) > now.get(Calendar.HOUR_OF_DAY) - 1) {
+            calendar.set(Calendar.HOUR_OF_DAY, now.get(Calendar.HOUR_OF_DAY) - 1)
         }
 
         _uiState.value = _uiState.value.copy(currentDate = calendar.time)
@@ -294,11 +302,45 @@ class MapViewModel(
         Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
     }
 
-    fun isCurrentHour(): Boolean {
-        val calendar = Calendar.getInstance()
-        calendar.time = uiState.value.currentDate
-        return calendar.get(Calendar.HOUR_OF_DAY) == Calendar.getInstance().get(Calendar.HOUR_OF_DAY) &&
-                isSameDay(calendar.time, Date())
+    fun isCurrentPreviousHour(): Boolean {
+        val now = Calendar.getInstance()
+
+        val currentHour = now.get(Calendar.HOUR_OF_DAY)
+        val currentDate = now.get(Calendar.DAY_OF_YEAR)
+
+        val uiStateHour = Calendar.getInstance().apply {
+            time = uiState.value.currentDate
+        }.get(Calendar.HOUR_OF_DAY)
+
+        val uiStateDate = Calendar.getInstance().apply {
+            time = uiState.value.currentDate
+        }.get(Calendar.DAY_OF_YEAR)
+
+        return currentHour - 1 == uiStateHour && currentDate == uiStateDate
+    }
+
+    fun updatePoints(newPoints: List<WeightedLatLng>) {
+        _uiState.value = _uiState.value.copy(
+            previousPoints = newPoints
+        )
+    }
+
+    fun initializeOverlay(it: TileOverlay?) {
+        _uiState.value = _uiState.value.copy(
+            tileOverlay = it
+        )
+    }
+
+    fun initializeProvider(it: HeatmapTileProvider): HeatmapTileProvider {
+        _uiState.value = _uiState.value.copy(
+            provider = it
+        )
+        return it
+    }
+
+    fun clearOverlay() {
+        _uiState.value.tileOverlay?.remove()
+        _uiState.value.tileOverlay?.clearTileCache()
     }
 
 }

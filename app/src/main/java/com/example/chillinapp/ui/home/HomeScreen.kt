@@ -23,10 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.AppViewModelProvider
+import com.example.chillinapp.ui.home.map.MapViewModel
+import com.example.chillinapp.ui.home.monitor.MonitorViewModel
 import com.example.chillinapp.ui.navigation.HomeNavGraph
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
@@ -48,7 +52,9 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    monitorViewModel: MonitorViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    mapViewModel: MapViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     val homeNavController = rememberNavController()
@@ -72,6 +78,8 @@ fun HomeScreen(
         HomeNavGraph(
             homeNavController = homeNavController,
             mainNavController = navController,
+            monitorViewModel = monitorViewModel,
+            mapViewModel = mapViewModel,
             modifier = Modifier
                 .padding(innerPadding)
         )

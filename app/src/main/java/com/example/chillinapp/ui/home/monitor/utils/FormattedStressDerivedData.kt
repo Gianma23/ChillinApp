@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.monitor.utility
+package com.example.chillinapp.ui.home.monitor.utils
 
 /**
  * Data class representing the formatted derived stress data.

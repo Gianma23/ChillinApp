@@ -16,9 +16,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
-import com.example.chillinapp.ui.home.monitor.utility.ActivityMonitor
-import com.example.chillinapp.ui.home.monitor.utility.StressMonitor
+import com.example.chillinapp.ui.home.monitor.utils.ActivityMonitor
+import com.example.chillinapp.ui.home.monitor.utils.StressMonitor
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
@@ -86,6 +87,7 @@ fun MonitorScreen(
                     .fillMaxWidth(),
                 onLeftButtonClick = { viewModel.previousDay() },
                 onRightButtonClick = { viewModel.nextDay() },
+                onCurrentDayClick = { viewModel.currentDay() },
                 rightButtonEnabled = !viewModel.isToday() && !uiState.isPhysiologicalDataLoading && !uiState.isStressDataLoading,
                 leftButtonEnabled = !uiState.isPhysiologicalDataLoading && !uiState.isStressDataLoading,
                 displayedText = viewModel.formatDate()
@@ -141,6 +143,7 @@ fun DaySwitcher(
     modifier: Modifier = Modifier,
     onLeftButtonClick: () -> Unit = {},
     onRightButtonClick: () -> Unit = {},
+    onCurrentDayClick: () -> Unit = {},
     leftButtonEnabled: Boolean = true,
     rightButtonEnabled: Boolean = true,
     displayedText: String = ""
@@ -150,57 +153,73 @@ fun DaySwitcher(
         contentAlignment = Alignment.Center
     ) {
 
-        Row(
-            modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        IconButton(
+            onClick = { onLeftButtonClick() },
+            enabled = leftButtonEnabled,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledContainerColor = Color.Transparent
+            ),
+            modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.CenterStart)
         ) {
-            Button(
-                onClick = { onLeftButtonClick() },
-                enabled = leftButtonEnabled,
-                colors = ButtonDefaults.buttonColors(
+            Icon(
+                imageVector = Icons.Filled.ArrowBackIosNew,
+                contentDescription = "Previous"
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .background(color = MaterialTheme.colorScheme.surfaceVariant)
+                .align(Alignment.Center)
+        ) {
+            Text(
+                text = displayedText,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(4.dp)
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            IconButton(
+                onClick = { onCurrentDayClick() },
+                enabled = rightButtonEnabled,
+                colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledContainerColor = Color.Transparent
                 ),
-                modifier = Modifier.padding(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBackIosNew,
-                    contentDescription = "Previous"
+                    imageVector = Icons.Outlined.CalendarToday,
+                    contentDescription = "Current day"
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(color = MaterialTheme.colorScheme.surfaceVariant)
-
-            ) {
-                Text(
-                    text = displayedText,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(4.dp)
-                )
-            }
-
-            Button(
+            IconButton(
                 onClick = { onRightButtonClick() },
                 enabled = rightButtonEnabled,
-                colors = ButtonDefaults.buttonColors(
+                colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledContainerColor = Color.Transparent
                 ),
-                modifier = Modifier.padding(8.dp)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = "Next"
                 )
             }
-
         }
     }
 }

@@ -8,8 +8,8 @@ import com.example.chillinapp.data.stress.StressDataService
 import com.example.chillinapp.data.stress.StressDerivedData
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
-import com.example.chillinapp.ui.home.monitor.utility.FormattedStressDerivedData
-import com.example.chillinapp.ui.home.monitor.utility.FormattedStressRawData
+import com.example.chillinapp.ui.home.monitor.utils.FormattedStressDerivedData
+import com.example.chillinapp.ui.home.monitor.utils.FormattedStressRawData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -447,6 +447,16 @@ class MonitorViewModel(
     }
 
     /**
+     * Function to switch to the current day.
+     */
+    fun currentDay() {
+        _uiState.update {
+            it.copy(day = Calendar.getInstance().time)
+        }
+        retrieveData()
+    }
+
+    /**
      * Function to check if the current day is today.
      *
      * @return A boolean indicating whether the current day is today.
@@ -474,5 +484,6 @@ class MonitorViewModel(
         }
 
     }
+
 }
 

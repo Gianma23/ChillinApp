@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.monitor.utility
+package com.example.chillinapp.ui.home.monitor.utils
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll

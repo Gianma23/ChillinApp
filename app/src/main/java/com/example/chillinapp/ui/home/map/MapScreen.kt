@@ -82,9 +82,14 @@ fun MapScreen(
             HeatMap(
                 cameraPositionState = uiState.cameraPositionState,
                 points = uiState.stressDataResponse?.data ?: emptyList(),
+                previousPoints = uiState.previousPoints,
                 setOnCameraMoveListener = { viewModel.updateCameraPosition(it) },
                 setOnMapLoadedCallback = { viewModel.loadHeatPoints(uiState.cameraPositionState.position.target) },
                 updateSearchRadius = { zoom -> viewModel.updateRadius(zoom) },
+                updatePoints = { viewModel.updatePoints(it) },
+                initializeOverlay = { viewModel.initializeOverlay(it) },
+                initializeProvider = { viewModel.initializeProvider(it) },
+                clearOverlay = { viewModel.clearOverlay() },
                 gradient = gradient
             )
         }
@@ -107,8 +112,11 @@ fun MapScreen(
 
         // Display a time changer at the center left of the screen.
         TimeChanger(
-            viewModel = viewModel,
-            uiState = uiState,
+            previousHour = { viewModel.previousHour() },
+            nextHour = { viewModel.nextHour() },
+            formatTime = { viewModel.formatTime() },
+            isCurrentHour = { viewModel.isCurrentPreviousHour() },
+            stressDataResponse = uiState.stressDataResponse != null,
             modifier = Modifier
                 .padding(8.dp)
                 .align(Alignment.CenterStart)

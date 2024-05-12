@@ -2,11 +2,14 @@ package com.example.chillinapp.ui.home.map
 
 import com.example.chillinapp.data.ServiceResult
 import com.example.chillinapp.data.map.MapErrorType
+import com.google.android.gms.maps.model.TileOverlay
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.heatmaps.HeatmapTileProvider
 import com.google.maps.android.heatmaps.WeightedLatLng
+import java.util.Calendar
 import java.util.Date
 
 /**
@@ -33,7 +36,7 @@ data class MapUiState (
         mapType = MapType.HYBRID,
     ),
 
-    val currentDate: Date = Date(),
+    val currentDate: Date = Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY, -1) }.time,
     val stressDataResponse: ServiceResult<List<WeightedLatLng>, MapErrorType>? = null,
 
     val isNotificationVisible: Boolean = false,
@@ -41,5 +44,9 @@ data class MapUiState (
     val maxStressValue: Int? = null,
     val minStressValue: Int? = null,
     val radius: Double = 0.0,
+
+    val previousPoints: List<WeightedLatLng> = emptyList(),
+    val provider: HeatmapTileProvider? = null,
+    val tileOverlay: TileOverlay? = null
 
     )

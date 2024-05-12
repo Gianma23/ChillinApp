@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.monitor.utility
+package com.example.chillinapp.ui.home.monitor.utils
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -96,7 +96,7 @@ fun DataLineChart(
                                 ""
                             else
                                 (timestamp?.let { timestampToTime(it) } ?: "") +
-                                        ("  value: " + "%.2f".format(Locale.getDefault(), y))
+                                        ("\nvalue: " + "%.2f".format(Locale.getDefault(), y))
                         }
                     )
                 )
