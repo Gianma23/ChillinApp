@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.monitor.utils
+package com.example.chillinapp.ui.home.monitor.utils.charts
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +21,7 @@ import co.yml.charts.ui.linechart.model.LineType
 import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.example.chillinapp.ui.home.monitor.utils.timestampToTime
 import java.util.Locale
 
 /**

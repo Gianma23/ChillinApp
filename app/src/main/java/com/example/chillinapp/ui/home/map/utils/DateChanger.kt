@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.chillinapp.R
 import com.example.chillinapp.ui.home.map.MapUiState
 import com.example.chillinapp.ui.home.map.MapViewModel
 
@@ -48,7 +50,7 @@ internal fun DateChanger(
             // An icon representing the "previous" action.
             Icon(
                 imageVector = Icons.Filled.ArrowBackIosNew,
-                contentDescription = "Previous"
+                contentDescription = stringResource(R.string.previous_day_content_descr)
             )
         }
 
@@ -76,7 +78,7 @@ internal fun DateChanger(
             // An icon representing the "next" action.
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                contentDescription = "Next"
+                contentDescription = stringResource(R.string.next_day_content_descr)
             )
         }
 

@@ -15,10 +15,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import co.yml.charts.common.model.Point
+import com.example.chillinapp.R
 import com.example.chillinapp.data.stress.StressErrorType
+import com.example.chillinapp.ui.home.monitor.utils.charts.DataLineChart
+import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressRawData
 import com.example.chillinapp.ui.stressErrorText
 import java.util.Locale
 import kotlin.math.abs
@@ -146,7 +150,10 @@ private fun PhysioCardContent(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "Error: ${stressErrorText(physiologicalError)}",
+                    text = stringResource(
+                        R.string.error_monitor_text,
+                        stressErrorText(physiologicalError)
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center
@@ -164,7 +171,7 @@ private fun PhysioCardContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No data",
+                    text = stringResource(R.string.no_data_text),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.tertiary,
                     textAlign = TextAlign.Center

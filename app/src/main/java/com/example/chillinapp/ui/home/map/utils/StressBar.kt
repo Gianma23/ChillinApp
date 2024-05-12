@@ -14,9 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.chillinapp.R
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 import com.google.maps.android.heatmaps.Gradient
 
@@ -59,7 +61,7 @@ internal fun StressBar(
                 .background(color = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Text(
-                text = maxValue?.toString() ?: "",
+                text = maxValue?.toString() ?: stringResource(R.string.default_bar_max_value),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -83,7 +85,7 @@ internal fun StressBar(
                 .background(color = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Text(
-                text = minValue?.toString() ?: "",
+                text = minValue?.toString() ?: stringResource(R.string.default_bar_min_value),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

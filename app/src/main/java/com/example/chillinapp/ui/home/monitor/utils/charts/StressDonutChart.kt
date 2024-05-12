@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.monitor.utils
+package com.example.chillinapp.ui.home.monitor.utils.charts
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,12 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import co.yml.charts.common.model.PlotType
 import co.yml.charts.ui.piechart.charts.DonutPieChart
 import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
+import com.example.chillinapp.R
 import com.example.chillinapp.ui.home.monitor.MonitorViewModel
+import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressDerivedData
 
 /**
  * A Composable function that represents a donut chart for displaying stress data.
@@ -33,17 +36,17 @@ fun StressDonutChart(stressData: List<FormattedStressDerivedData>) {
     // Define the slices of the donut chart.
     val slices = listOf(
         PieChartData.Slice(
-            "Unknown",
+            stringResource(R.string.unknown_stress_label),
             stressData.filter { it.dummy }.size.toFloat(),
             MaterialTheme.colorScheme.onSurfaceVariant
         ),
         PieChartData.Slice(
-            "Stressed",
+            stringResource(R.string.stressed_stress_label),
             stressData.filter { it.stressLevel >= MonitorViewModel.STRESS_THRESHOLD }.size.toFloat(),
             MaterialTheme.colorScheme.tertiary
         ),
         PieChartData.Slice(
-            "Not stressed",
+            stringResource(R.string.not_stressed_stress_label),
             stressData.filter { it.stressLevel < MonitorViewModel.STRESS_THRESHOLD && !it.dummy }.size.toFloat(),
             MaterialTheme.colorScheme.onTertiary
         ),

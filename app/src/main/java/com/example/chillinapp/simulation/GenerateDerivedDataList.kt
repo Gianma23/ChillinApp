@@ -6,7 +6,13 @@ import com.example.chillinapp.data.stress.StressDerivedData
 import com.example.chillinapp.data.stress.StressErrorType
 import java.util.Random
 
-
+/**
+ * Simulates the generation of derived stress data for a given time range.
+ * @param start The start time for the data generation in milliseconds.
+ * @param end The end time for the data generation in milliseconds.
+ * @param invalidDataProbability The probability of generating invalid data points (e.g., missing data) as a value between 0 and 1.
+ * @return A ServiceResult containing the generated derived stress data.
+ */
 fun simulateDerivedDataService(
     start: Long,
     end: Long,
@@ -22,6 +28,13 @@ fun simulateDerivedDataService(
     return response
 }
 
+/**
+ * Generates a list of derived stress data for a given time range.
+ * @param start The start time for the data generation in milliseconds.
+ * @param end The end time for the data generation in milliseconds.
+ * @param invalidDataProbability The probability of generating invalid data points (e.g., missing data) as a value between 0 and 1.
+ * @return A list of StressDerivedData objects representing the generated derived stress data.
+ */
 private fun generateDerivedDataList(
     start: Long,
     end: Long,

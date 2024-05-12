@@ -17,10 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import co.yml.charts.common.model.Point
+import com.example.chillinapp.R
 import com.example.chillinapp.data.stress.StressErrorType
+import com.example.chillinapp.ui.home.monitor.utils.charts.StressBarPlot
+import com.example.chillinapp.ui.home.monitor.utils.charts.StressDonutChart
+import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressDerivedData
 import com.example.chillinapp.ui.stressErrorText
 
 /**
@@ -84,7 +89,10 @@ fun StressMonitor(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Error: ${stressErrorText(stressError)}",
+                        text = stringResource(
+                            id = R.string.error_monitor_text,
+                            stressErrorText(stressError)
+                        ),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center

@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -65,9 +66,9 @@ fun MonitorScreen(
 
     // Map of sensor names to their display names
     val titleFormatMap = mapOf(
-        "heartRateSensor" to "Heart Rate",
-        "skinTemperatureSensor" to "Skin Temperature",
-        "edaSensor" to "Electrodermal Activity"
+        "heartRateSensor" to stringResource(R.string.heart_rate_label),
+        "skinTemperatureSensor" to stringResource(R.string.skin_temperature_label),
+        "edaSensor" to stringResource(R.string.electrodermal_activity_label)
     )
 
     // Define the layout of the monitor screen
@@ -167,7 +168,7 @@ fun DaySwitcher(
         ) {
             Icon(
                 imageVector = Icons.Filled.ArrowBackIosNew,
-                contentDescription = "Previous"
+                contentDescription = stringResource(id = R.string.previous_day_content_descr)
             )
         }
 
@@ -202,7 +203,7 @@ fun DaySwitcher(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.CalendarToday,
-                    contentDescription = "Current day"
+                    contentDescription = stringResource(R.string.current_day_content_descr)
                 )
             }
 
@@ -217,7 +218,7 @@ fun DaySwitcher(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = "Next"
+                    contentDescription = stringResource(id = R.string.next_day_content_descr)
                 )
             }
         }

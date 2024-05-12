@@ -1,8 +1,8 @@
 package com.example.chillinapp.ui.home.monitor
 
 import com.example.chillinapp.data.stress.StressErrorType
-import com.example.chillinapp.ui.home.monitor.utils.FormattedStressDerivedData
-import com.example.chillinapp.ui.home.monitor.utils.FormattedStressRawData
+import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressDerivedData
+import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressRawData
 import java.util.Date
 
 /**

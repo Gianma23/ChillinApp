@@ -1,4 +1,6 @@
-package com.example.chillinapp.ui.home.monitor.utils
+package com.example.chillinapp.ui.home.monitor.utils.classes
+
+import com.example.chillinapp.ui.home.monitor.utils.timestampToString
 
 /**
  * Data class representing the formatted raw stress data.

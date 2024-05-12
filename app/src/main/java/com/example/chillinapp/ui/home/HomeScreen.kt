@@ -31,6 +31,7 @@ import com.example.chillinapp.R
 import com.example.chillinapp.ui.AppViewModelProvider
 import com.example.chillinapp.ui.home.map.MapViewModel
 import com.example.chillinapp.ui.home.monitor.MonitorViewModel
+import com.example.chillinapp.ui.home.settings.SettingsViewModel
 import com.example.chillinapp.ui.navigation.HomeNavGraph
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
@@ -54,7 +55,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     monitorViewModel: MonitorViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    mapViewModel: MapViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    mapViewModel: MapViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    settingsViewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     val homeNavController = rememberNavController()
@@ -80,6 +82,7 @@ fun HomeScreen(
             mainNavController = navController,
             monitorViewModel = monitorViewModel,
             mapViewModel = mapViewModel,
+            settingsViewModel = settingsViewModel,
             modifier = Modifier
                 .padding(innerPadding)
         )

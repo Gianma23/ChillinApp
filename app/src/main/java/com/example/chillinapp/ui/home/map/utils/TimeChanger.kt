@@ -16,8 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.chillinapp.R
 
 /**
  * A Composable function that represents a time changer component.
@@ -54,7 +56,7 @@ internal fun TimeChanger(
             // An icon representing the "previous hour" action.
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowUp,
-                contentDescription = "Previous Hour"
+                contentDescription = stringResource(R.string.previous_hour_content_descr)
             )
         }
 
@@ -84,7 +86,7 @@ internal fun TimeChanger(
             // An icon representing the "next hour" action.
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowDown,
-                contentDescription = "Next Hour"
+                contentDescription = stringResource(R.string.next_hour_content_descr)
             )
         }
 

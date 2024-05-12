@@ -1,4 +1,4 @@
-package com.example.chillinapp.ui.home.monitor.utils
+package com.example.chillinapp.ui.home.monitor.utils.charts
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -24,10 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import co.yml.charts.common.model.Point
+import com.example.chillinapp.R
 import com.example.chillinapp.ui.home.monitor.MonitorViewModel
 import java.util.Locale
 
@@ -74,7 +76,10 @@ fun StressBarPlot(
             ){
 
                 Text(
-                    text = "Stress threshold: ${MonitorViewModel.STRESS_THRESHOLD}*",
+                    text = stringResource(
+                        R.string.stress_threshold_label,
+                        MonitorViewModel.STRESS_THRESHOLD
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )
@@ -150,7 +155,7 @@ fun StressBarPlot(
         }
 
         Text(
-            text = "* Each bar represents 5 minutes. Stress values are computed in the range [0, 1].",
+            text = stringResource(R.string.stress_bar_char_description),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start

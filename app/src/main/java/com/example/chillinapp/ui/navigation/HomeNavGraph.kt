@@ -17,6 +17,7 @@ import com.example.chillinapp.ui.home.monitor.MonitorScreen
 import com.example.chillinapp.ui.home.monitor.MonitorViewModel
 import com.example.chillinapp.ui.home.settings.SettingsDestination
 import com.example.chillinapp.ui.home.settings.SettingsScreen
+import com.example.chillinapp.ui.home.settings.SettingsViewModel
 
 /**
  * Navigation graph for the home screen.
@@ -30,6 +31,7 @@ fun HomeNavGraph(
     mainNavController: NavHostController,
     monitorViewModel: MonitorViewModel,
     mapViewModel: MapViewModel,
+    settingsViewModel: SettingsViewModel,
     modifier: Modifier
 ) {
     NavHost(
@@ -91,7 +93,8 @@ fun HomeNavGraph(
                     mainNavController.navigate(LogInDestination.route) {
                         popUpTo(LogInDestination.route) { inclusive = true }
                     }
-                }
+                },
+                viewModel = settingsViewModel
             )
         }
     }

@@ -31,6 +31,11 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.pow
 
+/**
+ * ViewModel for the Map screen.
+ *
+ * @property mapService Service for fetching map data.
+ */
 class MapViewModel(
     private val mapService: MapService
 ) : ViewModel() {
@@ -52,6 +57,11 @@ class MapViewModel(
         private const val MAX_RADIUS = 20.0
     }
 
+    /**
+     * Updates the radius based on the zoom level.
+     *
+     * @param zoom The current zoom level.
+     */
     fun updateRadius(zoom: Float) {
         when {
             zoom < MAX_ZOOM && zoom > MIN_ZOOM -> {
@@ -67,6 +77,11 @@ class MapViewModel(
         }
     }
 
+    /**
+     * Checks if the necessary permissions are granted and requests them if not.
+     *
+     * @param context The context to use for checking and requesting permissions.
+     */
     fun checkPermissions(context: Context) {
 
         val permissionGranted = ActivityCompat.checkSelfPermission(
@@ -88,6 +103,11 @@ class MapViewModel(
 
     }
 
+    /**
+     * Gets the last known location of the device.
+     *
+     * @param context The context to use for getting the location.
+     */
     private fun getLastLocation(context: Context) {
 
         if (ActivityCompat.checkSelfPermission(
@@ -151,6 +171,11 @@ class MapViewModel(
         }
     }
 
+    /**
+     * Loads the stress points for the given target location.
+     *
+     * @param target The target location for which to load the stress points.
+     */
     fun loadHeatPoints(target: LatLng) {
 
         hideNotifyAction()
@@ -225,6 +250,9 @@ class MapViewModel(
 
     }
 
+    /**
+     * Moves the current date one day back.
+     */
     fun previousDay() {
         val calendar = Calendar.getInstance()
         calendar.time = uiState.value.currentDate
@@ -234,6 +262,9 @@ class MapViewModel(
         Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
     }
 
+    /**
+     * Moves the current date one day forward.
+     */
     fun nextDay() {
         val calendar = Calendar.getInstance()
         calendar.time = uiState.value.currentDate
@@ -250,44 +281,22 @@ class MapViewModel(
         Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
     }
 
+    /**
+     * Formats the current date to a string.
+     *
+     * @return The formatted date string.
+     */
     fun formatDate(): String {
         return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
             uiState.value.currentDate
         ).toString()
     }
 
-    fun isToday(): Boolean {
-        return isSameDay(Date(), uiState.value.currentDate)
-    }
-
-    private fun isSameDay(date1: Date, date2: Date): Boolean {
-        val calendar1 = Calendar.getInstance()
-        calendar1.time = date1
-        val calendar2 = Calendar.getInstance()
-        calendar2.time = date2
-        return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
-                calendar1.get(Calendar.DAY_OF_YEAR) == calendar2.get(Calendar.DAY_OF_YEAR)
-    }
-
-    fun hideNotifyAction() {
-        _uiState.value = _uiState.value.copy(isNotificationVisible = false)
-    }
-
-    fun updateCameraPosition(cameraPositionState: CameraPositionState) {
-        _uiState.value = _uiState.value.copy(
-            cameraPositionState = cameraPositionState
-        )
-    }
-
-    fun previousHour() {
-        val calendar = Calendar.getInstance()
-        calendar.time = uiState.value.currentDate
-        calendar.add(Calendar.HOUR_OF_DAY, -1)
-
-        _uiState.value = _uiState.value.copy(currentDate = calendar.time)
-        Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
-    }
-
+    /**
+     * Formats the current time to a string.
+     *
+     * @return The formatted time string.
+     */
     fun formatTime(): String {
         val currentHour = SimpleDateFormat("HH:00", Locale.getDefault()).format(uiState.value.currentDate)
 
@@ -299,6 +308,60 @@ class MapViewModel(
         return "$currentHour\n-\n$nextHour"
     }
 
+    /**
+     * Checks if the current date is today.
+     *
+     * @return True if the current date is today, false otherwise.
+     */
+    fun isToday(): Boolean {
+        return isSameDay(Date(), uiState.value.currentDate)
+    }
+
+    /**
+     * Hides the notification action.
+     */
+    private fun isSameDay(date1: Date, date2: Date): Boolean {
+        val calendar1 = Calendar.getInstance()
+        calendar1.time = date1
+        val calendar2 = Calendar.getInstance()
+        calendar2.time = date2
+        return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
+                calendar1.get(Calendar.DAY_OF_YEAR) == calendar2.get(Calendar.DAY_OF_YEAR)
+    }
+
+    /**
+     * Hides the notification action.
+     */
+    fun hideNotifyAction() {
+        _uiState.value = _uiState.value.copy(isNotificationVisible = false)
+    }
+
+    /**
+     * Updates the camera position.
+     *
+     * @param cameraPositionState The new camera position state.
+     */
+    fun updateCameraPosition(cameraPositionState: CameraPositionState) {
+        _uiState.value = _uiState.value.copy(
+            cameraPositionState = cameraPositionState
+        )
+    }
+
+    /**
+     * Moves the current hour one hour back.
+     */
+    fun previousHour() {
+        val calendar = Calendar.getInstance()
+        calendar.time = uiState.value.currentDate
+        calendar.add(Calendar.HOUR_OF_DAY, -1)
+
+        _uiState.value = _uiState.value.copy(currentDate = calendar.time)
+        Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
+    }
+
+    /**
+     * Moves the current hour one hour forward.
+     */
     fun nextHour() {
         val calendar = Calendar.getInstance()
         calendar.time = uiState.value.currentDate
@@ -308,6 +371,11 @@ class MapViewModel(
         Log.d("MapViewModel", "Current date: ${uiState.value.currentDate}")
     }
 
+    /**
+     * Checks if the current hour is the previous hour.
+     *
+     * @return True if the current hour is the previous hour, false otherwise.
+     */
     fun isCurrentPreviousHour(): Boolean {
         val now = Calendar.getInstance()
 
@@ -325,18 +393,34 @@ class MapViewModel(
         return currentHour - 1 == uiStateHour && currentDate == uiStateDate
     }
 
+    /**
+     * Updates the points.
+     *
+     * @param newPoints The new points.
+     */
     fun updatePoints(newPoints: List<WeightedLatLng>) {
         _uiState.value = _uiState.value.copy(
             previousPoints = newPoints
         )
     }
 
+    /**
+     * Initializes the overlay.
+     *
+     * @param it The tile overlay.
+     */
     fun initializeOverlay(it: TileOverlay?) {
         _uiState.value = _uiState.value.copy(
             tileOverlay = it
         )
     }
 
+    /**
+     * Initializes the provider.
+     *
+     * @param it The heatmap tile provider.
+     * @return The heatmap tile provider.
+     */
     fun initializeProvider(it: HeatmapTileProvider): HeatmapTileProvider {
         _uiState.value = _uiState.value.copy(
             provider = it
@@ -344,6 +428,9 @@ class MapViewModel(
         return it
     }
 
+    /**
+     * Clears the overlay.
+     */
     fun clearOverlay() {
         _uiState.value.tileOverlay?.remove()
         _uiState.value.tileOverlay?.clearTileCache()

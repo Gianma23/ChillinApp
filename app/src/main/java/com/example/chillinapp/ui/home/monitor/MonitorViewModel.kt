@@ -8,8 +8,8 @@ import com.example.chillinapp.data.stress.StressDataService
 import com.example.chillinapp.data.stress.StressDerivedData
 import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
-import com.example.chillinapp.ui.home.monitor.utils.FormattedStressDerivedData
-import com.example.chillinapp.ui.home.monitor.utils.FormattedStressRawData
+import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressDerivedData
+import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressRawData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
