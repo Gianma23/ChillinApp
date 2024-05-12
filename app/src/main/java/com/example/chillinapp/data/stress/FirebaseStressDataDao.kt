@@ -133,7 +133,9 @@ class FirebaseStressDataDao {
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
                     val binterval: ArrayList<Float> = document.get("binterval") as ArrayList<Float>
-                    val stressScore: Double = (document.get("stress_score") as Double)
+
+                    val stressScore: Number = document.get("stress_score") as Number
+                    
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
                     val stressDerivedData = StressDerivedData(timestamp, binterval, stressScore.toFloat())
