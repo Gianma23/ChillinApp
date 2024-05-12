@@ -99,15 +99,17 @@ class MapViewModel(
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             Log.d("MapViewModel", "No permission")
-            _uiState.value = MapUiState(
-                cameraPositionState = CameraPositionState(
-                    CameraPosition.fromLatLngZoom(
-                        DEFAULT_LOCATION,
-                        15f
+            _uiState.update {
+                it.copy(
+                    checkingPermissions = false,
+                    cameraPositionState = CameraPositionState(
+                        CameraPosition.fromLatLngZoom(
+                            DEFAULT_LOCATION,
+                            15f
+                        )
                     )
-                ),
-                checkingPermissions = false
-            )
+                )
+            }
             Log.d("MapViewModel", "Location: $DEFAULT_LOCATION")
 
             return
@@ -120,25 +122,29 @@ class MapViewModel(
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
-                _uiState.value = MapUiState(
-                    cameraPositionState = CameraPositionState(
-                        CameraPosition.fromLatLngZoom(
-                            LatLng(location.latitude, location.longitude),
-                            15f
-                        )
-                    ),
-                    checkingPermissions = false
-                )
+                _uiState.update {
+                    it.copy(
+                        cameraPositionState = CameraPositionState(
+                            CameraPosition.fromLatLngZoom(
+                                LatLng(location.latitude, location.longitude),
+                                15f
+                            )
+                        ),
+                        checkingPermissions = false
+                    )
+                }
             } else {
-                _uiState.value = MapUiState(
-                    cameraPositionState = CameraPositionState(
-                        CameraPosition.fromLatLngZoom(
-                            DEFAULT_LOCATION,
-                            15f
-                        )
-                    ),
-                    checkingPermissions = false
-                )
+                _uiState.update {
+                    it.copy(
+                        cameraPositionState = CameraPositionState(
+                            CameraPosition.fromLatLngZoom(
+                                DEFAULT_LOCATION,
+                                15f
+                            )
+                        ),
+                        checkingPermissions = false
+                    )
+                }
             }
             Log.d("MapViewModel", "Location: $location")
 
