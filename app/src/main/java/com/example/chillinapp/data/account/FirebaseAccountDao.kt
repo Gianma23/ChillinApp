@@ -27,8 +27,9 @@ class FirebaseAccountDao {
 
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
-    private val auth=Firebase.auth
-    private val dbreference=FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
+    private val auth = Firebase.auth
+    private val dbreference =
+        FirebaseDatabase.getInstance("https://chillinapp-a5b5b-default-rtdb.europe-west1.firebasedatabase.app/").reference
 
     /**
      * Creates a new account in the Firestore database and authenticates the user with Firebase's Authentication service.
@@ -93,9 +94,9 @@ class FirebaseAccountDao {
      */
     suspend fun isEmailInUse(email: String): ServiceResult<Unit, AccountErrorType> {
         return try {
-            val account=accountCollection.document(email).get().await()
+            val account = accountCollection.document(email).get().await()
 
-            if(account.exists()){
+            if (account.exists()) {
                 val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
                     success = true,
                     data = null,
@@ -103,8 +104,7 @@ class FirebaseAccountDao {
                 )
                 Log.d("FirebaseAccountDao: isEmailInUse", "The email is in use: $email")
                 response
-            }
-            else{
+            } else {
                 val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
                     success = false,
                     data = null,
@@ -114,7 +114,7 @@ class FirebaseAccountDao {
                 response
             }
 
-        } catch (e:Exception){
+        } catch (e: Exception) {
             Log.e("FirebaseAccountDao: isEmailInUse", "An exception occurred: ", e)
 
             val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
@@ -134,7 +134,7 @@ class FirebaseAccountDao {
      * @param password The password to be authenticated.
      * @return A ServiceResult instance containing the result of the operation.
      */
-    suspend fun credentialAuth(email: String, password: String): ServiceResult<Unit,AccountErrorType> {
+    suspend fun credentialAuth(email: String, password: String): ServiceResult<Unit, AccountErrorType> {
         return try {
 
 
@@ -199,7 +199,7 @@ class FirebaseAccountDao {
         try {
             val account = accountCollection.document(email).get().await()
 
-            if(!account.exists()) {
+            if (!account.exists()) {
                 val response: ServiceResult<Account?, AccountErrorType> = ServiceResult(
                     success = false,
                     data = null,
@@ -223,7 +223,7 @@ class FirebaseAccountDao {
             Log.d("FirebaseAccountDao: getAccount", "Account retrieval successful: $response")
             return response
 
-        } catch (e:Exception){
+        } catch (e: Exception) {
             Log.e("FirebaseAccountDao: getAccount", "An exception occurred: ", e)
 
             val response: ServiceResult<Account?, AccountErrorType> = ServiceResult(
@@ -249,7 +249,7 @@ class FirebaseAccountDao {
      * @param idToken The Google ID token to be authenticated.
      * @return A ServiceResult instance containing the result of the operation.
      */
-    suspend fun signInWithGoogle(idToken: String): ServiceResult<String, AccountErrorType>{
+    suspend fun signInWithGoogle(idToken: String): ServiceResult<String, AccountErrorType> {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         return try {
             auth.signInWithCredential(credential).await()
@@ -293,9 +293,10 @@ class FirebaseAccountDao {
             )
         }
     }
+
     suspend fun forgotPassword(email: String): ServiceResult<Unit, AccountErrorType> {
         try {
-            
+
             val documentSnapshot = FirebaseFirestore.getInstance()
                 .collection("account")
                 .document(email)
@@ -325,7 +326,7 @@ class FirebaseAccountDao {
      *
      * @return A ServiceResult instance containing the result of the operation.
      */
-    fun signOut(): ServiceResult<Unit,AccountErrorType> {
+    fun signOut(): ServiceResult<Unit, AccountErrorType> {
         return try {
             auth.signOut()
             val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
@@ -348,19 +349,31 @@ class FirebaseAccountDao {
     }
 
 
-//    suspend fun deleteAccount(email: String): ServiceResult<Unit,AccountErrorType>{
-//        val docRef=accountCollection.document(email).get().await()
-//
-//        try {
-//            val psw=docRef.get("password")
-//            auth.signInWithCredential(email,)
-//            docRef.delete()
-//
-//        }
-//    }
+    suspend fun deletecurrentAccount(): ServiceResult<Unit, AccountErrorType> {
+        val email = auth.currentUser?.email
+        val docRef = email?.let { accountCollection.document(it) }
+
+        try {
+            //delete all the data account
+            docRef?.delete()?.await()
+            // delete the auth for Firebase
+            auth.currentUser?.delete()
+            return ServiceResult(true, null, null)
 
 
+        } catch (e: Exception) {
+            Log.e("FirebaseAccountDao: signOut", "An exception occurred: ", e)
+            val response: ServiceResult<Unit, AccountErrorType> = ServiceResult(
+                success = false,
+                data = null,
+                error = AccountErrorType.AUTHENTICATION_ERROR
+            )
+            return response
+        }
+    }
 }
+
+
 
 
 
