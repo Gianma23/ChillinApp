@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import kotlin.math.pow
 
 /**
  * ViewModel for the Monitor screen. It handles the business logic for fetching and processing stress data.
@@ -36,7 +37,8 @@ class MonitorViewModel(
     companion object{
         const val STRESS_THRESHOLD = 0.6F
         const val STRESS_STEP_SIZE = 1000L * 60 * 5 // 5 minutes
-        const val PHYSIO_STEP_SIZE = 1000L * 60 * 5 // 1 minute
+        const val PHYSIO_STEP_SIZE = 1000L * 60 * 5 // 5 minute
+        const val STRESS_IMPORTANCE = 6.0
     }
 
     /**
@@ -390,7 +392,9 @@ class MonitorViewModel(
             val dataInSecond = data.filter { it.millis in time until time + STRESS_STEP_SIZE }
 
             if (dataInSecond.isNotEmpty()) {
-                val weightedAverage = (dataInSecond.sumOf { (it.stressLevel * it.stressLevel).toDouble() } / dataInSecond.sumOf { it.stressLevel.toDouble() }).coerceIn(0.0, 1.0)
+                val weightedAverage =
+                    (dataInSecond.sumOf { it.stressLevel.toDouble().pow(STRESS_IMPORTANCE) } /
+                            dataInSecond.sumOf { it.stressLevel.toDouble().pow(STRESS_IMPORTANCE - 1) })
                 val lowerBoundAvg = dataInSecond.map { it.lowerBound }.average()
                 val upperBoundAvg = dataInSecond.map { it.upperBound }.average()
 
