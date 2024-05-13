@@ -16,43 +16,60 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.chillinapp.ui.home.map.MapUiState
-import com.example.chillinapp.ui.home.map.MapViewModel
+import com.example.chillinapp.R
 
-
+/**
+ * A Composable function that represents a time changer component.
+ *
+ * @param previousHour A function that is invoked when the "previous hour" button is clicked.
+ * @param nextHour A function that is invoked when the "next hour" button is clicked.
+ * @param formatTime A function that returns the current time as a formatted string.
+ * @param isCurrentHour A function that returns a boolean indicating whether the current time is the current hour.
+ * @param stressDataResponse A nullable Boolean that indicates whether there is stress data response available.
+ * @param modifier A Modifier that can be used to adjust the layout or other visual properties of the Composable.
+ */
 @Composable
 internal fun TimeChanger(
-    viewModel: MapViewModel,
-    uiState: MapUiState,
+    previousHour: () -> Unit,
+    nextHour: () -> Unit,
+    formatTime: () -> String,
+    isCurrentHour: () -> Boolean,
+    stressDataResponse: Boolean?,
     modifier: Modifier = Modifier
 ) {
 
+    // A column layout that centers its children horizontally.
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        // A button that triggers the action to go to the previous hour.
         Button(
-            onClick = { viewModel.previousHour() },
-            enabled = uiState.stressDataResponse != null,
+            onClick = { previousHour() },
+            enabled = stressDataResponse != null,
             modifier = Modifier.padding(8.dp)
         ) {
+            // An icon representing the "previous hour" action.
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowUp,
-                contentDescription = "Previous Hour"
+                contentDescription = stringResource(R.string.previous_hour_content_descr)
             )
         }
 
+        // A box that displays the current time.
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
                 .background(color = MaterialTheme.colorScheme.surfaceVariant)
 
         ) {
+            // The text view that displays the formatted time.
             Text(
-                text = viewModel.formatTime(),
+                text = formatTime(),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(4.dp),
@@ -60,14 +77,16 @@ internal fun TimeChanger(
             )
         }
 
+        // A button that triggers the action to go to the next hour.
         Button(
-            onClick = { viewModel.nextHour() },
-            enabled = uiState.stressDataResponse != null && !viewModel.isCurrentHour(),
+            onClick = { nextHour() },
+            enabled = stressDataResponse != null && !isCurrentHour(),
             modifier = Modifier.padding(8.dp)
         ) {
+            // An icon representing the "next hour" action.
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowDown,
-                contentDescription = "Next Hour"
+                contentDescription = stringResource(R.string.next_hour_content_descr)
             )
         }
 

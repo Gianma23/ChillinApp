@@ -10,7 +10,6 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 
 
-
 class FirebaseStressDataDao {
     private val db: FirebaseFirestore = Firebase.firestore
     private val accountCollection = db.collection("account")
@@ -21,7 +20,7 @@ class FirebaseStressDataDao {
     /**
      * Insert raw data to the database. Protocol is defined to get 30 samples of data at a time.
      * @param stressData List of [StressRawData] to be inserted
-     * @return [ServiceResult] with Unit as success type and [StressErrorType] as physiologicalError type
+     * @return [ServiceResult] with Unit as success type and [StressErrorType] as error type
      */
     suspend fun insertRawData(stressData: List<StressRawData>): ServiceResult<Unit, StressErrorType> {
         val user = auth.currentUser
@@ -67,8 +66,7 @@ class FirebaseStressDataDao {
                 val derivedData = hashMapOf(
                     "timestamp" to data.timestamp,
                     "binterval" to data.bInterval,
-                    "prediction" to data.prediction,
-                    "stress_level" to data.stressLevel
+                    "stress_score" to data.stressLevel
                 )
                 Log.d("Insert", "Insert completed")
                 rawDocument?.set(derivedData)?.await()
@@ -95,8 +93,7 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val heartrateSensor: Double= (document.get("heartrateSensor") as Double)
-                    Log.d("heartsensor", "$heartrateSensor")
+                    val heartrateSensor: Double = (document.get("heartrateSensor") as Double)
                     val skinTemperatureSensor: Double = (document.get("skinTemperatureSensor") as Double)
                     val edaSensor: Double = (document.get("edaSensor") as   Double)
 
@@ -114,10 +111,8 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, rawDataList, null)
         } catch (e: Exception) {
-            Log.d("Get Raw Data", e.toString())
+            Log.e("getRawData", "An exception occurred", e)
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
-
-
         }
     }
 
@@ -125,7 +120,7 @@ class FirebaseStressDataDao {
         val user = auth.currentUser
         val email = user?.email
         val userDocument = email?.let { accountCollection.document(it) }
-        val derivedDataCollection = userDocument?.collection("RawData")
+        val derivedDataCollection = userDocument?.collection("DerivedData")
         return try {
             val derivedDataList = mutableListOf<StressDerivedData>()
 
@@ -137,12 +132,13 @@ class FirebaseStressDataDao {
             querySnapshot?.forEach { document ->
                 val timestamp = document.id.toLongOrNull()
                 if (timestamp != null) {
-                    val binterval: Array<Float> = document.get("binterval") as Array<Float>
-                    val prediction: Double = (document.get("prediction") as Double)
-                    val stress_level: Double = (document.get("stress_level") as Double)
+                    val binterval: ArrayList<Float> = document.get("binterval") as ArrayList<Float>
+
+                    val stressScore: Number = document.get("stress_score") as Number
+
 
                     // Costruisci l'oggetto StressRawData e aggiungilo alla lista
-                    val stressDerivedData = StressDerivedData(timestamp, binterval, prediction, stress_level.toFloat())
+                    val stressDerivedData = StressDerivedData(timestamp, binterval, stressScore.toFloat())
                     derivedDataList.add(stressDerivedData)
                 }
 
@@ -150,6 +146,7 @@ class FirebaseStressDataDao {
 
             ServiceResult(true, derivedDataList, null)
         } catch (e: Exception) {
+            Log.e("getDerivedData", e.toString())
             ServiceResult(false, null, StressErrorType.NETWORK_ERROR)
 
 
@@ -160,9 +157,7 @@ class FirebaseStressDataDao {
         val email = auth.currentUser?.email
         var key: String? = null
         if (email != null) {
-            if(email.contains(".")){
-                key = email.replace(".", "")
-            }
+            key = email.replace("@", "@@").replace(".", "@")
         }
         val rawdatareference = key?.let { dbreference.child("account").child(it).child("RawData") }
         return if (rawdatareference != null) {

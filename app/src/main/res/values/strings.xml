@@ -74,4 +74,22 @@
     <string name="network_error">Network error</string>
     <string name="communication_problem">Communication problem</string>
     <string name="no_data_available_for_this_area">No data available for this area.</string>
+    <string name="next_day_content_descr">Next</string>
+    <string name="previous_day_content_descr">Previous</string>
+    <string name="default_bar_max_value">0</string>
+    <string name="default_bar_min_value">0</string>
+    <string name="previous_hour_content_descr">Previous Hour</string>
+    <string name="next_hour_content_descr">Next Hour</string>
+    <string name="stress_threshold_label">Stress threshold: %1$s*</string>
+    <string name="stress_bar_char_description">* Each bar represents 5 minutes. Stress values are computed in the range [0, 1].</string>
+    <string name="unknown_stress_label">Unknown</string>
+    <string name="stressed_stress_label">Stressed</string>
+    <string name="not_stressed_stress_label">Not stressed</string>
+    <string name="error_monitor_text">Error: %1$s</string>
+    <string name="no_data_text">No data</string>
+    <string name="heart_rate_label">Heart Rate (BPM)</string>
+    <string name="skin_temperature_label">Skin Temperature (°C)</string>
+    <string name="electrodermal_activity_label">Electrodermal Activity (µS)</string>
+    <string name="current_day_content_descr">Current day</string>
+    <string name="reload_content_descr">Reload</string>
 </resources>

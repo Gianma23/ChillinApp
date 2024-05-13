@@ -23,24 +23,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.chillinapp.R
+import com.example.chillinapp.ui.AppViewModelProvider
+import com.example.chillinapp.ui.home.map.MapViewModel
+import com.example.chillinapp.ui.home.monitor.MonitorViewModel
+import com.example.chillinapp.ui.home.settings.SettingsViewModel
 import com.example.chillinapp.ui.navigation.HomeNavGraph
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
-
+/**
+ * Object representing the home destination in the navigation.
+ */
 object HomeDestination : NavigationDestination {
     override val route = "home"
     override val titleRes = R.string.home_screen_title
 }
 
+/**
+ * A Composable function that represents the home screen.
+ *
+ * @param modifier The modifier to be applied to the home screen, default value is Modifier.
+ * @param navController The navigation controller for the home screen.
+ */
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    monitorViewModel: MonitorViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    mapViewModel: MapViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    settingsViewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     val homeNavController = rememberNavController()
@@ -64,12 +80,20 @@ fun HomeScreen(
         HomeNavGraph(
             homeNavController = homeNavController,
             mainNavController = navController,
+            monitorViewModel = monitorViewModel,
+            mapViewModel = mapViewModel,
+            settingsViewModel = settingsViewModel,
             modifier = Modifier
                 .padding(innerPadding)
         )
     }
 }
 
+/**
+ * A Composable function that represents the top bar of the home screen.
+ *
+ * @param navController The navigation controller for the top bar.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeTopBar(navController: NavHostController) {
@@ -104,6 +128,12 @@ private fun HomeTopBar(navController: NavHostController) {
     )
 }
 
+/**
+ * A Composable function that represents the bottom bar of the home screen.
+ *
+ * @param navController The navigation controller for the bottom bar.
+ * @param items The list of screens to be displayed in the bottom bar.
+ */
 @Composable
 private fun HomeBottomBar(
     navController: NavHostController,
@@ -134,6 +164,9 @@ private fun HomeBottomBar(
     }
 }
 
+/**
+ * A Composable function that represents a preview of the home screen.
+ */
 @Preview
 @Composable
 fun HomeScreenPreview() {

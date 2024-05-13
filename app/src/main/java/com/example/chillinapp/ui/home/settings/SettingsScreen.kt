@@ -42,11 +42,22 @@ import com.example.chillinapp.ui.accessErrorText
 import com.example.chillinapp.ui.navigation.NavigationDestination
 import com.example.chillinapp.ui.theme.ChillInAppTheme
 
+/**
+ * Object representing the settings destination in the navigation.
+ */
 object SettingsDestination : NavigationDestination {
     override val route: String = "settings"
     override val titleRes: Int = R.string.settings_title
 }
 
+/**
+ * A Composable function that represents the settings screen.
+ *
+ * @param modifier The modifier to be applied to the settings screen, default value is Modifier.
+ * @param onLogOut The function to be executed when the user logs out, default value is an empty function.
+ * @param onDeletingAccount The function to be executed when the user deletes their account, default value is an empty function.
+ * @param viewModel The view model for the settings screen, default value is the view model from the AppViewModelProvider factory.
+ */
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -67,6 +78,37 @@ fun SettingsScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            ) {
+                Text(
+                    text = if(uiState.name != null) {
+                        "Hi, ${uiState.name}"
+                    } else {
+                        stringResource(id = R.string.settings_title)
+                    },
+                    style = MaterialTheme.typography.displaySmall,
+                )
+                Text(
+                    text = if(uiState.email != null) {
+                        "Email: ${uiState.email}"
+                    } else {
+                        ""
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
             SettingsGroup(
                 title = R.string.general_settings_label
             ){
@@ -143,6 +185,14 @@ fun SettingsScreen(
 
 }
 
+/**
+ * A Composable function that represents a group of settings.
+ *
+ * @param modifier The modifier to be applied to the settings group, default value is Modifier.
+ * @param isSensitive A boolean flag indicating whether the settings group is sensitive, default value is false.
+ * @param title The title of the settings group.
+ * @param content The content of the settings group.
+ */
 @Composable
 fun SettingsGroup(
     modifier: Modifier = Modifier,
@@ -182,6 +232,17 @@ fun SettingsGroup(
     }
 }
 
+/**
+ * A Composable function that represents a settings item.
+ *
+ * @param icon The icon of the settings item.
+ * @param iconDesc The description of the icon.
+ * @param name The name of the settings item.
+ * @param modifier The modifier to be applied to the settings item, default value is Modifier.
+ * @param onClick The function to be executed when the settings item is clicked, default value is an empty function.
+ * @param enabled A boolean flag indicating whether the settings item is enabled, default value is true.
+ * @param isSensitive A boolean flag indicating whether the settings item is sensitive, default value is false.
+ */
 @Composable
 fun SettingsItem(
     icon: ImageVector,
@@ -264,6 +325,9 @@ fun SettingsItem(
     }
 }
 
+/**
+ * A Composable function that represents a preview of the settings screen.
+ */
 @Preview
 @Composable
 fun SettingsScreenPreview(){
@@ -272,6 +336,9 @@ fun SettingsScreenPreview(){
     }
 }
 
+/**
+ * A Composable function that represents a preview of the settings screen in dark theme.
+ */
 @Preview
 @Composable
 fun SettingsScreenPreviewDarkTheme(){

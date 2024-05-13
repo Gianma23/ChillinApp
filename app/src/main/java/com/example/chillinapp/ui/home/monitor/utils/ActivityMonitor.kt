@@ -1,10 +1,8 @@
-package com.example.chillinapp.ui.home.monitor.utility
+package com.example.chillinapp.ui.home.monitor.utils
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,33 +15,67 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.Point
-import co.yml.charts.ui.linechart.LineChart
-import co.yml.charts.ui.linechart.model.GridLines
-import co.yml.charts.ui.linechart.model.IntersectionPoint
-import co.yml.charts.ui.linechart.model.Line
-import co.yml.charts.ui.linechart.model.LineChartData
-import co.yml.charts.ui.linechart.model.LinePlotData
-import co.yml.charts.ui.linechart.model.LineStyle
-import co.yml.charts.ui.linechart.model.LineType
-import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
-import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
-import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.example.chillinapp.R
 import com.example.chillinapp.data.stress.StressErrorType
+import com.example.chillinapp.ui.home.monitor.utils.charts.DataLineChart
+import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressRawData
 import com.example.chillinapp.ui.stressErrorText
 import java.util.Locale
+import kotlin.math.abs
 
+/**
+ * A Composable function that represents the main screen of the activity monitor.
+ *
+ * @param mappedData The mapped data to be displayed on the monitor.
+ * @param data The raw stress data to be displayed on the monitor.
+ * @param isPhysiologicalDataLoading Boolean indicating if the physiological data is currently being loaded.
+ * @param physiologicalError The current error, if any, related to the physiological data.
+ * @param titleFormatMap The map of title formats to be used for the monitor.
+ */
 @Composable
-fun PhysioMonitorCard(
+fun ActivityMonitor(
+    mappedData: List<Map.Entry<String, List<Pair<String, Any>>>>,
+    data: List<FormattedStressRawData>,
+    isPhysiologicalDataLoading: Boolean,
+    physiologicalError: StressErrorType?,
+    titleFormatMap: Map<String, String>,
+) {
+    Text(
+        text = "Activity",
+        style = MaterialTheme.typography.headlineMedium,
+        textAlign = TextAlign.Start
+    )
+
+    for (entry in mappedData)
+        PhysioMonitorCard(
+            titleFormatMap = titleFormatMap,
+            entry = entry,
+            data = data,
+            isPhysiologicalDataLoading = isPhysiologicalDataLoading,
+            physiologicalError = physiologicalError
+        )
+}
+
+/**
+ * A Composable function that represents a card in the activity monitor.
+ *
+ * @param titleFormatMap The map of title formats to be used for the monitor.
+ * @param entry The entry to be displayed on the card.
+ * @param data The raw stress data to be displayed on the card.
+ * @param isPhysiologicalDataLoading Boolean indicating if the physiological data is currently being loaded.
+ * @param physiologicalError The current error, if any, related to the physiological data.
+ */
+@Composable
+private fun PhysioMonitorCard(
     titleFormatMap: Map<String, String>,
     entry: Map.Entry<String, List<Pair<String, Any>>>,
+    data: List<FormattedStressRawData>,
     isPhysiologicalDataLoading: Boolean,
-    physiologicalError: StressErrorType?
+    physiologicalError: StressErrorType?,
 ) {
     Card(
         modifier = Modifier
@@ -62,24 +94,37 @@ fun PhysioMonitorCard(
             )
 
             val points = entry.value.map { (timestamp, value) ->
-                Point(timestampToHourOfDay(timestamp), value as Float)
+                data.find { it.timestamp == timestamp }?.let {
+                    Triple(
+                        Point(timestampToHourOfDay(timestamp), value as Float),
+                        timestampToMillis(timestamp),
+                        it.dummy
+                    )
+                }
             }
 
             PhysioCardContent(
                 isPhysiologicalDataLoading = isPhysiologicalDataLoading,
                 physiologicalError = physiologicalError,
-                points = points
+                points = points,
             )
 
         }
     }
 }
 
+/**
+ * A Composable function that represents the content of a card in the activity monitor.
+ *
+ * @param isPhysiologicalDataLoading Boolean indicating if the physiological data is currently being loaded.
+ * @param physiologicalError The current error, if any, related to the physiological data.
+ * @param points The points to be displayed on the card.
+ */
 @Composable
 private fun PhysioCardContent(
     isPhysiologicalDataLoading: Boolean,
     physiologicalError: StressErrorType?,
-    points: List<Point>
+    points: List<Triple<Point, Long, Boolean>?>,
 ) {
     when {
         isPhysiologicalDataLoading -> {
@@ -105,7 +150,10 @@ private fun PhysioCardContent(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "Error: ${stressErrorText(physiologicalError)}",
+                    text = stringResource(
+                        R.string.error_monitor_text,
+                        stressErrorText(physiologicalError)
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center
@@ -123,7 +171,7 @@ private fun PhysioCardContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No data",
+                    text = stringResource(R.string.no_data_text),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.tertiary,
                     textAlign = TextAlign.Center
@@ -133,89 +181,21 @@ private fun PhysioCardContent(
 
         else -> {
             Log.d("MonitorScreen", "Loaded data")
-            DailyPhysioChart(
+            DataLineChart(
                 points = points,
                 xLabelFun = { if (it < 10) "          0$it:00" else "          $it:00" },
                 yLabelFun = { step ->
-                    val yScale = (points.maxOf { it.y } - points.minOf { it.y }) / (3)
-                    val value = step * yScale + points.minOf { it.y }
+                    val yScale = (points.mapNotNull { it?.first }.maxOf { it.y } - points.mapNotNull { it?.first }.minOf { it.y }) / (3)
+                    val value = step * yScale + points.mapNotNull { it?.first }.minOf { it.y }
                     when {
-                        value >= 100 -> "${value.toInt()}   "
-                        value >= 10 -> "${"%.1f".format(Locale.getDefault(), value)}   "
-                        value >= 1 -> "${"%.2f".format(Locale.getDefault(), value)}   "
+                        abs(value) >= 100 -> "${value.toInt()}   "
+                        abs(value) >= 10 -> "${"%.1f".format(Locale.getDefault(), value)}    "
+                        abs(value) >= 1 -> "${"%.2f".format(Locale.getDefault(), value)}   "
+                        abs(value) == 0f -> "0   "
                         else -> "${"%.3f".format(Locale.getDefault(), value)}   "
                     }
                 }
             )
         }
     }
-}
-
-@Composable
-private fun DailyPhysioChart(
-    points: List<Point>,
-    xLabelFun: (Int) -> String,
-    yLabelFun: (Int) -> String
-) {
-    val xAxisData = AxisData.Builder()
-        .axisLabelColor(MaterialTheme.colorScheme.tertiary)
-        .axisLineColor(MaterialTheme.colorScheme.tertiary)
-        .backgroundColor(Color.Transparent)
-        .labelAndAxisLinePadding(8.dp)
-        .steps(24)
-        .axisStepSize(100.dp)
-        .labelData(xLabelFun)
-        .build()
-
-    val yAxisData = AxisData.Builder()
-        .axisLabelColor(MaterialTheme.colorScheme.tertiary)
-        .axisLineColor(MaterialTheme.colorScheme.tertiary)
-        .backgroundColor(Color.Transparent)
-        .labelAndAxisLinePadding(8.dp)
-        .steps(3)
-        .labelData(yLabelFun)
-        .build()
-
-    val lineChartData = LineChartData(
-        linePlotData = LinePlotData(
-            lines = listOf(
-                Line(
-                    dataPoints = points,
-                    LineStyle(
-                        color = MaterialTheme.colorScheme.tertiary,
-                        lineType = LineType.SmoothCurve(isDotted = false),
-                        width = 5f
-                    ),
-                    IntersectionPoint(
-                        color = Color.Transparent,
-                    ),
-                    SelectionHighlightPoint(
-                        color = MaterialTheme.colorScheme.tertiary,
-                        radius = 3.dp
-                    ),
-                    ShadowUnderLine(
-                        alpha = 0.5f,
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.inversePrimary,
-                                Color.Transparent
-                            )
-                        )
-                    ),
-                    SelectionHighlightPopUp()
-                )
-            ),
-        ),
-        xAxisData = xAxisData,
-        yAxisData = yAxisData,
-        backgroundColor = MaterialTheme.colorScheme.surface,
-        gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant)
-    )
-
-    LineChart(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        lineChartData = lineChartData
-    )
 }

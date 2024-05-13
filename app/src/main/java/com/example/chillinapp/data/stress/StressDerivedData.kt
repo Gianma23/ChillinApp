@@ -13,31 +13,10 @@ package com.example.chillinapp.data.stress
  */
 data class StressDerivedData(
     val timestamp: Long = 0,
-    val bInterval: Array<Float>,
-    val prediction: Double = 0.0,
+    val bInterval: ArrayList<Float>,
     val stressLevel: Float = 0.0f
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
 
-        other as StressDerivedData
-
-        if (timestamp != other.timestamp) return false
-        if (!bInterval.contentEquals(other.bInterval)) return false
-        if (prediction != other.prediction) return false
-        if (stressLevel != other.stressLevel) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = timestamp.hashCode()
-        result = 31 * result + bInterval.contentHashCode()
-        result = 31 * result + prediction.hashCode()
-        result = 31 * result + stressLevel.hashCode()
-        return result
-    }
 }
 
 /**

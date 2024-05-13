@@ -103,7 +103,7 @@ class SensorService: LifecycleService(), SensorEventListener {
             tempSensor -> event.values[0]
             else -> 0f
         }
-        if (value == 0f) {
+        if (value <= 0f) {
             return
         }
         //Log.d(TAG, "Sensor ${event.sensor?.name} new value: ${value}, time: ${System.currentTimeMillis()}")
@@ -162,6 +162,8 @@ class SensorService: LifecycleService(), SensorEventListener {
      * coroutine that will save the data. It also initializes the filters for the EDA sensor.
      */
     private fun startService() {
+        LocationProvider.startLocationUpdates()
+
         if (hrSensor != null) {
             sensorManager?.registerListener(this, hrSensor, SAMPLING_PERIOD)
             Log.d(TAG, "HR sensor started")
@@ -175,19 +177,17 @@ class SensorService: LifecycleService(), SensorEventListener {
             Log.d(TAG, "Temp sensor started")
         }
 
-        LocationProvider.startLocationUpdates()
-
         job?.cancel()
         /* withContext is not needed because saveData is non-blocking */
         job = lifecycleScope.launch {
             while(true) {
-                saveData()
                 delay(SEND_RATE)
+                saveData()
             }
         }
 
         highFilter.highPass(1, 1.0, 0.05)
-        lowFilter.lowPass(1, 1.0, 0.49)
+        lowFilter.lowPass(1, 1.0, 0.45)
 
         Log.d(TAG, "Service started")
     }
@@ -212,15 +212,24 @@ class SensorService: LifecycleService(), SensorEventListener {
      * full, it starts the WearableDataProvider service to send the data to the phone.
      */
     private fun saveData() {
-        /*Log.d(TAG, "Save data\n" +
+
+        val time = System.currentTimeMillis()
+        lastEDAValue = lowFilter.filter(lastEDAValue.toDouble()).toFloat()
+        lastEDAValue = highFilter.filter(lastEDAValue.toDouble()).toFloat()
+
+        if (lastHRValue == 0f ||
+            LocationProvider.latitude == 0.0 || LocationProvider.longitude == 0.0) {
+            return
+        }
+        Log.d(TAG, "Save data\n" +
                 "HR: $lastHRValue\n" +
                 "EDA: $lastEDAValue\n" +
                 "Temp: $lastTempValue\n" +
-                "time: ${System.currentTimeMillis()}\n" +
-                "location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")*/
+                "time: ${time}\n" +
+                "location: ${LocationProvider.latitude}, ${LocationProvider.longitude}")
 
         var data = ByteArray(0)
-        var tmpByte = ByteBuffer.allocate(8).putLong(System.currentTimeMillis()).array()
+        var tmpByte = ByteBuffer.allocate(8).putLong(time).array()
         data = data.plus(tmpByte)
         tmpByte = ByteBuffer.allocate(4).putFloat(lastEDAValue).array()
         data = data.plus(tmpByte)

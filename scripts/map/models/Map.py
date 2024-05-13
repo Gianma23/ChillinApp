@@ -34,7 +34,11 @@ class Map:
             None
         """
         for coord in self.map:
-            coord_ref = db.reference(f'Map/{coord.get_lat()},{coord.get_long()}')
+            # substitute dots with _ in the lat and long values
+            latitude_key = str(coord.get_lat()).replace('.', '_')
+            longitude_key = str(coord.get_long()).replace('.', '_')
+            
+            coord_ref = db.reference(f'Map/{latitude_key},{longitude_key}')
             if coord_ref.get() is None:
                 coord_ref.set({
                     'lat': coord.get_lat(),
@@ -60,6 +64,8 @@ class Map:
                             coord_ref.child('days').child(day.get_day()).child('hours').child(hour.get_hour()).update({
                                 'stress_score': coord_ref.child('days').child(day.get_day()).child('hours').child(hour.get_hour()).get()['stress_score'] + hour.get_stress_score(),
                             })
+        
+        self.map = []
                 
 
     def parse_derived_data(self, data):
@@ -75,7 +81,7 @@ class Map:
         
         for derived_data in data:
             derived_data = DerivedData(derived_data['lat'], derived_data['long'], derived_data['stress_score'], derived_data['timestamp'])
-           
+
             # get the YYYY-MM-DD part of the timestamp, which is expressed in milliseconds
             day = derived_data.get_timestamp() / 1000
             day = datetime.datetime.fromtimestamp(day)
