@@ -6,7 +6,7 @@ from algorithms.keytranslator import KeyTranslator
 from firebase_admin import credentials, firestore  # Sub-modules for Firebase Admin SDK
 from algorithms.rule_based import RuleBasedAlgorithm  # Custom class for rule-based algorithm
 from algorithms.range_based import BayesianAnalyzer  # Custom class for range-based algorithm
-
+import time
 # Define DataProcessor class
 class DataProcessor:
     # Constructor
@@ -20,17 +20,32 @@ class DataProcessor:
 
 
 
-   # Method to retrieve recent raw data from Firestore
-    def get_recent_raw_data(self):
+# Method to retrieve recent raw data from Firestore
+    def get_recent_raw_data(self, identical_data_count, previous_raw_data, MAX_IDENTICAL_DATA_REPETITIONS):
         recent_raw_data = {}  # Dictionary to store recent raw data for each account
 
-        # Directly use accounts_ref as a Python dictionary
+        # Retrieve raw data from Firestore
         accounts = db.reference("account").get()
-        print(type(accounts))
-        accounts_ref=self.key_translator.translate_keys_in_dictionary(accounts)
 
+        # Check for identical data repetitions
+        if recent_raw_data == previous_raw_data:
+            identical_data_count += 1
+            if identical_data_count >= MAX_IDENTICAL_DATA_REPETITIONS:
+                print("No more new data")
+                # Suspend execution before attempting to fetch new data
+                time.sleep(60)  # Suspend execution for a minute
+                identical_data_count = 0  # Reset repetitions count to zero
+                return self.get_recent_raw_data()  # Recursively call the method to fetch new data
+        else:
+            identical_data_count = 0  # Reset repetitions count to zero
+
+        previous_raw_data = recent_raw_data  # Update previous_raw_data for comparison in the next iteration
+
+        # Translate keys in dictionary using KeyTranslator
+        accounts_ref = self.key_translator.translate_keys_in_dictionary(accounts)
+
+        # Iterate over accounts and their raw data
         for email, account_data in accounts_ref.items():
-            # Directly access RawData for each email in the accounts_ref dictionary
             raw_data_ref = account_data.get("RawData", {})  # If "RawData" doesn't exist, default to an empty dictionary
 
             recent_raw_data[email] = []  # Initialize list to store raw data for the account
@@ -42,11 +57,11 @@ class DataProcessor:
                     "skinTemperatureSensor": raw_data_point.get("skinTemperatureSensor", 0),
                     "edaSensor": raw_data_point.get("edaSensor", 0),
                     "timestamp": raw_data_point.get("timestamp", 0),
-                    "latitude": raw_data_point.get("latitude", None),
-                    "longitude": raw_data_point.get("longitude", None)
+                    "latitude": raw_data_point.get("latitude", 0),
+                    "longitude": raw_data_point.get("longitude", 0)
                 })
 
-
+        print(recent_raw_data)
         return recent_raw_data  # Returns the recent raw data for all accounts
 
     # Method to create derived data from raw data
@@ -70,20 +85,25 @@ class DataProcessor:
                 stress_scores, final_results = self.rule_based.rule_algorithm_general(raw_for_score)  # Calculate stress scores using rule-based algorithm
 
                 # Determine minimum length of posterior and stress_scores lists
-                min_length = min(len(posterior), len(stress_scores))
+                min_length = min(len(posterior), len(stress_scores), len(raw_data))
+                print("la lunghezza è", min)
+
 
                 # Combine posterior and stress scores and add them to results
                 for i in range(min_length):
                     post_data = posterior[i]
                     stress_data = stress_scores[i]
+                    raw_data_single=raw_data[i]
+
+
 
                     result = {
-                        "lower_bound": post_data.get("lower_bound", 0),
-                        "upper_bound": post_data.get("upper_bound", 0),
-                        "stress_score": stress_data.get("stress_score", 0) if stress_scores else 0,
-                        "timestamp": post_data.get("timestamp", 0),
-                        "latitude": post_data.get("latitude", 0),
-                        "longitude": post_data.get("longitude", 0)
+                        "lower_bound": post_data.get("lower_bound", 0.0),
+                        "upper_bound": post_data.get("upper_bound", 0.0),
+                        "stress_score": stress_data.get("stress_score", 0.0) if stress_scores else 0.0,
+                        "timestamp": raw_data_single.get("timestamp", 0.0),
+                        "latitude": post_data.get("latitude", 0.0),
+                        "longitude":  post_data.get("longitude", 0.0)
                     }
                     if email1 not in results:
                         results[email1] = []
@@ -114,13 +134,19 @@ class DataProcessor:
                     "long": entry.get("longitude", None),
                     "timestamp": entry.get("timestamp", None)
                 })
+        print(extracted_data)
         return extracted_data  # Return extracted data
 
     # Method to add derived data to Firestore
-    def add_data_to_firestore(self, data):
+    def add_data_to_firestore(self, data,data_prec):
+
         if not data:  # Check if data is empty
             print("No data to add to Firestore.")
             return
+
+        #print(dat)
+        len(data)
+        print(data)
 
 
         for email, derived_data in data.items():
@@ -129,17 +155,26 @@ class DataProcessor:
 
             # Iterate over derived data entries and add them to Firestore
             for entry in derived_data:
+                # check if exists timestamp
+                timestamp = entry["timestamp"]
+
+
+
+                lower_bound = entry["lower_bound"]
+                upper_bound = entry["upper_bound"]
+                stress_score = entry["stress_score"]
                 timestamp = entry["timestamp"]
                 lower_bound = entry["lower_bound"]
                 upper_bound = entry["upper_bound"]
                 stress_score = entry["stress_score"]
 
+
                 # Create document reference for each entry and set its data
                 entry_doc_ref = derived_data_collection_ref.document(str(timestamp))
                 entry_doc_ref.set({
                     "binterval": [lower_bound, upper_bound],
-                      "stress_score": stress_score,
+                     "stress_score": stress_score,
                     "timestamp": timestamp
                 })
-                print("Sending Data")
+        print("Sending Data")
 
