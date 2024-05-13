@@ -10,6 +10,7 @@ import com.example.chillinapp.data.stress.StressErrorType
 import com.example.chillinapp.data.stress.StressRawData
 import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressDerivedData
 import com.example.chillinapp.ui.home.monitor.utils.classes.FormattedStressRawData
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,7 +65,7 @@ class MonitorViewModel(
     /**
      * Function to retrieve stress and physiological data.
      */
-    private fun retrieveData() {
+    fun retrieveData() {
 
         val startTime = Calendar.getInstance().apply {
             time = _uiState.value.day
@@ -152,30 +153,33 @@ class MonitorViewModel(
             )
         }
 
-        // Clean data
-        if (response.data != null) {
-            val data = generateDerivedDataForInterval(
-                startTime = startTime,
-                endTime = (
-                        if(isToday())
-                            Calendar.getInstance().timeInMillis
-                        else
-                            endTime
-                        ),
-                data = _uiState.value.stressData
-            )
-            _uiState.update {
-                it.copy(
-                    stressData = data
+        CoroutineScope(Dispatchers.Default).launch {
+            // Clean data
+            if (response.data != null) {
+                val data = generateDerivedDataForInterval(
+                    startTime = startTime,
+                    endTime = (
+                            if (isToday())
+                                Calendar.getInstance().timeInMillis
+                            else
+                                endTime
+                            ),
+                    data = _uiState.value.stressData
                 )
+                _uiState.update {
+                    it.copy(
+                        stressData = data
+                    )
+                }
             }
+
+            // Set the loading state to false
+            _uiState.update {
+                it.copy(isStressDataLoading = false)
+            }
+            Log.d("MonitorViewModel", "Stress data loading finished.")
         }
 
-        // Set the loading state to false
-        _uiState.update {
-            it.copy(isStressDataLoading = false)
-        }
-        Log.d("MonitorViewModel", "Stress data loading finished.")
     }
 
     /**
@@ -240,11 +244,11 @@ class MonitorViewModel(
             val data = generateRawDataForInterval(
                 startTime = startTime,
                 endTime = (
-                    if(isToday())
-                        Calendar.getInstance().timeInMillis
-                    else
-                        endTime
-                ),
+                        if (isToday())
+                            Calendar.getInstance().timeInMillis
+                        else
+                            endTime
+                        ),
                 data = _uiState.value.physiologicalData
             )
             _uiState.update {
@@ -254,14 +258,18 @@ class MonitorViewModel(
             }
         }
 
-        // Create a map where the key is the field name and the value is a list of pairs (timestamp, field value)
-        temporalMapping()
+        CoroutineScope(Dispatchers.Default).launch {
 
-        // Set the loading state to false
-        _uiState.update {
-            it.copy(isPhysiologicalDataLoading = false)
+            // Create a map where the key is the field name and the value is a list of pairs (timestamp, field value)
+            temporalMapping()
+
+            // Set the loading state to false
+            _uiState.update {
+                it.copy(isPhysiologicalDataLoading = false)
+            }
+            Log.d("MonitorViewModel", "Physiological data loading finished.")
         }
-        Log.d("MonitorViewModel", "Physiological data loading finished.")
+
     }
 
 

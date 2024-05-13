@@ -91,4 +91,5 @@
     <string name="skin_temperature_label">Skin Temperature (°C)</string>
     <string name="electrodermal_activity_label">Electrodermal Activity (µS)</string>
     <string name="current_day_content_descr">Current day</string>
+    <string name="reload_content_descr">Reload</string>
 </resources>

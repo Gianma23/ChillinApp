@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.Replay
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -89,6 +90,7 @@ fun MonitorScreen(
                 onLeftButtonClick = { viewModel.previousDay() },
                 onRightButtonClick = { viewModel.nextDay() },
                 onCurrentDayClick = { viewModel.currentDay() },
+                reload = { viewModel.retrieveData() },
                 rightButtonEnabled = !viewModel.isToday() && !uiState.isPhysiologicalDataLoading && !uiState.isStressDataLoading,
                 leftButtonEnabled = !uiState.isPhysiologicalDataLoading && !uiState.isStressDataLoading,
                 displayedText = viewModel.formatDate()
@@ -145,6 +147,7 @@ fun DaySwitcher(
     onLeftButtonClick: () -> Unit = {},
     onRightButtonClick: () -> Unit = {},
     onCurrentDayClick: () -> Unit = {},
+    reload: () -> Unit = {},
     leftButtonEnabled: Boolean = true,
     rightButtonEnabled: Boolean = true,
     displayedText: String = ""
@@ -154,22 +157,41 @@ fun DaySwitcher(
         contentAlignment = Alignment.Center
     ) {
 
-        IconButton(
-            onClick = { onLeftButtonClick() },
-            enabled = leftButtonEnabled,
-            colors = IconButtonDefaults.iconButtonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledContainerColor = Color.Transparent
-            ),
+        Row(
             modifier = Modifier
-                .padding(8.dp)
                 .align(Alignment.CenterStart)
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Start
         ) {
-            Icon(
-                imageVector = Icons.Filled.ArrowBackIosNew,
-                contentDescription = stringResource(id = R.string.previous_day_content_descr)
-            )
+            IconButton(
+                onClick = { onLeftButtonClick() },
+                enabled = leftButtonEnabled,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledContainerColor = Color.Transparent
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBackIosNew,
+                    contentDescription = stringResource(id = R.string.previous_day_content_descr)
+                )
+            }
+
+            IconButton(
+                onClick = { reload() },
+                enabled = leftButtonEnabled,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledContainerColor = Color.Transparent
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Replay,
+                    contentDescription = stringResource(R.string.reload_content_descr)
+                )
+            }
         }
 
         Box(
