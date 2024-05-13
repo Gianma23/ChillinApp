@@ -90,6 +90,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
                 inputStreamTask.addOnSuccessListener{ inputStream ->
                     launch {
                         try {
+                            Log.d(tag, "input stream found")
                             val buffer = ByteArrayOutputStream()
                             var read: Int
                             val data = ByteArray(1024)
@@ -99,6 +100,7 @@ class WearableDataReceiver : Service(), CoroutineScope {
                             }
 
                             val stressRawDataList = parseBulkData(buffer.toByteArray())
+                            Log.d(tag, "Data received: ${stressRawDataList.size}")
                             val firebaseStressDataService = FirebaseStressDataService(FirebaseStressDataDao())
                             firebaseStressDataService.insertRawData(stressRawDataList)
                             inputStream.close()
