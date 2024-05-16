@@ -87,7 +87,7 @@ interface AccountService {
      * @param email The email of the account to be deleted.
      * @return A ServiceResult instance containing the result of the operation.
      */
-    fun deleteAccount(email: String): ServiceResult<Unit, AccountErrorType>
+   suspend fun deleteAccount(): ServiceResult<Unit, AccountErrorType>
 
     /**
      * Signs out the current user.
