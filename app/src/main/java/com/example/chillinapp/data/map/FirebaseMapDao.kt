@@ -17,35 +17,6 @@ class FirebaseMapDao {
     private val mapCollection = db.collection("Map")
 
     /**
-     * Get all the documents in the Map collection
-     * @return a ServiceResult object containing the list of Map objects if the operation was successful, an physiologicalError type otherwise
-     */
-    /*
-    suspend fun get(): ServiceResult<List<Map>, MapErrorType> {
-        return try {
-            val mapList = mutableListOf<Map>()
-
-            // Effettua una query per ottenere tutti i documenti della collezione Map
-            val querySnapshot = mapCollection.get().await()
-
-            // Itera sui documenti restituiti e converte i dati in oggetti Map
-            querySnapshot.forEach { document ->
-                val latitude = document.get("latitude") as Double
-                val longitude = document.get("longitude") as Double
-                val stressScore = document.get("stressScore") as Float
-
-                // Costruisci l'oggetto Map e aggiungilo alla lista
-                val map = Map(latitude, longitude, stressScore)
-                mapList.add(map)
-            }
-
-            ServiceResult(true, mapList, null)
-        } catch (e: Exception) {
-            ServiceResult(false, null, MapErrorType.NETWORK_ERROR)
-        }
-    }*/
-
-    /**
      * Get all the documents within the specified distance from the center
      * @param centerLat the latitude of the center
      * @param centerLng the longitude of the center
