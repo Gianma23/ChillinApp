@@ -7,11 +7,6 @@ import java.time.LocalDate
 
 interface MapService {
 
-    /**
-     * Get all the coordinates and stress scores from the database
-     * @return a list of maps
-     */
-    // suspend fun get() : ServiceResult <List <Map<Any?, Any?>>,MapErrorType>
 
     /**
      * Get all the coordinates and stress scores from the database within a certain distance from a center point
