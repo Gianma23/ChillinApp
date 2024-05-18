@@ -98,15 +98,24 @@ class FirebaseAccountService(private val accountDao: FirebaseAccountDao): Accoun
     /**
      * Deletes an account. This method is not yet implemented and always returns a ServiceResult indicating failure.
      *
-     * @param email The email of the account to be deleted.
      * @return A ServiceResult instance containing the result of the operation.
      */
     override suspend fun deleteAccount(): ServiceResult<Unit, AccountErrorType> =
        accountDao.deletecurrentAccount()
 
+    /**
+     * Gets the current account using the FirebaseAccountDao.
+     *
+     * @return A ServiceResult instance containing the result of the operation.
+     */
     override suspend fun getCurrentAccount(): ServiceResult<Account?, AccountErrorType> =
         accountDao.getCurrentAccount()
 
+    /**
+     * Signs out the current user using the FirebaseAccountDao.
+     *
+     * @return A ServiceResult instance containing the result of the operation.
+     */
     override fun signOut(): ServiceResult<Unit,AccountErrorType> =
         accountDao.signOut()
 }

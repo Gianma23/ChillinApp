@@ -97,9 +97,7 @@ class SettingsViewModel(
             val currentAccountResponse: ServiceResult<Account?, AccountErrorType> = accountService.getCurrentAccount()
 
             if (currentAccountResponse.success) {
-                val response: ServiceResult<Unit, AccountErrorType> = accountService.deleteAccount(
-                    email = currentAccountResponse.data?.email ?: ""
-                )
+                val response: ServiceResult<Unit, AccountErrorType> = accountService.deleteAccount()
                 Log.d("SettingsViewModel", "onConfirmDeleteAccount: $response")
                 _uiState.update { settingsUiState ->
                     settingsUiState.copy(
