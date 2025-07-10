@@ -41,3 +41,8 @@ The data exchange format is defined as follows:
 for a total of 36 bytes.
 In order to perform fewer data exchange, it has been decided to send 30 seconds of data at a time (bulk data). 
 This means that the data exchange format will be repeated 30 times, for a total of 1080 bytes.
+# Publication
+The work on the Chillin App and the Chillin Wearable Device has led to the publication of the following paper:
+
+Namaki, D., et al. (2024). [Detecting and Locating Stress in Urban Settings with Chill](https://doi.org/10.1007/978-3-031-86370-7_2)
+. In: International Conference on AI and Smart Cities. Springer.
